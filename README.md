@@ -2,6 +2,14 @@
 
 基于 **C++17** 核心引擎开发的本地优先（Local-First）跨平台个人知识编辑与英语学习桌面工作台，现已支持在 **Linux (WSL2)** 与 **Windows 桌面端 (`.exe`)** 运行。
 
+## 界面预览
+
+### 1. 3D 魔方英语词库与长文真题工作台
+![3D 魔方英语工作台](images/english_cube.jpg)
+
+### 2. 横向 Wi-Fi 知识库与 WPS 排版互通编辑器
+![本地知识库与 WPS 排版编辑器](images/knowledge_vault.jpg)
+
 ## 核心模块
 
 ### 1. 本地知识库与多格式转换 (`Markdown ↔ Word .docx ↔ PDF`)
