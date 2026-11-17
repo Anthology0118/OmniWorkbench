@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OmniWorkbench (全能工作台)</title>
+  <link rel="icon" type="image/png" href="/app_icon.png" />
   <style>
     /* ======================================================================
        三套主题变量：纯白墨黑 (默认) / 暖棕书卷 / 极夜黑 (100% 离线自包含)
@@ -121,11 +122,12 @@
       z-index: 20;
     }
     .brand-row { display: flex; align-items: center; gap: 10px; }
-    .brand-badge {
-      width: 24px; height: 24px; border-radius: 6px;
-      background: var(--bg-active); color: var(--text-active);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 11px;
+    .brand-icon-img {
+      width: 28px; height: 28px;
+      object-fit: contain;
+      background: transparent;
+      display: block;
+      flex-shrink: 0;
     }
     .brand-title { font-weight: 600; font-size: 13.5px; letter-spacing: -0.01em; }
     .brand-sub { color: var(--text-muted); font-weight: 400; font-size: 12px; }
@@ -466,56 +468,134 @@
     /* ======================================================================
        Knowledge Vault & Word/MD/LaTeX/PDF Editor Styles
        ====================================================================== */
+    #view-knowledge .left-pane {
+      width: 39%; min-width: 360px; max-width: 500px;
+      padding: 12px; gap: 10px; justify-content: flex-start;
+    }
     .vault-canvas-wrap {
-      flex: 1; display: flex; flex-direction: column; min-height: 0; margin-top: 8px;
+      flex: 1 1 60%; display: flex; flex-direction: column; min-height: 280px; margin-top: 0;
       border: 1px solid var(--border-line); border-radius: 14px; background: var(--bg-app);
-      overflow: hidden;
+      overflow: hidden; position: relative;
     }
-    .vault-svg-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px; }
-    .vault-file-strip {
-      border-top: 1px solid var(--border-line); background: var(--bg-panel);
-      padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 6px; max-height: 82px; overflow-y: auto;
+    .vault-top-hud {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 6px 8px; border-bottom: 1px solid var(--border-line);
+      background: var(--bg-panel); flex-shrink: 0; z-index: 15;
     }
-    .file-pill {
-      font-size: 11px; padding: 3px 9px; border-radius: 7px;
-      background: var(--bg-subtle); border: 1px solid var(--border-line);
-      display: inline-flex; align-items: center; gap: 4px;
+    .vault-hud-path {
+      display: flex; align-items: center; gap: 5px; min-width: 0; flex: 1;
+      font-size: 10px;
     }
-    .file-pill.active { background: var(--bg-active); color: var(--text-active); border-color: var(--bg-active); }
+    .vault-hud-path .vault-path-label {
+      max-width: 128px; font-size: 10px; font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .vault-hud-btn {
+      padding: 2px 7px; border-radius: 6px; font-size: 10px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;
+    }
+    .vault-svg-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; position: relative; }
+
+    .md-cheat-card {
+      flex: 0 0 auto; max-height: 37%; overflow-y: auto;
+      background: var(--bg-card); border: 1px solid var(--border-line); border-radius: 12px;
+      padding: 9px 11px;
+    }
+    .md-cheat-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 7px; font-size: 11px; font-weight: 700; color: var(--text-primary);
+    }
+    .md-cheat-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px;
+    }
+    .md-tip-btn {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 4px 7px; border-radius: 7px; border: 1px solid var(--border-line);
+      background: var(--bg-subtle); font-size: 10.5px; text-align: left;
+      transition: border-color 0.12s ease;
+    }
+    .md-tip-btn:hover { border-color: var(--blue); }
+    .md-tip-code {
+      font-family: Consolas, monospace; font-size: 10px; font-weight: 700;
+      color: var(--blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .md-tip-desc { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
 
     .editor-topbar {
       background: var(--bg-panel); border-bottom: 1px solid var(--border-line);
-      padding: 8px 14px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      padding: 6px 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
       gap: 6px; flex-shrink: 0; z-index: 10;
     }
     .editor-content-wrap {
-      padding: 16px 20px; flex: 1; display: flex; flex-direction: column;
-      min-height: 0; overflow-y: auto; overflow-x: hidden;
+      padding: 12px 14px; flex: 1; display: flex; flex-direction: column; align-items: center;
+      min-height: 0; overflow: auto;
     }
     #view-knowledge .right-pane { overflow: hidden; }
-    .word-a4-sheet {
+    /* 标准 Microsoft Word 多页 A4 纸张舞台：210mm × 297mm (794px × 1123px)，四边 25.4mm 页边距 (96px) */
+    .word-pages-stage {
+      position: relative; width: 794px; flex-shrink: 0; margin: 0 auto;
+    }
+    .word-pages-backdrop {
+      position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    }
+    .word-page-card {
+      position: relative; width: 794px; height: 1123px;
       background: var(--bg-card); border: 1px solid var(--border-line);
-      box-shadow: var(--card-shadow); border-radius: 14px;
-      padding: 26px 30px; max-width: 780px; width: 100%; margin: 0 auto;
+      box-shadow: var(--card-shadow); border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .word-page-card.active-page { border-color: rgba(37, 99, 235, 0.45); }
+    .word-page-corner {
+      position: absolute; width: 14px; height: 14px; pointer-events: none;
+      border-color: rgba(148, 163, 184, 0.45); border-style: solid; border-width: 0;
+    }
+    .word-page-corner.tl { top: 82px; left: 82px; border-right-width: 1px; border-bottom-width: 1px; }
+    .word-page-corner.tr { top: 82px; right: 82px; border-left-width: 1px; border-bottom-width: 1px; }
+    .word-page-corner.bl { bottom: 82px; left: 82px; border-right-width: 1px; border-top-width: 1px; }
+    .word-page-corner.br { bottom: 82px; right: 82px; border-left-width: 1px; border-top-width: 1px; }
+    .word-page-footer {
+      position: absolute; left: 96px; right: 96px; bottom: 34px;
+      text-align: center; font-size: 9pt; color: var(--text-muted);
+      font-family: "Times New Roman", "宋体", serif;
     }
     .a4-ruler {
+      position: absolute; top: 54px; left: 96px; right: 96px;
       border-bottom: 1px solid var(--border-line); color: var(--text-muted);
-      padding-bottom: 6px; margin-bottom: 16px; display: flex; justify-content: space-between; font-size: 9px;
+      padding-bottom: 4px; display: flex; justify-content: space-between; font-size: 9px;
+    }
+    .word-status-bar {
+      background: var(--bg-panel); border-top: 1px solid var(--border-line);
+      padding: 5px 12px; display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; flex-shrink: 0; font-size: 11px; color: var(--text-secondary); z-index: 10;
+    }
+    .word-pager-group { display: flex; align-items: center; gap: 5px; }
+    .word-pager-btn {
+      padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border-line);
+      background: var(--bg-card); color: var(--text-primary); font-size: 10.5px; font-weight: 600;
+    }
+    .word-pager-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+    .word-pager-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .word-page-input {
+      width: 34px; text-align: center; padding: 1px 4px; border-radius: 5px;
+      border: 1px solid var(--border-line); background: var(--bg-subtle);
+      color: var(--text-primary); font-size: 10.5px; font-weight: 700; outline: none;
     }
     .md-editor-box {
-      width: 100%; min-height: 460px; flex: 1; max-width: 780px; margin: 0 auto;
+      width: 100%; min-height: 460px; flex: 1; max-width: 794px; margin: 0 auto;
       background: var(--bg-card); border: 1px solid var(--border-line);
-      border-radius: 14px; padding: 18px 20px; font-size: 12.5px; line-height: 1.7;
+      border-radius: 12px; padding: 18px 20px; font-size: 12.5px; line-height: 1.7;
       outline: none; resize: vertical;
     }
 
     /* Rendered A4 Typography (WPS Academic Standard: 宋体/Times New Roman 正文 + 黑体标题 + 楷体引用) */
     .a4-body {
+      position: relative; z-index: 1;
+      width: 794px; min-height: 1123px; padding: 96px 96px;
+      box-sizing: border-box;
       font-family: "Times New Roman", "宋体", "SimSun", serif;
       font-size: 10.5pt;
       line-height: 1.5;
       outline: none;
-      min-height: 520px;
     }
     .a4-body h1.omni-h1, .a4-body h2.omni-h2, .a4-body h3.omni-h3,
     .a4-body h4.omni-h4, .a4-body h5.omni-h5, .a4-body h6.omni-h6 {
@@ -617,6 +697,13 @@
     .a4-body .omni-wikilink:hover { text-decoration: underline; }
     .a4-body .omni-link { color: var(--blue); text-decoration: underline; }
     .a4-body hr.omni-hr { border: none; border-top: 1px solid var(--border-line); margin: 12pt 0; }
+    .a4-body .omni-pagebreak {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 8pt 0; padding: 3px 10px; border-radius: 999px;
+      border: 1px dashed var(--blue); background: var(--blue-soft);
+      color: var(--blue); font-size: 10px; font-family: sans-serif; font-weight: 600;
+      user-select: none;
+    }
 
     /* WPS-Style Compact Symbol Ribbon & Floating Selection Toolbar */
     .wps-ribbon {
@@ -750,7 +837,7 @@
   <!-- 顶部应用栏 -->
   <header class="top-header">
     <div class="brand-row">
-      <div class="brand-badge">OW</div>
+      <img src="/app_icon.png" alt="OmniWorkbench" class="brand-icon-img" />
       <span class="brand-title">OmniWorkbench <span class="brand-sub">(全能工作台)</span></span>
       <span class="tech-pill mono">C++17 · Local-First · MD/DOCX/PDF</span>
     </div>
@@ -1075,33 +1162,53 @@
          ==================================================================== -->
     <main id="view-knowledge" class="hidden split-workspace">
       <section class="left-pane">
-        <div class="pane-scroll" style="overflow:hidden;">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">本地知识库 <span class="brand-sub">/ Vault</span></h2>
-              <p class="section-sub">横向 Wi-Fi 层级信号映射 · 原点为总目录 · 末弧显示文件，点选突出内容</p>
+        <!-- 上半部分：Wi-Fi 同心圆弧卡片（左上角集成路径+选择，右上角集成新建/刷新） -->
+        <div class="vault-canvas-wrap">
+          <div class="vault-top-hud">
+            <div class="vault-hud-path mono">
+              <span>📁</span>
+              <span class="vault-path-label">...</span>
+              <button onclick="pickVaultFolder()" class="btn-primary vault-hud-btn">选择</button>
             </div>
-            <div style="display:flex;gap:6px;">
-              <button onclick="openNewNoteModal()" class="btn-primary">+ 新建笔记</button>
-              <button onclick="refreshVaultTree()" class="btn-secondary" title="刷新目录">↻</button>
+            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+              <button onclick="openNewFolderModal()" class="btn-secondary vault-hud-btn" title="新建目录">+ 目录</button>
+              <button onclick="openNewNoteModal()" class="btn-primary vault-hud-btn" title="新建笔记">+ 笔记</button>
+              <button onclick="refreshVaultTree()" class="btn-secondary vault-hud-btn" title="刷新本地目录">↻</button>
             </div>
           </div>
 
-          <div class="vault-canvas-wrap">
-            <div class="vault-svg-area">
-              <svg id="vault-ripple-svg" viewBox="0 0 540 420" style="width:100%;height:100%;max-height:390px;"></svg>
+          <div class="vault-svg-area">
+            <svg id="vault-ripple-svg" viewBox="0 0 540 390" style="width:100%;height:100%;touch-action:none;"></svg>
+            <div id="wifi-hover-pill" class="hidden" style="position:absolute;pointer-events:none;z-index:25;background:var(--bg-active);color:var(--text-active);padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;box-shadow:0 4px 14px rgba(15,23,42,0.22);white-space:nowrap;"></div>
+            <div id="vault-empty-picker" class="hidden" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;z-index:20;background:rgba(255,255,255,0.68);backdrop-filter:blur(2px);">
+              <div id="vault-empty-title" style="font-size:13px;font-weight:700;color:var(--text-primary);">尚未选择知识库文件夹</div>
+              <div id="vault-empty-desc" style="font-size:11px;color:var(--text-muted);max-width:270px;line-height:1.5;">请选择一个本地文件夹作为根目录</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                <button id="vault-empty-pick-btn" onclick="pickVaultFolder()" class="btn-primary" style="padding:6px 14px;font-size:11.5px;">📁 选择文件夹</button>
+                <button id="vault-clear-btn" onclick="clearVaultBinding()" class="btn-subtle hidden" style="padding:6px 12px;font-size:11.5px;">清空绑定</button>
+              </div>
             </div>
-            <div id="vault-file-strip" class="vault-file-strip"></div>
           </div>
         </div>
 
-        <div class="vault-footer">
-          <div class="vault-path-wrap mono">
-            <span>📁</span>
-            <span style="color:var(--text-muted);flex-shrink:0;">知识库路径:</span>
-            <span class="vault-path-label">...</span>
+        <!-- 下半部分：Markdown 简明语法教程 -->
+        <div class="md-cheat-card">
+          <div class="md-cheat-head">
+            <span>Markdown 简明教程</span>
+            <span style="font-size:10px;font-weight:400;color:var(--text-muted);">点击可复制 / 插入</span>
           </div>
-          <button onclick="pickVaultFolder()" class="btn-primary">选择</button>
+          <div class="md-cheat-grid">
+            <button class="md-tip-btn" onclick="useMdTip('# 一级标题')"><span class="md-tip-code"># 标题</span><span class="md-tip-desc">H1 (## H2)</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('**粗体** *斜体*')"><span class="md-tip-code">**粗体** *斜体*</span><span class="md-tip-desc">加粗/斜体</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('- 列表项')"><span class="md-tip-code">- 列表 / 1. 编号</span><span class="md-tip-desc">列表</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('- [ ] 待办事项')"><span class="md-tip-code">- [ ] 待办</span><span class="md-tip-desc">复选框</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('> 引用内容')"><span class="md-tip-code">&gt; 引用文本</span><span class="md-tip-desc">楷体引用</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('`行内代码`')"><span class="md-tip-code">`code` / ```</span><span class="md-tip-desc">代码框</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('$$E = mc^2$$')"><span class="md-tip-code">$x$ / $$公式$$</span><span class="md-tip-desc">Word 公式</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('| 列1 | 列2 |\n| --- | --- |\n| A | B |')"><span class="md-tip-code">| 列1 | 列2 |</span><span class="md-tip-desc">表格</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('~~删除线~~')"><span class="md-tip-code">~~删除线~~</span><span class="md-tip-desc">删除线</span></button>
+            <button class="md-tip-btn" onclick="useMdTip('[[关联笔记]]')"><span class="md-tip-code">[[笔记名]]</span><span class="md-tip-desc">双向链接</span></button>
+          </div>
         </div>
       </section>
 
@@ -1116,6 +1223,7 @@
               <button id="mode-btn-md" class="theme-btn" onclick="switchEditorMode('md')">MD</button>
               <button id="mode-btn-latex" class="theme-btn" onclick="switchEditorMode('latex')">TeX</button>
             </div>
+            <button id="word-zoom-btn" onclick="toggleWordFitMode()" class="btn-subtle" style="padding:2px 7px;font-size:10px;" title="切换整页完整预览 / 适宽放大编辑">📄 整页 (A4)</button>
             <span id="doc-dirty-badge" class="hidden" style="font-size:10px;color:#D97706;font-weight:700;">●</span>
           </div>
 
@@ -1298,11 +1406,9 @@
         <input id="wps-img-file-input" type="file" accept="image/*" class="hidden" onchange="handleWpsImageFile(this)" />
 
         <div class="editor-content-wrap">
-          <!-- 1. Word 视图 (A4 纸张模拟 + 可直接排版编辑 + C++ 双向同步) -->
-          <div id="editor-view-word" class="word-a4-sheet selectable-text">
-            <div class="a4-ruler mono">
-              <span>|— 1cm</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12cm —|</span>
-            </div>
+          <!-- 1. Word 视图 (标准 A4 210×297mm 多页独立纸张 + 分页与翻页) -->
+          <div id="editor-view-word" class="word-pages-stage selectable-text">
+            <div id="word-pages-backdrop" class="word-pages-backdrop"></div>
             <div id="word-rendered-body" class="a4-body" contenteditable="true" spellcheck="false"
                  oninput="onWordBodyInput()"
                  onmouseup="handleWordSelectionChange()"
@@ -1312,12 +1418,12 @@
           </div>
 
           <!-- 2. Markdown 源码实时编辑 -->
-          <div id="editor-view-md" class="hidden" style="display:flex;flex-direction:column;flex:1;max-width:780px;width:100%;margin:0 auto;">
+          <div id="editor-view-md" class="hidden" style="display:flex;flex-direction:column;flex:1;max-width:794px;width:100%;margin:0 auto;">
             <textarea id="md-source-editor" oninput="onMarkdownInput()" class="md-editor-box mono selectable-text" placeholder="在此编写 Markdown、表格与 $$LaTeX$$ 公式..."></textarea>
           </div>
 
           <!-- 3. LaTeX 公式工作台 -->
-          <div id="editor-view-latex" class="hidden" style="max-width:780px;width:100%;margin:0 auto;">
+          <div id="editor-view-latex" class="hidden" style="max-width:794px;width:100%;margin:0 auto;">
             <div class="simple-card" style="padding:18px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                 <span style="font-size:12.5px;font-weight:600;">LaTeX 公式编辑与 Word OMML 转译</span>
@@ -1329,6 +1435,24 @@
                 <div id="doc-formulas-list" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;"></div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Word 底部翻页与页码状态栏 -->
+        <div id="word-status-bar" class="word-status-bar">
+          <div class="word-pager-group">
+            <button id="word-prev-page" class="word-pager-btn" onclick="stepWordPage(-1)" title="上一页">◀ 上一页</button>
+            <span style="font-size:11px;">第</span>
+            <input id="word-page-input" class="word-page-input mono" type="number" min="1" value="1"
+                   onchange="goToWordPage(parseInt(this.value,10) || 1)"
+                   onkeydown="if(event.key==='Enter'){this.blur();goToWordPage(parseInt(this.value,10)||1);}" />
+            <span id="word-page-total" style="font-size:11px;font-weight:600;">/ 1 页</span>
+            <button id="word-next-page" class="word-pager-btn" onclick="stepWordPage(1)" title="下一页">下一页 ▶</button>
+            <button class="word-pager-btn" onclick="insertWordPageBreak()" title="在光标处插入 Word 分页符 (Ctrl+Enter)">+ 分页</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:10.5px;color:var(--text-muted);">
+            <span id="word-char-count">0 字</span>
+            <span>A4 (210×297mm)</span>
           </div>
         </div>
       </section>
@@ -1676,12 +1800,25 @@
   </div>
 </div>
 
+<!-- 新建目录弹窗 -->
+<div id="new-folder-modal" class="hidden modal-backdrop">
+  <div class="modal-card">
+    <h3 style="margin:0 0 6px 0;font-size:14px;">新建知识库目录</h3>
+    <p style="margin:0 0 12px 0;font-size:12px;color:var(--text-muted);">输入目录名称或相对路径，支持直接新建多级子目录（例如：<span class="mono">研究笔记</span> 或 <span class="mono">论文/实验</span>）</p>
+    <input id="new-folder-path" type="text" placeholder="例如：研究笔记" class="note-area mono selectable-text" style="padding:8px 10px;" />
+    <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px;">
+      <button onclick="closeModal('new-folder-modal')" class="btn-subtle">取消</button>
+      <button onclick="createNewFolder()" class="btn-primary">创建目录</button>
+    </div>
+  </div>
+</div>
+
 <!-- 新建笔记弹窗 -->
 <div id="new-note-modal" class="hidden modal-backdrop">
   <div class="modal-card">
     <h3 style="margin:0 0 6px 0;font-size:14px;">新建知识库文档</h3>
-    <p style="margin:0 0 12px 0;font-size:12px;color:var(--text-muted);">支持相对子目录（例如：<span class="mono">数学建模/模型推导/新笔记.md</span> 或 <span class="mono">.docx</span>）</p>
-    <input id="new-note-path" type="text" placeholder="例如：数学建模/模型推导/学习笔记.md" class="note-area mono selectable-text" style="padding:8px 10px;" />
+    <p style="margin:0 0 12px 0;font-size:12px;color:var(--text-muted);">支持直接在根目录或子目录下新建（例如：<span class="mono">学习笔记.md</span> 或 <span class="mono">目录/笔记.docx</span>）</p>
+    <input id="new-note-path" type="text" placeholder="例如：学习笔记.md" class="note-area mono selectable-text" style="padding:8px 10px;" />
     <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px;">
       <button onclick="closeModal('new-note-modal')" class="btn-subtle">取消</button>
       <button onclick="createNewNote()" class="btn-primary">创建并打开</button>
@@ -1796,26 +1933,133 @@ function switchTab(tab, persist = true) {
     api('/api/config', { method: 'POST', body: JSON.stringify({ active_tab: tab }) }).catch(() => {});
   }
   if (typeof renderDockedMarks === 'function') renderDockedMarks();
+  if (tab === 'knowledge' && typeof relayoutWordPages === 'function') {
+    requestAnimationFrame(() => relayoutWordPages());
+  }
 }
 
 // ============================================================================
 // 物理文件夹绑定 & 4 层 SVG 波纹树渲染
 // ============================================================================
 function updateVaultLabels(path) {
-  appState.vault_path = path;
+  appState.vault_path = path || '';
+  const display = path || '尚未选择（请点击右侧「选择文件夹」）';
   document.querySelectorAll('.vault-path-label').forEach(el => {
-    el.textContent = path;
-    el.title = path;
+    el.textContent = display;
+    el.title = display;
   });
-  document.getElementById('vault-path-input').value = path;
+  document.getElementById('vault-path-input').value = path || '';
+}
+
+function resetVaultEditorSelection() {
+  focusedFolderRel = '';
+  activeDocPath = '';
+  ringScrollOffsets = {};
+  const tabEl = document.getElementById('active-doc-tab');
+  if (tabEl) tabEl.textContent = '未打开文档';
+}
+
+let lastVaultSig = '';
+let lastRootExists = null;
+let syncVaultBusy = false;
+
+function recordVaultTreeSnapshot(tree) {
+  if (!tree) return;
+  if (typeof tree.signature === 'string') lastVaultSig = tree.signature;
+  if (typeof tree.root_exists === 'boolean') lastRootExists = tree.root_exists;
+}
+
+function treeHasFolderRel(node, rel) {
+  if (!rel) return true;
+  if (!node) return false;
+  if (node.rel_path === rel) return true;
+  return (node.dirs || []).some(d => treeHasFolderRel(d, rel));
+}
+
+async function applySyncedVaultTree(tree, announceExternal = false) {
+  if (!tree) return;
+  appState.tree = tree;
+  if (typeof tree.root_path === 'string') updateVaultLabels(tree.root_path);
+  const prevExists = lastRootExists;
+  recordVaultTreeSnapshot(tree);
+
+  if (tree.bound && tree.root_exists === false) {
+    resetVaultEditorSelection();
+    renderVaultTree();
+    if (announceExternal || prevExists !== false) {
+      showToast('⚠️ 原文件夹已在电脑中被改名或删除，请重新选择');
+    }
+    return;
+  }
+
+  if (focusedFolderRel && !treeHasFolderRel(tree.tree_root, focusedFolderRel)) {
+    focusedFolderRel = '';
+  }
+  if (activeDocPath && !(tree.files || []).some(f => f.rel_path === activeDocPath)) {
+    showToast('⚠️ 当前打开的文件已在本地被重命名或删除');
+    activeDocPath = '';
+    const tabEl = document.getElementById('active-doc-tab');
+    if (tabEl) tabEl.textContent = '未打开文档 (本地已移除)';
+  }
+  renderVaultTree();
+  if (announceExternal) {
+    showToast('↻ 检测到本地文件夹变更，已自动同步');
+  }
+}
+
+async function handleVaultWatchSignal(sig, rootExists, announceExternal = false) {
+  if (!sig || syncVaultBusy) return;
+  if (!lastVaultSig) {
+    lastVaultSig = sig;
+    if (typeof rootExists === 'boolean') lastRootExists = rootExists;
+    return;
+  }
+  if (sig !== lastVaultSig || (typeof rootExists === 'boolean' && lastRootExists !== null && rootExists !== lastRootExists)) {
+    syncVaultBusy = true;
+    try {
+      const res = await api('/api/vault/tree');
+      if (res.ok && res.tree) {
+        await applySyncedVaultTree(res.tree, announceExternal);
+      }
+    } catch (_) {
+    } finally {
+      syncVaultBusy = false;
+    }
+  }
+}
+
+async function checkVaultDiskNow(announceExternal = false) {
+  if (syncVaultBusy) return;
+  try {
+    const r = await fetch('/api/vault/watch');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.ok && d.vault_sig) {
+      await handleVaultWatchSignal(d.vault_sig, d.root_exists, announceExternal);
+    }
+  } catch (_) {}
+}
+
+async function clearVaultBinding() {
+  const res = await api('/api/config', { method: 'POST', body: JSON.stringify({ vault_path: '' }) });
+  if (res.ok) {
+    resetVaultEditorSelection();
+    updateVaultLabels('');
+    appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
+    renderVaultTree();
+    showToast('已清空原文件夹绑定，可重新选择目录');
+  }
 }
 
 async function pickVaultFolder() {
   try {
     const res = await api('/api/vault/pick', { method: 'POST', body: '{}' });
     if (res.ok) {
+      resetVaultEditorSelection();
       updateVaultLabels(res.vault_path);
       appState.tree = res.tree;
+      recordVaultTreeSnapshot(res.tree);
       renderVaultTree();
       showToast('已切换本地知识库：' + res.vault_path);
       autoOpenFirstDoc();
@@ -1832,8 +2076,10 @@ async function confirmVaultPathInput() {
   if (!val) return;
   const res = await api('/api/config', { method: 'POST', body: JSON.stringify({ vault_path: val }) });
   if (res.ok) {
+    resetVaultEditorSelection();
     updateVaultLabels(res.vault_path);
     appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
     renderVaultTree();
     closeModal('vault-path-modal');
     showToast('已同步知识库路径：' + res.vault_path);
@@ -1844,9 +2090,12 @@ async function confirmVaultPathInput() {
 async function refreshVaultTree() {
   const res = await api('/api/vault/tree');
   if (res.ok) {
-    appState.tree = res.tree;
-    renderVaultTree();
-    showToast('已刷新本地目录映射');
+    await applySyncedVaultTree(res.tree, false);
+    if (res.tree && res.tree.bound && res.tree.root_exists === false) {
+      showToast('⚠️ 本地目录已不存在或改名：' + res.tree.root_path);
+    } else {
+      showToast('已刷新本地目录映射');
+    }
   }
 }
 
@@ -1859,19 +2108,127 @@ function shortLabel(s, maxLen = 11) {
 }
 
 let focusedFolderRel = '';
+let ringScrollOffsets = {}; // depthIdx -> integer scroll offset
+let lastWifiRingMeta = { ox: 46, oy: 195, baseR: 66, stepR: 56, rings: [] };
 
 function focusVaultFolder(rel) {
-  focusedFolderRel = (focusedFolderRel === rel) ? '' : rel;
+  focusedFolderRel = rel || '';
   renderVaultTree();
 }
 
-function renderVaultTree() {
-  const svg = document.getElementById('vault-ripple-svg');
-  const strip = document.getElementById('vault-file-strip');
-  const tree = appState.tree || { root_name: 'OmniVault', categories: [], files: [] };
-  const allFiles = tree.files || [];
+function stepRingScroll(depth, delta) {
+  const ring = (lastWifiRingMeta.rings || []).find(r => r.depth === depth);
+  if (!ring) return;
+  const maxOff = Math.max(0, ring.total - ring.maxVis);
+  const cur = ringScrollOffsets[depth] || 0;
+  const next = Math.max(0, Math.min(maxOff, cur + delta));
+  if (next !== cur) {
+    ringScrollOffsets[depth] = next;
+    hideWifiHoverLabel();
+    renderVaultTree();
+  }
+}
 
-  // Fallback build if older payload lacks tree_root
+function showWifiHoverLabel(evt, text) {
+  const pill = document.getElementById('wifi-hover-pill');
+  const wrap = document.querySelector('.vault-svg-area');
+  if (!pill || !wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  pill.textContent = text;
+  pill.classList.remove('hidden');
+  const pw = pill.offsetWidth || 100;
+  const x = Math.max(8, Math.min(rect.width - pw - 8, evt.clientX - rect.left + 12));
+  const y = Math.max(8, Math.min(rect.height - 28, evt.clientY - rect.top - 26));
+  pill.style.left = x + 'px';
+  pill.style.top = y + 'px';
+}
+
+function hideWifiHoverLabel() {
+  const pill = document.getElementById('wifi-hover-pill');
+  if (pill) pill.classList.add('hidden');
+}
+
+function bindWifiSvgInteractions() {
+  const svg = document.getElementById('vault-ripple-svg');
+  if (!svg || svg.dataset.wifiBound) return;
+  svg.dataset.wifiBound = '1';
+
+  const getDepthAtClient = (clientX, clientY) => {
+    const r = svg.getBoundingClientRect();
+    const sx = (clientX - r.left) * (540 / r.width);
+    const sy = (clientY - r.top) * (390 / r.height);
+    const { ox, oy, baseR, stepR, rings } = lastWifiRingMeta;
+    if (!rings || rings.length === 0) return -1;
+    const dist = Math.hypot(sx - ox, sy - oy);
+    const d = Math.round((dist - baseR) / stepR);
+    return (d >= 0 && d < rings.length) ? d : -1;
+  };
+
+  svg.addEventListener('wheel', e => {
+    const d = getDepthAtClient(e.clientX, e.clientY);
+    if (d >= 0) {
+      const ring = lastWifiRingMeta.rings[d];
+      if (ring && ring.total > ring.maxVis) {
+        e.preventDefault();
+        stepRingScroll(d, e.deltaY > 0 ? 1 : -1);
+      }
+    }
+  }, { passive: false });
+
+  let dragState = null;
+  svg.addEventListener('pointerdown', e => {
+    const d = getDepthAtClient(e.clientX, e.clientY);
+    if (d >= 0 && lastWifiRingMeta.rings[d] && lastWifiRingMeta.rings[d].total > lastWifiRingMeta.rings[d].maxVis) {
+      dragState = { depth: d, startY: e.clientY };
+    }
+  });
+  window.addEventListener('pointermove', e => {
+    if (!dragState) return;
+    const dy = e.clientY - dragState.startY;
+    if (Math.abs(dy) >= 18) {
+      // Drag upward (dy < 0) -> top disappears, bottom appears (+1)
+      stepRingScroll(dragState.depth, dy < 0 ? 1 : -1);
+      dragState.startY = e.clientY;
+    }
+  });
+  window.addEventListener('pointerup', () => { dragState = null; });
+}
+
+function renderVaultTree() {
+  bindWifiSvgInteractions();
+  const svg = document.getElementById('vault-ripple-svg');
+  const emptyOverlay = document.getElementById('vault-empty-picker');
+  const emptyTitle = document.getElementById('vault-empty-title');
+  const emptyDesc = document.getElementById('vault-empty-desc');
+  const emptyPickBtn = document.getElementById('vault-empty-pick-btn');
+  const clearBtn = document.getElementById('vault-clear-btn');
+  const hasVault = !!(appState.vault_path && appState.vault_path.trim());
+  const tree = appState.tree || { root_name: '未选择文件夹', root_exists: false, categories: [], files: [] };
+  const rootExists = (tree.root_exists !== false);
+
+  if (!hasVault || !rootExists) {
+    lastWifiRingMeta = { ox: 46, oy: 195, baseR: 66, stepR: 56, rings: [] };
+    if (emptyOverlay) emptyOverlay.classList.remove('hidden');
+    if (hasVault && !rootExists) {
+      if (emptyTitle) emptyTitle.textContent = '⚠️ 原文件夹已不存在或已在本地改名';
+      if (emptyDesc) emptyDesc.textContent = `路径已失效：${appState.vault_path}。若你在电脑中删除或重命名了该目录，请重新选择或清空绑定。`;
+      if (emptyPickBtn) emptyPickBtn.textContent = '📁 重新选择文件夹';
+      if (clearBtn) clearBtn.classList.remove('hidden');
+    } else {
+      if (emptyTitle) emptyTitle.textContent = '尚未选择知识库文件夹';
+      if (emptyDesc) emptyDesc.textContent = '请选择你自己的本地文件夹作为根目录';
+      if (emptyPickBtn) emptyPickBtn.textContent = '📁 选择文件夹';
+      if (clearBtn) clearBtn.classList.add('hidden');
+    }
+    svg.innerHTML = [66, 122, 178].map(r => {
+      const p0x = 46 + r * Math.cos(-0.62), p0y = 195 + r * Math.sin(-0.62);
+      const p1x = 46 + r * Math.cos(0.62), p1y = 195 + r * Math.sin(0.62);
+      return `<path d="M ${p0x.toFixed(1)} ${p0y.toFixed(1)} A ${r} ${r} 0 0 1 ${p1x.toFixed(1)} ${p1y.toFixed(1)}" fill="none" stroke="${hasVault && !rootExists ? '#FCA5A5' : 'var(--border-line)'}" stroke-width="5" stroke-dasharray="7 7" stroke-linecap="round" opacity="0.55"/>`;
+    }).join('');
+    return;
+  }
+  if (emptyOverlay) emptyOverlay.classList.add('hidden');
+
   let rootNode = tree.tree_root;
   if (!rootNode) {
     rootNode = {
@@ -1892,196 +2249,133 @@ function renderVaultTree() {
     };
   }
 
-  // Determine active path prefixes (either active file's folder chain or manually focused folder)
-  let activePathRef = activeDocPath || '';
-  const isPrefixPath = (folderRel, targetRel) => {
-    if (!folderRel) return true;
-    return targetRel === folderRel || targetRel.startsWith(folderRel + '/');
+  // Active chain follows focused folder OR active document path
+  const activePathRef = focusedFolderRel || activeDocPath || '';
+  const isOnActiveChain = (itemRel) => {
+    if (!itemRel || !activePathRef) return false;
+    return activePathRef === itemRel || activePathRef.startsWith(itemRel + '/');
   };
 
-  // Collect folder layers dynamically (Layer 1 = root dirs, Layer 2 = subdirs, ..., Layer N)
-  // and collect leaf/outer files (ONLY shown on the final outer Wi-Fi layer!)
-  const layers = []; // layers[depthIdx] = [dirNode, ...] (depthIdx 0 = root's children)
-  const outerFiles = [];
+  // Walk concentric rings outward from root dot along active folder branch
+  // Max visible per layer: Layer 2 (depth 0) = 5, Layer 3 (depth 1) = 7, Layer 4 (depth 2) = 9, ... (5 + depth * 2)
+  const rings = [];
+  let curNode = rootNode;
+  let depth = 0;
+  while (curNode && depth < 5) {
+    const dirs = (curNode.dirs || []).map(d => ({ ...d, _kind: 'dir' }));
+    const files = (curNode.files || []).map(f => ({ ...f, _kind: 'file' }));
+    const items = [...dirs, ...files];
+    if (items.length === 0) break;
 
-  const collectRecursive = (node, depthIdx) => {
-    const dirs = node.dirs || [];
-    const files = node.files || [];
-    // If focusing a branch at depth 0 when there are many folders, keep sibling dots on layer 0 but only expand focused/active or small tree
-    if (dirs.length > 0) {
-      if (!layers[depthIdx]) layers[depthIdx] = [];
-      dirs.forEach(d => {
-        layers[depthIdx].push(d);
-        const shouldExpand = !focusedFolderRel ||
-          isPrefixPath(d.rel_path, focusedFolderRel) ||
-          isPrefixPath(focusedFolderRel, d.rel_path);
-        if (shouldExpand) {
-          collectRecursive(d, depthIdx + 1);
-        }
-      });
-    }
-    if (files.length > 0) {
-      files.forEach(f => {
-        if (!focusedFolderRel || isPrefixPath(focusedFolderRel, f.rel_path)) {
-          outerFiles.push(f);
-        }
-      });
-    }
-  };
-  collectRecursive(rootNode, 0);
+    const maxVis = 5 + depth * 2;
+    const maxOff = Math.max(0, items.length - maxVis);
+    let offset = Math.max(0, Math.min(maxOff, ringScrollOffsets[depth] || 0));
+    ringScrollOffsets[depth] = offset;
 
-  // If filtering hid all files, show allFiles
-  const fileList = (outerFiles.length > 0 ? outerFiles : allFiles).slice(0, 8);
-  const dirLayerCount = layers.filter(arr => arr && arr.length > 0).length;
+    rings.push({ depth, items, total: items.length, maxVis, offset });
+    const nextDir = dirs.find(d => isOnActiveChain(d.rel_path));
+    if (!nextDir) break;
+    curNode = nextDir;
+    depth++;
+  }
 
-  // Geometry for Horizontal Wi-Fi Arcs radiating rightward from (ox, oy)
-  // Strict +/-36 deg cone keeps EVERY top/bottom dot & card 100% inside viewBox (0..540 x 0..420)
-  const ox = 44, oy = 210;
-  const minArcR = 70;
-  const maxArcR = 258;
-  const totalArcLayers = Math.max(1, dirLayerCount + 1); // +1 for final File layer
-  const stepR = totalArcLayers === 1 ? 140 : (maxArcR - minArcR) / totalArcLayers;
+  const ox = 46, oy = 195;
+  const baseR = 66;
+  const stepR = rings.length <= 2 ? 70 : Math.min(66, Math.floor(200 / Math.max(1, rings.length)));
+  lastWifiRingMeta = { ox, oy, baseR, stepR, rings };
 
-  const arcPoint = (r, angleRad) => ({
-    x: ox + r * Math.cos(angleRad),
-    y: oy + r * Math.sin(angleRad)
-  });
-
-  const spreadAngles = (count, maxSpanRad = 0.56) => {
-    if (count <= 1) return [0];
-    const span = Math.min(maxSpanRad, 0.20 * (count - 1) + 0.14);
-    const arr = [];
-    for (let i = 0; i < count; ++i) {
-      arr.push(-span + (2 * span * i) / (count - 1));
-    }
-    return arr;
+  const polar = (r, ang) => ({ x: ox + r * Math.cos(ang), y: oy + r * Math.sin(ang) });
+  const arcPath = (r, a0, a1) => {
+    const p0 = polar(r, a0), p1 = polar(r, a1);
+    const large = Math.abs(a1 - a0) > Math.PI ? 1 : 0;
+    return `M ${p0.x.toFixed(1)} ${p0.y.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
   };
 
   let out = `
     <defs>
       <filter id="wifi-card-shadow" x="-12%" y="-15%" width="130%" height="140%">
-        <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.11"/>
+        <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0F172A" flood-opacity="0.12"/>
       </filter>
       <filter id="wifi-dot-glow" x="-40%" y="-40%" width="180%" height="180%">
         <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#2563EB" flood-opacity="0.45"/>
       </filter>
     </defs>`;
 
-  // 1. Draw subtle inner Wi-Fi signal ripples + directory & outer file Wi-Fi arcs
-  const arcAngles = 0.66; // +/- 38 deg => stays strictly in y=[51..369]
-  out += `<path d="M ${arcPoint(34, -arcAngles).x.toFixed(1)} ${arcPoint(34, -arcAngles).y.toFixed(1)} A 34 34 0 0 1 ${arcPoint(34, arcAngles).x.toFixed(1)} ${arcPoint(34, arcAngles).y.toFixed(1)}"
-                fill="none" stroke="rgba(37,99,235,0.22)" stroke-width="2.6" stroke-linecap="round"/>`;
-  for (let l = 0; l < dirLayerCount; ++l) {
-    const r = minArcR + l * stepR;
-    const p1 = arcPoint(r, -arcAngles);
-    const p2 = arcPoint(r, arcAngles);
-    out += `<path d="M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${r} ${r} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}"
-                  fill="none" stroke="var(--border-line)" stroke-width="3.6" stroke-linecap="round" opacity="0.78"/>`;
-  }
-  const fileR = dirLayerCount === 0 ? (minArcR + 80) : maxArcR;
-  {
-    const fp1 = arcPoint(fileR, -arcAngles);
-    const fp2 = arcPoint(fileR, arcAngles);
-    out += `<path d="M ${fp1.x.toFixed(1)} ${fp1.y.toFixed(1)} A ${fileR} ${fileR} 0 0 1 ${fp2.x.toFixed(1)} ${fp2.y.toFixed(1)}"
-                  fill="none" stroke="rgba(37,99,235,0.28)" stroke-width="4" stroke-linecap="round"/>`;
+  if (rings.length === 0) {
+    [66, 122].forEach(r => {
+      out += `<path d="${arcPath(r, -0.58, 0.58)}" fill="none" stroke="var(--border-line)" stroke-width="4" stroke-dasharray="6 6" stroke-linecap="round" opacity="0.6"/>`;
+    });
+    out += `<text x="180" y="199" font-size="11.5" fill="var(--text-muted)">目录为空 · 点击右上角「+ 目录」或「+ 笔记」</text>`;
   }
 
-  // Compute node coordinates for every folder layer
-  const nodePosByRel = {};
-  nodePosByRel[''] = { x: ox, y: oy, angle: 0 };
+  let activeFileCard = null;
+  const maxHalfCone = 0.72; // +/- 41 deg stays safely inside canvas height
 
-  layers.forEach((arr, lidx) => {
-    if (!arr || arr.length === 0) return;
-    const r = minArcR + lidx * stepR;
-    const items = arr.slice(0, 7);
-    const angles = spreadAngles(items.length, 0.54);
-    items.forEach((d, idx) => {
-      const ang = angles[idx];
-      const pt = arcPoint(r, ang);
-      nodePosByRel[d.rel_path] = { x: pt.x, y: pt.y, angle: ang, dir: d, r };
-    });
-  });
+  rings.forEach(ring => {
+    const r = baseR + ring.depth * stepR;
+    const visItems = ring.items.slice(ring.offset, ring.offset + ring.maxVis);
+    const count = visItems.length;
+    const totalSpan = Math.min(maxHalfCone * 2, 0.24 * count + 0.18);
+    const gap = count > 1 ? Math.max(0.045, 0.095 - ring.depth * 0.015) : 0;
+    const segSpan = (totalSpan - gap * (count - 1)) / count;
+    let curAng = -totalSpan * 0.5;
 
-  // 2. Connect parent folder -> child folder along smooth radial beams
-  layers.forEach((arr) => {
-    if (!arr) return;
-    arr.slice(0, 7).forEach(d => {
-      const pos = nodePosByRel[d.rel_path];
-      if (!pos) return;
-      const slash = d.rel_path.lastIndexOf('/');
-      const parentRel = slash >= 0 ? d.rel_path.slice(0, slash) : '';
-      const pPos = nodePosByRel[parentRel] || nodePosByRel[''];
-      const isActivePath = isPrefixPath(d.rel_path, activePathRef) || (focusedFolderRel && isPrefixPath(d.rel_path, focusedFolderRel));
-      const mx = (pPos.x + pos.x) * 0.5;
-      out += `<path d="M ${pPos.x.toFixed(1)} ${pPos.y.toFixed(1)} C ${mx.toFixed(1)} ${pPos.y.toFixed(1)}, ${mx.toFixed(1)} ${pos.y.toFixed(1)}, ${pos.x.toFixed(1)} ${pos.y.toFixed(1)}"
-                    fill="none" stroke="${isActivePath ? '#2563EB' : 'var(--border-line)'}"
-                    stroke-width="${isActivePath ? '2.2' : '1.2'}" opacity="${isActivePath ? '0.9' : '0.65'}"/>`;
-    });
-  });
-
-  // 3. Draw folder dots + clean haloed labels (middle layers show ONLY folders!)
-  layers.forEach((arr) => {
-    if (!arr) return;
-    arr.slice(0, 7).forEach(d => {
-      const pos = nodePosByRel[d.rel_path];
-      if (!pos) return;
-      const isActivePath = isPrefixPath(d.rel_path, activePathRef);
-      const isFocused = (focusedFolderRel === d.rel_path);
-      const escRel = escapeXml(d.rel_path).replace(/'/g, "\\'");
-      out += `<g style="cursor:pointer;" onclick="focusVaultFolder('${escRel}')">`;
-      if (isActivePath || isFocused) {
-        out += `<circle cx="${pos.x.toFixed(1)}" cy="${pos.y.toFixed(1)}" r="10" fill="rgba(37,99,235,0.14)"/>`;
-      }
-      out += `<circle cx="${pos.x.toFixed(1)}" cy="${pos.y.toFixed(1)}" r="${isActivePath || isFocused ? 6.5 : 5}"
-                      fill="${isActivePath || isFocused ? '#2563EB' : '#FFFFFF'}"
-                      stroke="${isActivePath || isFocused ? '#1D4ED8' : '#94A3B8'}" stroke-width="2"/>`;
-      out += `<text x="${pos.x.toFixed(1)}" y="${(pos.y + 18).toFixed(1)}" text-anchor="middle"
-                    font-size="10" font-weight="${isActivePath || isFocused ? '700' : '600'}"
-                    style="paint-order:stroke;stroke:var(--bg-panel);stroke-width:4px;stroke-linejoin:round;"
-                    fill="${isActivePath || isFocused ? '#1D4ED8' : 'var(--text-secondary)'}">${escapeXml(shortLabel(d.name, 7))}</text>`;
-      out += `</g>`;
-    });
-  });
-
-  // 4. Outermost Wi-Fi Arc = ONLY Files! Draw file dots + active popped-out content card (like Screenshot 2)
-  const fileAngles = spreadAngles(fileList.length, 0.56);
-  let activeCardItem = null;
-
-  fileList.forEach((f, idx) => {
-    const ang = fileAngles[idx];
-    const pt = arcPoint(fileR, ang);
-    const slash = f.rel_path.lastIndexOf('/');
-    const parentRel = slash >= 0 ? f.rel_path.slice(0, slash) : '';
-    const pPos = nodePosByRel[parentRel] || nodePosByRel[''];
-    const isSel = (f.rel_path === activeDocPath);
-    const escFile = escapeXml(f.rel_path).replace(/'/g, "\\'");
-
-    // Line from last folder dot to file dot on outer Wi-Fi arc
-    const mx = (pPos.x + pt.x) * 0.5;
-    out += `<path d="M ${pPos.x.toFixed(1)} ${pPos.y.toFixed(1)} C ${mx.toFixed(1)} ${pPos.y.toFixed(1)}, ${mx.toFixed(1)} ${pt.y.toFixed(1)}, ${pt.x.toFixed(1)} ${pt.y.toFixed(1)}"
-                  fill="none" stroke="${isSel ? '#2563EB' : 'var(--border-line)'}"
-                  stroke-width="${isSel ? '2.2' : '1.2'}" stroke-dasharray="${isSel ? '' : '3 2'}" opacity="${isSel ? '0.95' : '0.6'}"/>`;
-
-    out += `<g style="cursor:pointer;" onclick="openVaultFile('${escFile}')">`;
-    if (isSel) {
-      out += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="12" fill="rgba(37,99,235,0.18)"/>`;
-      out += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="7" fill="#111827" stroke="#2563EB" stroke-width="2.5" filter="url(#wifi-dot-glow)"/>`;
-      activeCardItem = { f, pt, idx };
-    } else {
-      out += `<circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="5.5" fill="#CBD5E1" stroke="#FFFFFF" stroke-width="1.5"/>`;
-      out += `<text x="${(pt.x + 12).toFixed(1)}" y="${(pt.y + 4).toFixed(1)}" font-size="10.5" font-weight="600" fill="var(--text-secondary)">${escapeXml(shortLabel(f.stem, 11))}<tspan fill="var(--text-muted)" font-size="9"> ${escapeXml(f.ext)}</tspan></text>`;
+    // Top / Bottom scroll indicator caps when items exceed maxVis (5, 7, 9...)
+    if (ring.offset > 0) {
+      const tp = polar(r, -totalSpan * 0.5 - 0.11);
+      out += `<g style="cursor:pointer" onclick="stepRingScroll(${ring.depth}, -1)" onmousemove="showWifiHoverLabel(event,'向上滑动查看上方 ${ring.offset} 项')" onmouseleave="hideWifiHoverLabel()">
+                <circle cx="${tp.x.toFixed(1)}" cy="${tp.y.toFixed(1)}" r="8" fill="var(--bg-card)" stroke="var(--border-line)"/>
+                <text x="${tp.x.toFixed(1)}" y="${(tp.y + 3).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--blue)">▲</text>
+              </g>`;
     }
-    out += `</g>`;
+    const remBelow = ring.total - (ring.offset + visItems.length);
+    if (remBelow > 0) {
+      const bp = polar(r, totalSpan * 0.5 + 0.11);
+      out += `<g style="cursor:pointer" onclick="stepRingScroll(${ring.depth}, 1)" onmousemove="showWifiHoverLabel(event,'向下滑动查看下方 ${remBelow} 项')" onmouseleave="hideWifiHoverLabel()">
+                <circle cx="${bp.x.toFixed(1)}" cy="${bp.y.toFixed(1)}" r="8" fill="var(--bg-card)" stroke="var(--border-line)"/>
+                <text x="${bp.x.toFixed(1)}" y="${(bp.y + 3.5).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="var(--blue)">▼</text>
+              </g>`;
+    }
+
+    visItems.forEach((item, vidx) => {
+      const a0 = curAng;
+      const a1 = curAng + segSpan;
+      const midA = (a0 + a1) * 0.5;
+      curAng = a1 + gap;
+
+      const isDir = (item._kind === 'dir');
+      const isSelectedFile = (!isDir && item.rel_path === activeDocPath);
+      const onChain = isOnActiveChain(item.rel_path) || isSelectedFile;
+      const escRel = escapeXml(item.rel_path).replace(/'/g, "\\'");
+
+      const strokeCol = onChain ? '#2563EB' : (isDir ? '#64748B' : '#94A3B8');
+      const strokeW = onChain ? (isDir ? 8.5 : 7) : (isDir ? 6.5 : 4.5);
+      const opacity = onChain ? 1 : 0.42;
+      const clickHandler = isDir ? `focusVaultFolder('${escRel}')` : `openVaultFile('${escRel}')`;
+      const hoverTitle = isDir
+        ? `📁 ${item.name} (${(item.dirs?.length || 0) + (item.files?.length || 0)} 项)`
+        : `${item.ext === '.docx' ? '📘' : '📝'} ${item.name}`;
+      const escHover = escapeXml(hoverTitle).replace(/'/g, "\\'");
+
+      // Wide invisible hit-target arc + crisp rounded visible arc (ONLY hover shows name!)
+      out += `<path d="${arcPath(r, a0, a1)}" fill="none" stroke="transparent" stroke-width="18" stroke-linecap="round" style="cursor:pointer;"
+                    onmousemove="showWifiHoverLabel(event,'${escHover}')" onmouseleave="hideWifiHoverLabel()" onclick="${clickHandler}"/>`;
+      out += `<path d="${arcPath(r, a0, a1)}" fill="none" stroke="${strokeCol}" stroke-width="${strokeW}" stroke-linecap="round" opacity="${opacity}"
+                    style="pointer-events:none;"/>`;
+
+      if (isSelectedFile) {
+        activeFileCard = { item, pt: polar(r, midA), idx: ring.offset + vidx, total: ring.total };
+      }
+    });
   });
 
-  // 5. Render the prominent floating Content Preview Card beside the selected file dot (like Screenshot 2!)
-  if (activeCardItem) {
-    const { f, pt, idx } = activeCardItem;
-    // If user is currently editing, pull fresh HTML-tag-free snippet live from editor
+  // Prominent Content Preview Card ONLY beside the clicked/selected file arc
+  if (activeFileCard) {
+    const { item, pt, idx, total } = activeFileCard;
     const stripMdHtml = (s) => s.replace(/<[^>]*>/g, '').replace(/[*`\[\]~]/g, '').trim();
-    let liveTitle = stripMdHtml(f.preview_title || f.stem) || f.stem;
-    let liveSnippet = stripMdHtml(f.preview || '点击同步右侧编辑器预览文档正文内容');
-    if (f.rel_path === activeDocPath) {
+    let liveTitle = stripMdHtml(item.preview_title || item.stem) || item.stem;
+    let liveSnippet = stripMdHtml(item.preview || '点击在右侧编辑器直接编辑内容');
+    if (item.rel_path === activeDocPath) {
       const mdVal = document.getElementById('md-source-editor')?.value || '';
       if (mdVal.trim()) {
         const lines = mdVal.split(/\r?\n/).map(s => s.trim()).filter(s => s && !s.startsWith('<!--') && !s.startsWith('```') && s !== '$$');
@@ -2092,29 +2386,24 @@ function renderVaultTree() {
       }
     }
 
-    const cardW = 208;
-    const cardH = 126;
-    const cardX = Math.min(530 - cardW, pt.x + 20);
-    const cardY = Math.max(18, Math.min(402 - cardH, pt.y - cardH * 0.5));
-
-    // Connector stem from dot to preview card
-    out += `<line x1="${(pt.x + 7).toFixed(1)}" y1="${pt.y.toFixed(1)}" x2="${cardX}" y2="${Math.max(cardY + 18, Math.min(cardY + cardH - 18, pt.y)).toFixed(1)}"
-                  stroke="#2563EB" stroke-width="1.8"/>`;
-
+    const cardW = 208, cardH = 122;
+    const cardX = Math.min(528 - cardW, pt.x + 20);
+    const cardY = Math.max(12, Math.min(378 - cardH, pt.y - cardH * 0.5));
+    out += `<line x1="${(pt.x + 4).toFixed(1)}" y1="${pt.y.toFixed(1)}" x2="${cardX}" y2="${Math.max(cardY + 18, Math.min(cardY + cardH - 18, pt.y)).toFixed(1)}"
+                  stroke="#2563EB" stroke-width="2" stroke-linecap="round"/>`;
     out += `<g filter="url(#wifi-card-shadow)">
-      <rect x="${cardX}" y="${cardY}" width="${cardW}" height="${cardH}" rx="14"
-            fill="var(--bg-card)" stroke="#2563EB" stroke-width="1.6"/>
+      <rect x="${cardX}" y="${cardY}" width="${cardW}" height="${cardH}" rx="13" fill="var(--bg-card)" stroke="#2563EB" stroke-width="1.6"/>
       <foreignObject x="${cardX + 12}" y="${cardY + 10}" width="${cardW - 24}" height="${cardH - 20}">
         <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:'Segoe UI','Microsoft YaHei',sans-serif;height:100%;display:flex;flex-direction:column;justify-content:space-between;color:var(--text-primary);">
           <div>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
               <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeXml(liveTitle)}</div>
-              <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:#DBEAFE;color:#1D4ED8;flex-shrink:0;">${escapeXml(f.ext.replace('.','').toUpperCase())}</span>
+              <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:#DBEAFE;color:#1D4ED8;flex-shrink:0;">${escapeXml((item.ext || '').replace('.','').toUpperCase())}</span>
             </div>
             <div style="font-size:10.5px;line-height:1.45;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;">${escapeXml(liveSnippet)}</div>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;font-size:9.5px;color:var(--text-muted);border-top:1px solid var(--border-line);padding-top:4px;">
-            <span>${idx + 1} of ${fileList.length}</span>
+            <span>${idx + 1} of ${total}</span>
             <span style="color:#2563EB;font-weight:600;">已选中 · 内容高亮</span>
           </div>
         </div>
@@ -2122,31 +2411,268 @@ function renderVaultTree() {
     </g>`;
   }
 
-  // 6. Smallest Center Dot = Root Total Folder (总文件夹原点) drawn on top!
+  // ONLY Root Folder is a dot!
+  const escRootHover = escapeXml('📁 ' + (rootNode.name || 'Vault') + ' (根文件夹)').replace(/'/g, "\\'");
   out += `
-    <g style="cursor:pointer;" onclick="focusVaultFolder('')" title="点击查看全部目录分支">
-      <circle cx="${ox}" cy="${oy}" r="15" fill="rgba(37,99,235,0.12)"/>
-      <circle cx="${ox}" cy="${oy}" r="8.5" fill="var(--accent-dot)" filter="url(#wifi-dot-glow)"/>
-      <circle cx="${ox}" cy="${oy}" r="3" fill="#FFFFFF"/>
+    <g style="cursor:pointer;" onclick="focusVaultFolder('')" onmousemove="showWifiHoverLabel(event,'${escRootHover}')" onmouseleave="hideWifiHoverLabel()">
+      <circle cx="${ox}" cy="${oy}" r="16" fill="rgba(37,99,235,0.14)"/>
+      <circle cx="${ox}" cy="${oy}" r="9" fill="var(--accent-dot)" filter="url(#wifi-dot-glow)"/>
       <text x="${ox}" y="${oy + 28}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-primary)">${escapeXml(shortLabel(rootNode.name || 'Vault', 12))}</text>
-      <text x="${ox}" y="${oy + 40}" text-anchor="middle" font-size="9" fill="var(--text-muted)">总文件夹</text>
+      <text x="${ox}" y="${oy + 40}" text-anchor="middle" font-size="9" fill="var(--text-muted)">根文件夹</text>
     </g>`;
 
   svg.innerHTML = out;
+}
 
-  // Compact bottom quick switcher strip so ALL files (even if > 8 or in collapsed branch) stay 1-click reachable
-  strip.innerHTML = '';
-  if (allFiles.length === 0) {
-    strip.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">目录为空，点击右上角「+ 新建笔记」开始记录。</span>';
-  } else {
-    allFiles.forEach(f => {
-      const btn = document.createElement('button');
-      btn.className = 'file-pill mono' + (f.rel_path === activeDocPath ? ' active' : '');
-      btn.textContent = (f.ext === '.docx' ? '📘 ' : '📝 ') + f.rel_path;
-      btn.onclick = () => openVaultFile(f.rel_path);
-      strip.appendChild(btn);
-    });
+function useMdTip(snippet) {
+  if (currentEditorMode === 'md') {
+    const ed = document.getElementById('md-source-editor');
+    if (ed) {
+      const s = ed.selectionStart || 0, e = ed.selectionEnd || 0;
+      ed.value = ed.value.slice(0, s) + snippet + ed.value.slice(e);
+      ed.focus();
+      onMarkdownInput();
+      showToast('已插入 MD 语法：' + snippet);
+      return;
+    }
   }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(snippet).catch(() => {});
+  }
+  showToast('已复制 MD 语法：' + snippet);
+}
+
+const WORD_PAGE_W = 794;
+const WORD_PAGE_H = 1123;
+const WORD_MARGIN_Y = 96;
+const WORD_BODY_H = WORD_PAGE_H - WORD_MARGIN_Y * 2; // 931px printable area per A4 sheet
+const WORD_PAGE_GAP = 18;
+const WORD_PAGE_STEP = WORD_PAGE_H + WORD_PAGE_GAP;
+
+let wordFitMode = 'page'; // 'page' = 兼容 Word A4 整页可视, 'width' = 1:1 适宽排版编辑
+let wordTotalPages = 1;
+let currentWordPage = 1;
+let wordScrollBound = false;
+
+function bindWordWrapScroll() {
+  const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
+  if (!wrap || wordScrollBound) return;
+  wordScrollBound = true;
+  let rafPending = false;
+  wrap.addEventListener('scroll', () => {
+    if (rafPending || currentEditorMode !== 'word') return;
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      syncCurrentWordPageFromScroll();
+    });
+  });
+}
+
+function updateWordPagerUI() {
+  currentWordPage = Math.max(1, Math.min(wordTotalPages, currentWordPage));
+  const inp = document.getElementById('word-page-input');
+  const tot = document.getElementById('word-page-total');
+  const prevBtn = document.getElementById('word-prev-page');
+  const nextBtn = document.getElementById('word-next-page');
+  const charEl = document.getElementById('word-char-count');
+  if (inp) {
+    inp.max = String(wordTotalPages);
+    if (document.activeElement !== inp) inp.value = String(currentWordPage);
+  }
+  if (tot) tot.textContent = `/ ${wordTotalPages} 页`;
+  if (prevBtn) prevBtn.disabled = (currentWordPage <= 1);
+  if (nextBtn) nextBtn.disabled = (currentWordPage >= wordTotalPages);
+  if (charEl) {
+    const body = document.getElementById('word-rendered-body');
+    const txt = body ? (body.innerText || '').replace(/\s+/g, '') : '';
+    charEl.textContent = `${txt.length} 字`;
+  }
+  document.querySelectorAll('#word-pages-backdrop .word-page-card').forEach((card, idx) => {
+    card.classList.toggle('active-page', idx + 1 === currentWordPage);
+  });
+}
+
+function syncCurrentWordPageFromScroll() {
+  const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
+  const cards = Array.from(document.querySelectorAll('#word-pages-backdrop .word-page-card'));
+  if (!wrap || cards.length === 0) return;
+  const wRect = wrap.getBoundingClientRect();
+  const focusY = wRect.top + wRect.height * 0.35;
+  let best = 1;
+  let bestDist = Infinity;
+  cards.forEach((c, idx) => {
+    const r = c.getBoundingClientRect();
+    const dist = (focusY >= r.top && focusY <= r.bottom)
+      ? 0
+      : Math.min(Math.abs(focusY - r.top), Math.abs(focusY - r.bottom));
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = idx + 1;
+    }
+  });
+  if (best !== currentWordPage) {
+    currentWordPage = best;
+    updateWordPagerUI();
+  }
+}
+
+function syncCurrentWordPageFromCaret() {
+  const body = document.getElementById('word-rendered-body');
+  const cards = Array.from(document.querySelectorAll('#word-pages-backdrop .word-page-card'));
+  if (!body || cards.length === 0) return;
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || !body.contains(sel.anchorNode)) return;
+  const blk = getActiveWordBlock();
+  if (!blk) return;
+  const top = blk.offsetTop;
+  const p = Math.max(1, Math.min(wordTotalPages, Math.floor(Math.max(0, top - WORD_MARGIN_Y) / WORD_PAGE_STEP) + 1));
+  if (p !== currentWordPage) {
+    currentWordPage = p;
+    updateWordPagerUI();
+  }
+}
+
+function goToWordPage(pageNum) {
+  const target = Math.max(1, Math.min(wordTotalPages, parseInt(pageNum, 10) || 1));
+  currentWordPage = target;
+  updateWordPagerUI();
+  const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
+  const card = document.querySelector(`#word-pages-backdrop .word-page-card[data-page-idx="${target - 1}"]`);
+  if (wrap && card) {
+    const wRect = wrap.getBoundingClientRect();
+    const cRect = card.getBoundingClientRect();
+    const destTop = wrap.scrollTop + (cRect.top - wRect.top) - 10;
+    wrap.scrollTo({ top: Math.max(0, destTop), behavior: 'smooth' });
+  }
+}
+
+function stepWordPage(delta) {
+  goToWordPage(currentWordPage + delta);
+}
+
+function insertWordPageBreak() {
+  if (currentEditorMode !== 'word') {
+    switchEditorMode('word');
+  }
+  const body = document.getElementById('word-rendered-body');
+  if (!body) return;
+  const breakHtml = `<div class="omni-pagebreak" contenteditable="false" data-omni-pagebreak="1"><span>—— 分页符 (Page Break) ——</span><button type="button" class="omni-box-btn" onclick="deleteAtomicBlock(this)">删除</button></div><p class="omni-p"><br/></p>`;
+  const blk = getActiveWordBlock();
+  if (blk && blk.parentNode === body) {
+    blk.insertAdjacentHTML('afterend', breakHtml);
+  } else {
+    body.insertAdjacentHTML('beforeend', breakHtml);
+  }
+  const targetAfter = currentWordPage + 1;
+  relayoutWordPages();
+  onWordBodyInput();
+  goToWordPage(Math.min(wordTotalPages, targetAfter));
+}
+
+function relayoutWordPages() {
+  bindWordWrapScroll();
+  const stage = document.getElementById('editor-view-word');
+  const backdrop = document.getElementById('word-pages-backdrop');
+  const body = document.getElementById('word-rendered-body');
+  if (!stage || !backdrop || !body || currentEditorMode !== 'word') return;
+
+  const children = Array.from(body.children);
+  children.forEach(el => {
+    const sb = el.getAttribute('data-wp-before');
+    el.style.marginTop = (sb !== null && sb !== '') ? (sb + 'pt') : '';
+  });
+
+  let minPageIdx = 0;
+  let maxBottom = WORD_MARGIN_Y;
+
+  children.forEach(el => {
+    if (el.classList.contains('omni-pagebreak')) {
+      const top = el.offsetTop;
+      let p = Math.max(minPageIdx, Math.floor(Math.max(0, top - WORD_MARGIN_Y) / WORD_PAGE_STEP));
+      const pStart = WORD_MARGIN_Y + p * WORD_PAGE_STEP;
+      if (top < pStart) {
+        const baseMt = parseFloat(getComputedStyle(el).marginTop) || 0;
+        el.style.marginTop = (baseMt + (pStart - top)) + 'px';
+      }
+      maxBottom = Math.max(maxBottom, el.offsetTop + el.offsetHeight);
+      minPageIdx = p + 1;
+      return;
+    }
+
+    const top = el.offsetTop;
+    const h = Math.max(18, el.offsetHeight);
+    let p = Math.max(minPageIdx, Math.floor(Math.max(0, top - WORD_MARGIN_Y) / WORD_PAGE_STEP));
+    let pStart = WORD_MARGIN_Y + p * WORD_PAGE_STEP;
+    let pEnd = pStart + WORD_BODY_H;
+    let push = 0;
+
+    if (top < pStart) {
+      push = pStart - top;
+    } else if (top + h > pEnd && h <= WORD_BODY_H) {
+      p += 1;
+      push = (WORD_MARGIN_Y + p * WORD_PAGE_STEP) - top;
+    }
+    if (push > 0) {
+      const baseMt = parseFloat(getComputedStyle(el).marginTop) || 0;
+      el.style.marginTop = (baseMt + push) + 'px';
+    }
+    const elBottom = el.offsetTop + el.offsetHeight;
+    maxBottom = Math.max(maxBottom, elBottom);
+    minPageIdx = Math.max(minPageIdx, Math.floor(Math.max(0, elBottom - 1 - WORD_MARGIN_Y) / WORD_PAGE_STEP));
+  });
+
+  const N = Math.max(
+    1,
+    minPageIdx + 1,
+    Math.floor(Math.max(0, maxBottom - 1 - WORD_MARGIN_Y) / WORD_PAGE_STEP) + 1
+  );
+  wordTotalPages = N;
+  const stageH = N * WORD_PAGE_H + (N - 1) * WORD_PAGE_GAP;
+  stage.style.height = stageH + 'px';
+  body.style.minHeight = stageH + 'px';
+
+  let cardsHtml = '';
+  for (let i = 0; i < N; i++) {
+    const isFirst = (i === 0);
+    cardsHtml += `
+      <div class="word-page-card${i + 1 === currentWordPage ? ' active-page' : ''}" data-page-idx="${i}" style="margin-bottom:${i < N - 1 ? WORD_PAGE_GAP : 0}px;">
+        <div class="word-page-corner tl"></div>
+        <div class="word-page-corner tr"></div>
+        <div class="word-page-corner bl"></div>
+        <div class="word-page-corner br"></div>
+        ${isFirst ? '<div class="a4-ruler mono"><span>|— 0cm</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span><span>12</span><span>14</span><span>15.9cm —|</span></div>' : ''}
+        <div class="word-page-footer">— 第 ${i + 1} 页 / 共 ${N} 页 —</div>
+      </div>`;
+  }
+  backdrop.innerHTML = cardsHtml;
+  updateWordPagerUI();
+  fitWordSheetScale();
+}
+
+function fitWordSheetScale() {
+  const sheet = document.getElementById('editor-view-word');
+  const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
+  const btn = document.getElementById('word-zoom-btn');
+  if (!sheet || !wrap) return;
+  if (sheet.classList.contains('hidden')) return;
+  const availW = Math.max(320, wrap.clientWidth - 28);
+  const availH = Math.max(300, wrap.clientHeight - 28);
+  let z = 1;
+  if (wordFitMode === 'page') {
+    z = Math.min(1, availW / WORD_PAGE_W, availH / WORD_PAGE_H);
+  } else {
+    z = Math.min(1, availW / WORD_PAGE_W);
+  }
+  sheet.style.zoom = z.toFixed(3);
+  if (btn) {
+    btn.textContent = wordFitMode === 'page' ? '📄 整页 (A4)' : '🔍 1:1 适宽';
+  }
+}
+
+function toggleWordFitMode() {
+  wordFitMode = (wordFitMode === 'page') ? 'width' : 'page';
+  fitWordSheetScale();
 }
 
 async function autoOpenFirstDoc() {
@@ -2181,6 +2707,7 @@ async function renderMdToWordDom(md) {
   if (res.ok) {
     document.getElementById('word-rendered-body').innerHTML = res.html || '<p class="omni-p"><br/></p>';
     updateFormulasPanel(res.formulas || []);
+    requestAnimationFrame(() => relayoutWordPages());
   }
 }
 
@@ -2191,6 +2718,7 @@ async function openVaultFile(relPath) {
     return;
   }
   activeDocPath = res.rel_path;
+  currentWordPage = 1;
   document.getElementById('active-doc-tab').textContent = res.rel_path;
   document.getElementById('active-doc-tab').title = res.abs_path;
   document.getElementById('md-source-editor').value = res.markdown || '';
@@ -2199,6 +2727,10 @@ async function openVaultFile(relPath) {
   setDirty(false);
   renderVaultTree();
   hideFloatToolbar();
+  requestAnimationFrame(() => {
+    relayoutWordPages();
+    goToWordPage(1);
+  });
   showToast('已打开：' + res.rel_path);
 }
 
@@ -2457,6 +2989,10 @@ function serializeWordDomToMarkdown() {
       blocks.push('```figma\n' + json + '\n```');
       return;
     }
+    if (node.classList.contains('omni-pagebreak')) {
+      blocks.push('<!-- pagebreak -->');
+      return;
+    }
     if (/^h[1-6]$/.test(tag)) {
       const lvl = parseInt(tag[1], 10);
       const dir = extractBlockDirective(node);
@@ -2521,6 +3057,7 @@ function syncWordToMdImmediate() {
 
 function onWordBodyInput() {
   setDirty(true);
+  requestAnimationFrame(() => relayoutWordPages());
   clearTimeout(wordSyncDebounce);
   wordSyncDebounce = setTimeout(() => {
     const md = serializeWordDomToMarkdown();
@@ -2536,7 +3073,7 @@ function toggleWordTaskItem(cb) {
 }
 
 function deleteAtomicBlock(btn) {
-  const blk = btn.closest('.omni-code-box, .omni-math-block, .omni-figma-block');
+  const blk = btn.closest('.omni-code-box, .omni-math-block, .omni-figma-block, .omni-pagebreak');
   if (blk) {
     blk.remove();
     onWordBodyInput();
@@ -2546,6 +3083,11 @@ function deleteAtomicBlock(btn) {
 
 function handleWordBodyKeyDown(e) {
   if (e.key === 'Shift') return;
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    insertWordPageBreak();
+    return;
+  }
   if (e.key === 'Tab') {
     e.preventDefault();
     wpsAdjustListIndent(e.shiftKey ? -1 : 1);
@@ -2601,8 +3143,10 @@ async function saveActiveDoc() {
   if (res.ok) {
     document.getElementById('word-rendered-body').innerHTML = res.html || '<p class="omni-p"><br/></p>';
     appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
     setDirty(false);
     renderVaultTree();
+    requestAnimationFrame(() => relayoutWordPages());
     showToast('已保存：' + activeDocPath);
   } else {
     showToast('保存失败：' + (res.error || ''));
@@ -2625,6 +3169,7 @@ async function convertActiveDoc(targetFormat, saveAs) {
   if (res.ok) {
     if (res.tree) {
       appState.tree = res.tree;
+      recordVaultTreeSnapshot(res.tree);
       renderVaultTree();
     }
     showToast(`已成功转换生成 ${targetFormat.toUpperCase()}：${res.out_path}`);
@@ -2633,8 +3178,44 @@ async function convertActiveDoc(targetFormat, saveAs) {
   }
 }
 
+function openNewFolderModal() {
+  if (!appState.vault_path || (appState.tree && appState.tree.root_exists === false)) {
+    showToast('请先选择一个存在的本地文件夹作为根目录');
+    pickVaultFolder();
+    return;
+  }
+  const base = focusedFolderRel ? (focusedFolderRel + '/') : '';
+  document.getElementById('new-folder-path').value = base + '新目录';
+  document.getElementById('new-folder-modal').classList.remove('hidden');
+}
+
+async function createNewFolder() {
+  const rel = document.getElementById('new-folder-path').value.trim();
+  if (!rel) return;
+  const res = await api('/api/vault/create', {
+    method: 'POST',
+    body: JSON.stringify({ kind: 'folder', path: rel })
+  });
+  if (res.ok) {
+    closeModal('new-folder-modal');
+    appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
+    focusedFolderRel = rel;
+    renderVaultTree();
+    showToast('已创建目录：' + rel);
+  } else {
+    showToast(res.error || '创建目录失败');
+  }
+}
+
 function openNewNoteModal() {
-  document.getElementById('new-note-path').value = '数学建模/模型推导/新笔记_' + new Date().toISOString().slice(0,10) + '.md';
+  if (!appState.vault_path || (appState.tree && appState.tree.root_exists === false)) {
+    showToast('请先选择一个存在的本地文件夹作为根目录');
+    pickVaultFolder();
+    return;
+  }
+  const base = focusedFolderRel ? (focusedFolderRel + '/') : '';
+  document.getElementById('new-note-path').value = base + '新笔记_' + new Date().toISOString().slice(0,10) + '.md';
   document.getElementById('new-note-modal').classList.remove('hidden');
 }
 
@@ -2652,6 +3233,7 @@ async function createNewNote() {
   if (res.ok) {
     closeModal('new-note-modal');
     appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
     const normalized = rel.includes('.') ? rel : rel + '.md';
     await openVaultFile(normalized);
   } else {
@@ -2679,9 +3261,16 @@ function switchEditorMode(mode) {
     }
   });
   document.getElementById('wps-ribbon-bar').classList.toggle('hidden', mode === 'latex');
+  const sb = document.getElementById('word-status-bar');
+  if (sb) sb.classList.toggle('hidden', mode !== 'word');
+  const zoomBtn = document.getElementById('word-zoom-btn');
+  if (zoomBtn) zoomBtn.classList.toggle('hidden', mode !== 'word');
   hideFloatToolbar();
   if (mode === 'word' && prevMode !== 'word') {
     renderMdToWordDom(document.getElementById('md-source-editor').value);
+  }
+  if (mode === 'word') {
+    requestAnimationFrame(() => relayoutWordPages());
   }
 }
 
@@ -3203,6 +3792,7 @@ function handleWordSelectionChange() {
   }
 
   // Sync Ribbon controls with active block/caret formatting
+  syncCurrentWordPageFromCaret();
   const blk = getActiveWordBlock();
   if (blk) {
     const lr = blk.getAttribute('data-wp-line-rule');
@@ -5477,8 +6067,13 @@ async function appendWordToVault() {
     })
   });
   if (res.ok) {
+    if (res.synced_to_vault === false) {
+      showToast(`💾 已保存「${currentWordData.word}」至本地词库（尚未绑定知识库文件夹）`);
+      return;
+    }
     if (res.tree) {
       appState.tree = res.tree;
+      recordVaultTreeSnapshot(res.tree);
       renderVaultTree();
     }
     showToast(`✎ 已将「${currentWordData.word}」真实写入 Vocabulary.md`);
@@ -5921,6 +6516,10 @@ async function saveMiniPopupWordToVault() {
     })
   });
   if (res.ok) {
+    if (res.synced_to_vault === false) {
+      showToast(`💾 已保存「${miniPopupEntry.word}」至本地词库（尚未绑定知识库文件夹）`);
+      return;
+    }
     if (res.tree) { appState.tree = res.tree; renderVaultTree(); }
     showToast(`✎ 已将「${miniPopupEntry.word}」写入 Vocabulary.md`);
   }
@@ -6293,6 +6892,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const st = await api('/api/state');
     if (st.ok) {
       appState = st;
+      recordVaultTreeSnapshot(st.tree);
       applyTheme(st.theme || 'white', false);
       switchTab(st.active_tab || 'english', false);
       updateVaultLabels(st.vault_path || '');
@@ -6309,9 +6909,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     switchTab('english', false);
   }
 
+  window.addEventListener('resize', fitWordSheetScale);
+  window.addEventListener('focus', () => { checkVaultDiskNow(true); });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) checkVaultDiskNow(true);
+  });
+
   setInterval(() => {
-    fetch('/api/window-ping', { method: 'POST' }).catch(() => {});
-  }, 2000);
+    fetch('/api/window-ping', { method: 'POST' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && d.ok && d.vault_sig) {
+          handleVaultWatchSignal(d.vault_sig, d.root_exists, true);
+        }
+      })
+      .catch(() => {});
+  }, 1500);
 });
 
 window.addEventListener('beforeunload', () => {

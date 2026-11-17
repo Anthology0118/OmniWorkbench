@@ -25,7 +25,7 @@ UI_HPP  := src/generated/embedded_ui.hpp
 
 all: linux test
 
-$(UI_HPP): $(UI_HTML) scripts/embed_ui.py
+$(UI_HPP): $(UI_HTML) assets/app_icon.png scripts/embed_ui.py
 	python3 scripts/embed_ui.py $(UI_HTML) $(UI_HPP)
 
 build/linux/omniworkbench: $(UI_HPP) $(CORE_SRCS) src/desktop/main.cpp

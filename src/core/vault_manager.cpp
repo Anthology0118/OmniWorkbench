@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -41,10 +42,12 @@ struct DirEntrySort {
 std::vector<DirEntrySort> list_sorted_children(const fs::path& dir) {
     std::vector<DirEntrySort> res;
     std::error_code ec;
-    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+    for (const auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, ec)) {
         std::string name = path_to_utf8(entry.path().filename());
         if (is_hidden_name(name)) continue;
-        bool is_d = entry.is_directory(ec);
+        std::error_code tec;
+        bool is_d = entry.is_directory(tec);
+        if (tec) continue;
         if (!is_d && !is_supported_doc_ext(lower_ext(entry.path()))) continue;
         res.push_back({is_d, name, entry.path()});
     }
@@ -125,23 +128,79 @@ void extract_doc_preview(const fs::path& fp, const std::string& ext, std::string
 } // namespace
 
 VaultManager::VaultManager(std::string root_path) : root_path_(std::move(root_path)) {
-    if (root_path_.empty()) {
-        root_path_ = get_default_vault_dir();
-    }
 }
 
 void VaultManager::set_root(const std::string& root_path) {
-    if (!root_path.empty()) {
-        root_path_ = root_path;
-    }
+    root_path_ = root_path;
 }
 
-void VaultManager::ensure_initialized() {
+bool VaultManager::root_exists() const {
+    if (root_path_.empty()) return false;
+    std::error_code ec;
+    fs::path p = utf8_to_path(root_path_);
+    return fs::exists(p, ec) && fs::is_directory(p, ec);
+}
+
+std::string VaultManager::compute_signature() const {
+    if (root_path_.empty()) return "UNBOUND";
+    std::error_code ec;
+    fs::path root_p = utf8_to_path(root_path_);
+    if (!fs::exists(root_p, ec) || !fs::is_directory(root_p, ec)) {
+        return "MISSING:" + root_path_;
+    }
+
+    auto fnv_mix = [](uint64_t h, const std::string& s) {
+        for (unsigned char c : s) {
+            h ^= c;
+            h *= 1099511628211ULL;
+        }
+        h ^= 0xff;
+        h *= 1099511628211ULL;
+        return h;
+    };
+
+    uint64_t hash = fnv_mix(14695981039346656037ULL, root_path_);
+    size_t count = 0;
+    for (fs::recursive_directory_iterator it(root_p, fs::directory_options::skip_permission_denied, ec), end;
+         it != end;
+         it.increment(ec)) {
+        if (ec) { ec.clear(); continue; }
+        std::string name = path_to_utf8(it->path().filename());
+        std::error_code tec;
+        bool is_d = it->is_directory(tec);
+        if (is_hidden_name(name)) {
+            if (is_d) it.disable_recursion_pending();
+            continue;
+        }
+        if (!is_d && !is_supported_doc_ext(lower_ext(it->path()))) continue;
+        std::string rel = path_to_utf8(fs::relative(it->path(), root_p, tec));
+        for (char& ch : rel) if (ch == '\\') ch = '/';
+        hash = fnv_mix(hash, (is_d ? "D:" : "F:") + rel);
+        auto mtime = it->last_write_time(tec);
+        if (!tec) {
+            hash ^= static_cast<uint64_t>(mtime.time_since_epoch().count());
+            hash *= 1099511628211ULL;
+        }
+        if (!is_d) {
+            auto fsz = it->file_size(tec);
+            if (!tec) {
+                hash ^= static_cast<uint64_t>(fsz);
+                hash *= 1099511628211ULL;
+            }
+        }
+        ++count;
+    }
+    return "OK:" + std::to_string(count) + ":" + std::to_string(hash);
+}
+
+void VaultManager::ensure_initialized(bool seed_if_empty) {
+    if (root_path_.empty()) return;
     std::error_code ec;
     fs::path root_p = utf8_to_path(root_path_);
     if (!fs::exists(root_p, ec)) {
         fs::create_directories(root_p, ec);
     }
+    if (!seed_if_empty) return;
 
     bool empty = true;
     for (const auto& entry : fs::directory_iterator(root_p, ec)) {
@@ -191,18 +250,37 @@ void VaultManager::ensure_initialized() {
 
 JsonValue VaultManager::scan_tree() const {
     JsonValue res = JsonValue::make_object();
+    std::error_code ec;
     fs::path root_p = utf8_to_path(root_path_);
-    std::string root_name = path_to_utf8(root_p.filename());
-    if (root_name.empty()) root_name = root_path_;
+    bool bound = !root_path_.empty();
+    bool exists = bound && fs::exists(root_p, ec) && fs::is_directory(root_p, ec);
 
+    std::string root_name = "未选择文件夹";
+    if (bound) {
+        if (!exists) {
+            root_name = "目录已不存在或改名";
+        } else {
+            root_name = path_to_utf8(root_p.filename());
+            if (root_name.empty()) root_name = root_path_;
+        }
+    }
+
+    res["bound"] = bound;
+    res["root_exists"] = exists;
+    res["signature"] = compute_signature();
     res["root_path"] = root_path_;
     res["root_name"] = root_name;
 
     JsonValue categories = JsonValue::make_array();
     JsonValue all_files = JsonValue::make_array();
 
-    std::error_code ec;
-    if (!fs::exists(root_p, ec)) {
+    if (!exists) {
+        JsonValue empty_root = JsonValue::make_object();
+        empty_root["name"] = root_name;
+        empty_root["rel_path"] = "";
+        empty_root["dirs"] = JsonValue::make_array();
+        empty_root["files"] = JsonValue::make_array();
+        res["tree_root"] = std::move(empty_root);
         res["categories"] = std::move(categories);
         res["files"] = std::move(all_files);
         return res;
@@ -245,14 +323,15 @@ JsonValue VaultManager::scan_tree() const {
     res["tree_root"] = build_dir_tree(root_p);
 
     // Walk all files for flat lookup / search
-    for (fs::recursive_directory_iterator it(root_p, ec), end; it != end; it.increment(ec)) {
-        if (ec) continue;
+    for (fs::recursive_directory_iterator it(root_p, fs::directory_options::skip_permission_denied, ec), end; it != end; it.increment(ec)) {
+        if (ec) { ec.clear(); continue; }
         std::string name = path_to_utf8(it->path().filename());
+        std::error_code tec;
         if (is_hidden_name(name)) {
-            if (it->is_directory(ec)) it.disable_recursion_pending();
+            if (it->is_directory(tec)) it.disable_recursion_pending();
             continue;
         }
-        if (it->is_regular_file(ec) && is_supported_doc_ext(lower_ext(it->path()))) {
+        if (it->is_regular_file(tec) && is_supported_doc_ext(lower_ext(it->path()))) {
             all_files.push_back(build_file_json(it->path()));
         }
     }
@@ -367,6 +446,10 @@ bool VaultManager::save_document(const std::string& rel_or_abs_path,
                                  const std::string& markdown_content,
                                  std::string* err,
                                  const DocxExportContext* ctx) const {
+    if (root_path_.empty() && !utf8_to_path(rel_or_abs_path).is_absolute()) {
+        if (err) *err = "请先选择一个本地知识库文件夹";
+        return false;
+    }
     std::string abs = resolve_safe_path(rel_or_abs_path);
     fs::path p = utf8_to_path(abs);
     std::error_code ec;
@@ -384,6 +467,10 @@ bool VaultManager::save_document(const std::string& rel_or_abs_path,
 }
 
 bool VaultManager::create_note(const std::string& rel_path, const std::string& initial_md, std::string* err) const {
+    if (!root_exists()) {
+        if (err) *err = "绑定目录不存在或尚未选择，请先选择一个本地知识库文件夹";
+        return false;
+    }
     std::string normalized = rel_path;
     if (normalized.find('.') == std::string::npos) normalized += ".md";
     std::string abs = resolve_safe_path(normalized);
@@ -400,6 +487,10 @@ bool VaultManager::create_note(const std::string& rel_path, const std::string& i
 }
 
 bool VaultManager::create_folder(const std::string& rel_path, std::string* err) const {
+    if (!root_exists()) {
+        if (err) *err = "绑定目录不存在或尚未选择，请先选择一个本地知识库文件夹";
+        return false;
+    }
     std::string abs = resolve_safe_path(rel_path);
     std::error_code ec;
     if (fs::create_directories(utf8_to_path(abs), ec)) {
@@ -411,6 +502,7 @@ bool VaultManager::create_folder(const std::string& rel_path, std::string* err) 
 }
 
 std::string VaultManager::resolve_wikilink(const std::string& name) const {
+    if (root_path_.empty()) return "";
     std::error_code ec;
     fs::path root_p = utf8_to_path(root_path_);
     if (!fs::exists(root_p, ec)) return "";
@@ -495,6 +587,10 @@ bool VaultManager::append_vocabulary_entry(const std::string& word,
                                            const std::string& pos,
                                            const std::string& note,
                                            std::string* err) const {
+    if (root_path_.empty()) {
+        if (err) *err = "请先选择一个本地知识库文件夹";
+        return false;
+    }
     fs::path vocab_p = utf8_to_path(root_path_) / utf8_to_path("English/生词沉淀/Vocabulary.md");
     std::error_code ec;
     if (!fs::exists(vocab_p, ec)) {

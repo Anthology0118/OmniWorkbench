@@ -1223,6 +1223,15 @@ MdDocument parse_markdown(const std::string& md) {
             continue;
         }
 
+        // Explicit Word PageBreak directive <!-- pagebreak --> or \newpage
+        if (to_lower_ascii(t) == "<!-- pagebreak -->" || t == "\\newpage") {
+            MdBlock blk;
+            blk.kind = MdBlock::Kind::PageBreak;
+            doc.blocks.push_back(std::move(blk));
+            ++i;
+            continue;
+        }
+
         // Check <!-- wp:... --> block directive
         BlockProps parsed_dir;
         if (parse_block_props_directive(t, parsed_dir)) {
@@ -1606,6 +1615,13 @@ std::string render_markdown_to_html(const MdDocument& doc,
                 break;
             case MdBlock::Kind::Hr:
                 body << "<hr class=\"omni-hr\" />\n";
+                break;
+            case MdBlock::Kind::PageBreak:
+                if (standalone_a4) {
+                    body << "<div style=\"page-break-after:always;break-after:page;height:0;overflow:hidden;\"></div>\n";
+                } else {
+                    body << "<div class=\"omni-pagebreak\" contenteditable=\"false\" data-omni-pagebreak=\"1\"><span>—— 分页符 (Page Break) ——</span><button type=\"button\" class=\"omni-box-btn\" onclick=\"deleteAtomicBlock(this)\">删除</button></div>\n";
+                }
                 break;
             case MdBlock::Kind::Table: {
                 body << "<table class=\"omni-table\">\n";

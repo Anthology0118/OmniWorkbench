@@ -5,6 +5,7 @@
 #include "../core/markdown.hpp"
 #include "../core/pdf_converter.hpp"
 #include "../core/platform_utils.hpp"
+#include "../generated/embedded_ui.hpp"
 
 #include <chrono>
 #include <cstring>
@@ -119,7 +120,6 @@ DocxExportContext build_docx_ctx(const JsonValue& body) {
 AppServer::AppServer(std::string ui_html)
     : ui_html_(std::move(ui_html)),
       vault_(config_.get().vault_path) {
-    vault_.ensure_initialized();
     dict_.init();
 }
 
@@ -366,10 +366,22 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         return {200, "text/html; charset=utf-8", ui_html_};
     }
 
+    if (req.method == "GET" && (req.path == "/app_icon.png" || req.path == "/favicon.ico")) {
+        return {200, "image/png", get_embedded_icon_png()};
+    }
+
     if (req.path == "/api/window-ping") {
         has_seen_client_.store(true);
         last_ping_ms_.store(now_ms());
-        return {200, "application/json; charset=utf-8", "{\"ok\":true}"};
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = true;
+        std::unique_lock<std::mutex> try_lk(state_mutex_, std::try_to_lock);
+        if (try_lk.owns_lock()) {
+            res["vault_path"] = vault_.root();
+            res["root_exists"] = vault_.root_exists();
+            res["vault_sig"] = vault_.compute_signature();
+        }
+        return {200, "application/json; charset=utf-8", res.dump()};
     }
 
     if (req.method == "POST" && req.path == "/api/shutdown") {
@@ -405,10 +417,10 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         if (body.has("active_tab")) config_.mutable_get().active_tab = body.get("active_tab").as_string("english");
         if (body.has("vault_path")) {
             std::string vp = body.get("vault_path").as_string();
+            config_.mutable_get().vault_path = vp;
+            vault_.set_root(vp);
             if (!vp.empty()) {
-                config_.mutable_get().vault_path = vp;
-                vault_.set_root(vp);
-                vault_.ensure_initialized();
+                vault_.ensure_initialized(false);
             }
         }
         config_.save();
@@ -430,12 +442,21 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         config_.mutable_get().vault_path = picked;
         config_.save();
         vault_.set_root(picked);
-        vault_.ensure_initialized();
+        vault_.ensure_initialized(false);
 
         JsonValue res = JsonValue::make_object();
         res["ok"] = true;
         res["vault_path"] = picked;
         res["tree"] = vault_.scan_tree();
+        return {200, "application/json; charset=utf-8", res.dump()};
+    }
+
+    if (req.method == "GET" && req.path == "/api/vault/watch") {
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = true;
+        res["vault_path"] = vault_.root();
+        res["root_exists"] = vault_.root_exists();
+        res["vault_sig"] = vault_.compute_signature();
         return {200, "application/json; charset=utf-8", res.dump()};
     }
 
@@ -543,6 +564,9 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         auto stamp = std::to_string(now_ms() % 1000000);
         std::string final_name = stamp + "_" + safe_name;
 
+        if (vault_.root().empty()) {
+            return {400, "application/json; charset=utf-8", make_error("请先选择一个本地知识库文件夹").dump()};
+        }
         fs::path root_p = utf8_to_path(vault_.root());
         fs::path doc_dir = doc_rel.empty() ? root_p : (root_p / utf8_to_path(doc_rel)).parent_path();
         fs::path assets_dir = doc_dir / "assets";
@@ -859,12 +883,17 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         std::string pos = body.get("pos").as_string();
         std::string note = body.get("note").as_string();
         dict_.save_note(word, note);
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = true;
+        if (vault_.root().empty()) {
+            res["synced_to_vault"] = false;
+            return {200, "application/json; charset=utf-8", res.dump()};
+        }
         std::string err;
         if (!vault_.append_vocabulary_entry(word, ipa, pos, note, &err)) {
             return {500, "application/json; charset=utf-8", make_error(err).dump()};
         }
-        JsonValue res = JsonValue::make_object();
-        res["ok"] = true;
+        res["synced_to_vault"] = true;
         res["tree"] = vault_.scan_tree();
         return {200, "application/json; charset=utf-8", res.dump()};
     }

@@ -53,6 +53,9 @@ bool write_minimal_pdf_fallback(const MdDocument& doc, const std::string& out_pd
         } else if (blk.kind == MdBlock::Kind::Hr) {
             lines.push_back("----------------------------------------");
             continue;
+        } else if (blk.kind == MdBlock::Kind::PageBreak) {
+            lines.push_back("============ PAGE BREAK ============");
+            continue;
         } else {
             text = blk.raw;
         }

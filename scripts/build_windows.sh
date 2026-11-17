@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 WIN_STAGE_WSL="/mnt/d/msys/tmp/omni_build"
 GPP="/mnt/d/msys/ucrt64/bin/g++.exe"
+WINDRES="/mnt/d/msys/ucrt64/bin/windres.exe"
 
 python3 "$ROOT_DIR/scripts/embed_ui.py" "$ROOT_DIR/web/index.html" "$ROOT_DIR/src/generated/embedded_ui.hpp"
 
@@ -11,6 +12,9 @@ rm -rf "$WIN_STAGE_WSL"
 mkdir -p "$WIN_STAGE_WSL/obj" "$ROOT_DIR/build/win"
 cp -r "$ROOT_DIR/src" "$WIN_STAGE_WSL/"
 cp -r "$ROOT_DIR/tests" "$WIN_STAGE_WSL/"
+if [ -d "$ROOT_DIR/assets" ]; then
+  cp -r "$ROOT_DIR/assets" "$WIN_STAGE_WSL/"
+fi
 
 cd "$WIN_STAGE_WSL"
 
@@ -41,8 +45,15 @@ done
 echo "  [CC] src/desktop/main.cpp"
 timeout 30 "$GPP" "${CFLAGS[@]}" -c src/desktop/main.cpp -o obj/main.o < /dev/null
 
+RES_OBJ=()
+if [ -f "assets/app.rc" ] && [ -x "$WINDRES" ]; then
+  echo "  [RC] assets/app.rc"
+  timeout 30 "$WINDRES" assets/app.rc -O coff -o obj/app_res.o < /dev/null
+  RES_OBJ+=("obj/app_res.o")
+fi
+
 echo "  [LD] OmniWorkbench.exe"
-timeout 30 "$GPP" -mwindows -static "${OBJS[@]}" obj/main.o -o OmniWorkbench.exe \
+timeout 30 "$GPP" -mwindows -static "${OBJS[@]}" obj/main.o "${RES_OBJ[@]}" -o OmniWorkbench.exe \
   -lsqlite3 -lz -lws2_32 -lole32 -lshell32 -lcomdlg32 -luuid -lpthread < /dev/null
 
 echo "  [CC] tests/test_main.cpp"

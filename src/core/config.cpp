@@ -12,7 +12,7 @@ namespace fs = std::filesystem;
 ConfigManager::ConfigManager() {
     fs::path p = utf8_to_path(get_app_data_dir()) / "omni_config.json";
     config_path_ = path_to_utf8(p);
-    cfg_.vault_path = get_default_vault_dir();
+    cfg_.vault_path = "";
     cfg_.marked_words.insert("insight");
     load();
 }
@@ -28,8 +28,8 @@ bool ConfigManager::load() {
     }
     if (root.has("theme")) cfg_.theme = root.get("theme").as_string("white");
     if (root.has("active_tab")) cfg_.active_tab = root.get("active_tab").as_string("english");
-    if (root.has("vault_path") && !root.get("vault_path").as_string().empty()) {
-        cfg_.vault_path = root.get("vault_path").as_string();
+    if (root.has("vault_path")) {
+        cfg_.vault_path = root.get("vault_path").as_string("");
     }
     if (root.get("marked_words").is_array()) {
         cfg_.marked_words.clear();

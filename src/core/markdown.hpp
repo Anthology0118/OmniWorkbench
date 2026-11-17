@@ -64,7 +64,8 @@ struct MdBlock {
         MathBlock,
         DiagramBlock,
         Table,
-        Hr
+        Hr,
+        PageBreak
     };
     Kind kind = Kind::Paragraph;
     int level = 1;        // Heading 1..6, or OrderedItem number

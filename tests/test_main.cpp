@@ -82,6 +82,7 @@ static void test_md_docx_roundtrip_and_pdf(const fs::path& tmp_dir) {
         "```python\nprint('hello wps')\n```\n\n"
         "```figma\n{\"width\":680,\"height\":360,\"title\":\"测试算法框\",\"nodes\":[{\"id\":\"n1\",\"shape\":\"pill\",\"x\":40,\"y\":40,\"w\":120,\"h\":44,\"fill\":\"#EFF6FF\",\"stroke\":\"#2563EB\",\"label\":\"Start\"},{\"id\":\"n2\",\"shape\":\"rect\",\"x\":240,\"y\":40,\"w\":140,\"h\":48,\"fill\":\"#ECFDF5\",\"stroke\":\"#059669\",\"label\":\"Process\"}],\"edges\":[{\"from\":\"n1\",\"to\":\"n2\",\"label\":\"next\"}]}\n```\n\n"
         "![dot](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==)\n\n"
+        "<!-- pagebreak -->\n\n"
         "| 指标 | 数值 | 备注 |\n"
         "| :--- | :---: | ---: |\n"
         "| 精度 | 96.5% | 合格 |\n";
@@ -121,6 +122,7 @@ static void test_md_docx_roundtrip_and_pdf(const fs::path& tmp_dir) {
     assert(doc_xml.find("OMNI_FIGMA:") != std::string::npos);
     assert(doc_xml.find("<w:drawing>") != std::string::npos);
     assert(doc_xml.find("w:line=\"460\" w:lineRule=\"atLeast\"") != std::string::npos);
+    assert(doc_xml.find("<w:br w:type=\"page\"/>") != std::string::npos);
 
     std::string extracted_md;
     assert(omni::docx_to_markdown(docx_utf8, extracted_md, &err));
@@ -139,6 +141,7 @@ static void test_md_docx_roundtrip_and_pdf(const fs::path& tmp_dir) {
     assert(extracted_md.find("```python") != std::string::npos);
     assert(extracted_md.find("```figma") != std::string::npos);
     assert(extracted_md.find("data:image/png;base64,") != std::string::npos);
+    assert(extracted_md.find("<!-- pagebreak -->") != std::string::npos);
     assert(extracted_md.find("- [x] 已完成任务") != std::string::npos);
     assert(extracted_md.find("\\frac") != std::string::npos);
     assert(extracted_md.find("\\begin{pmatrix}") != std::string::npos);
@@ -173,6 +176,23 @@ static void test_vault_and_dict(const fs::path& tmp_dir) {
     omni::VaultFileContent vfc;
     assert(vm.open_document(resolved, vfc));
     assert(vfc.markdown.find("orthogonal") != std::string::npos);
+
+    // Unbound VaultManager stays empty and never seeds defaults
+    omni::VaultManager unbound_vm("");
+    assert(unbound_vm.root().empty());
+    assert(!unbound_vm.root_exists());
+    assert(unbound_vm.compute_signature() == "UNBOUND");
+
+    // External deletion / rename of bound directory is detected accurately
+    std::string sig_before = vm.compute_signature();
+    assert(sig_before.rfind("OK:", 0) == 0);
+    std::error_code del_ec;
+    fs::remove_all(vault_dir, del_ec);
+    assert(!vm.root_exists());
+    assert(vm.compute_signature().rfind("MISSING:", 0) == 0);
+    auto missing_tree = vm.scan_tree();
+    assert(missing_tree.get("bound").as_bool(false) == true);
+    assert(missing_tree.get("root_exists").as_bool(true) == false);
 
     omni::DictManager dm((tmp_dir / "test_dict.db").string());
     assert(dm.init());

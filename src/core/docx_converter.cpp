@@ -1327,7 +1327,9 @@ std::string extract_run_markdown(const XmlNode* r_node,
         } else if (ln == "tab") {
             text += "    ";
         } else if (ln == "br") {
-            text += "<br/>";
+            if (to_lower(c->attr("type")) != "page") {
+                text += "<br/>";
+            }
         }
     }
     if (text.empty()) return "";
@@ -1679,6 +1681,10 @@ bool markdown_to_docx(const std::string& md,
                 doc_xml << "    <w:p><w:pPr><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"1\" w:color=\"CBD5E1\"/></w:pBdr></w:pPr></w:p>\n";
                 break;
             }
+            case MdBlock::Kind::PageBreak: {
+                doc_xml << "    <w:p><w:r><w:br w:type=\"page\"/></w:r></w:p>\n";
+                break;
+            }
             case MdBlock::Kind::Table: {
                 doc_xml << "    <w:tbl><w:tblPr><w:tblW w:w=\"9000\" w:type=\"dxa\"/>"
                         << "<w:tblBorders>"
@@ -1840,8 +1846,23 @@ bool docx_to_markdown(const std::string& docx_path, std::string& out_md, std::st
                 continue;
             }
 
-            // Detect horizontal rule paragraph (empty text with bottom pBdr)
+            // Detect explicit page break (<w:r><w:br w:type="page"/></w:r>) or horizontal rule paragraph
+            bool has_page_break = false;
+            for (const auto& rnode : child->children_named("r")) {
+                for (const auto& brnode : rnode->children_named("br")) {
+                    if (to_lower(brnode->attr("type")) == "page") {
+                        has_page_break = true;
+                        break;
+                    }
+                }
+                if (has_page_break) break;
+            }
             if (text.empty()) {
+                if (has_page_break) {
+                    prev_was_list = false;
+                    push_line("<!-- pagebreak -->");
+                    continue;
+                }
                 if (auto pPr = child->first_child("pPr")) {
                     if (auto pBdr = pPr->first_child("pBdr")) {
                         if (pBdr->first_child("bottom")) {

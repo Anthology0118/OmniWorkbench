@@ -27,11 +27,13 @@ public:
 
     void set_root(const std::string& root_path);
     const std::string& root() const { return root_path_; }
+    bool root_exists() const;
+    std::string compute_signature() const;
 
     /**
-     * Ensure vault directory exists; seed starter structure if completely empty.
+     * Ensure vault directory exists; optionally seed starter structure if empty.
      */
-    void ensure_initialized();
+    void ensure_initialized(bool seed_if_empty = true);
 
     /**
      * Scan real filesystem up to 4 layers deep and return structured JSON for the UI.
