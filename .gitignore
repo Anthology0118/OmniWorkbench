@@ -1,0 +1,25 @@
+# Build outputs & binaries
+build/
+build-*/
+*.exe
+*.o
+*.a
+*.so
+*.dll
+
+# Generated C++ embedded UI header (rebuilt by scripts/embed_ui.py)
+src/generated/
+
+# Local SQLite databases & user vault data
+*.db
+*.db-wal
+*.db-shm
+OmniVault/
+
+# Editor / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
