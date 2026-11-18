@@ -1087,12 +1087,26 @@
       font-size: 12px; line-height: 1.55; width: 38px; min-width: 38px; flex-shrink: 0;
       white-space: pre; border-right: 1px solid #262B35; user-select: none; overflow: hidden;
     }
-    .ds-ide-editor {
-      flex: 1; background: transparent; color: #E5E7EB; border: none; outline: none;
-      resize: none; padding: 8px 10px; font-size: 12px; line-height: 1.55;
-      tab-size: 4; white-space: pre; overflow: auto; scrollbar-color: #4B5563 #14171C; scrollbar-width: thin;
+    .ds-ide-stage {
+      position: relative; flex: 1; min-width: 0; overflow: hidden;
     }
-    .ds-ide-editor.wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ds-ide-hl, .ds-ide-editor {
+      position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: none;
+      padding: 8px 10px 18px 10px; font-size: 12px; line-height: 1.55;
+      tab-size: 4; white-space: pre; box-sizing: border-box;
+      font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+    }
+    .ds-ide-hl {
+      z-index: 1; color: #E5E7EB; background: transparent; pointer-events: none; overflow: hidden;
+    }
+    .ds-ide-hl .tok-kw { font-weight: inherit; }
+    .ds-ide-editor {
+      z-index: 2; background: transparent; color: transparent; caret-color: #93C5FD;
+      outline: none; resize: none; overflow: auto;
+      scrollbar-color: #4B5563 #14171C; scrollbar-width: thin;
+    }
+    .ds-ide-editor::selection { background: rgba(59, 130, 246, 0.38); color: transparent; }
+    .ds-ide-hl.wrapped, .ds-ide-editor.wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
     .ds-ex-actions {
       padding: 6px 10px; background: var(--bg-panel);
       border-top: 1px solid var(--border-line); border-bottom: 1px solid var(--border-line);
@@ -1901,10 +1915,13 @@
           </div>
           <div class="ds-ide-wrap">
             <div id="ds-ide-gutter" class="ds-ide-gutter mono">1</div>
-            <textarea id="ds-ide-editor" class="ds-ide-editor mono selectable-text" spellcheck="false"
-                      oninput="onDsEditorInput()"
-                      onscroll="document.getElementById('ds-ide-gutter').scrollTop=this.scrollTop;"
-                      onkeydown="handleDsEditorKeyDown(event)"></textarea>
+            <div class="ds-ide-stage">
+              <pre id="ds-ide-hl" class="ds-ide-hl mono" aria-hidden="true"></pre>
+              <textarea id="ds-ide-editor" class="ds-ide-editor mono selectable-text" spellcheck="false"
+                        oninput="onDsEditorInput()"
+                        onscroll="syncDsIdeScroll()"
+                        onkeydown="handleDsEditorKeyDown(event)"></textarea>
+            </div>
           </div>
           <div class="ds-ex-actions">
             <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
@@ -7677,7 +7694,7 @@ function loadCurrentDsExerciseIntoIde() {
         statusPill.className = 'ds-pill amber'; statusPill.textContent = '待提交评测';
       }
     }
-    if (stdinInp && !stdinInp.value) stdinInp.value = smpIn;
+    if (stdinInp) stdinInp.value = smpIn;
     if (submitBtn) submitBtn.classList.remove('hidden');
   }
   updateDsIdeGutter();
@@ -7686,14 +7703,34 @@ function loadCurrentDsExerciseIntoIde() {
   }
 }
 
+function syncDsIdeScroll() {
+  const ed = document.getElementById('ds-ide-editor');
+  const gut = document.getElementById('ds-ide-gutter');
+  const hl = document.getElementById('ds-ide-hl');
+  if (!ed) return;
+  if (gut) gut.scrollTop = ed.scrollTop;
+  if (hl) {
+    hl.scrollTop = ed.scrollTop;
+    hl.scrollLeft = ed.scrollLeft;
+  }
+}
+
 function updateDsIdeGutter() {
   const ed = document.getElementById('ds-ide-editor');
   const gut = document.getElementById('ds-ide-gutter');
-  if (!ed || !gut) return;
-  const n = Math.max(1, ed.value.split('\n').length);
-  let lines = '';
-  for (let i = 1; i <= n; ++i) lines += i + '\n';
-  gut.textContent = lines;
+  const hl = document.getElementById('ds-ide-hl');
+  if (!ed) return;
+  if (gut) {
+    const n = Math.max(1, ed.value.split('\n').length);
+    let lines = '';
+    for (let i = 1; i <= n; ++i) lines += i + '\n';
+    gut.textContent = lines;
+  }
+  if (hl) {
+    hl.innerHTML = formatCppHighlightOverlay(ed.value);
+    hl.scrollTop = ed.scrollTop;
+    hl.scrollLeft = ed.scrollLeft;
+  }
 }
 
 function onDsEditorInput() {
@@ -7717,7 +7754,7 @@ function handleDsEditorKeyDown(e) {
   }
 }
 
-function formatCppCodeHtml(code) {
+function highlightCppLines(code) {
   const kws = new Set(['if','else','for','while','do','switch','case','default','break','continue','return','struct','class','using','namespace','const','static','explicit','sizeof','typedef','new','delete','true','false','nullptr','NULL','auto','public','private']);
   const tys = new Set(['int','long','double','float','char','bool','void','string','vector','queue','stack','deque','priority_queue','set','map','unordered_map','pair','Node','ListNode','Edge','bign','Fraction','BIT','DSU','SegTree','ull']);
   const fns = new Set(['main','scanf','printf','gets','puts','getchar','putchar','cin','cout','getline','sort','lower_bound','upper_bound','reverse','swap','min','max','memset','strlen','strcmp','strcpy','sscanf','sprintf','push_back','pop_back','push','pop','top','front','back','empty','size','begin','end','find','insert','erase','iota']);
@@ -7757,11 +7794,19 @@ function formatCppCodeHtml(code) {
       out += escapeXml(line[i]);
       ++i;
     }
-    return out || ' ';
+    return out;
   };
-  return lines.map((ln, idx) =>
-    `<div class="ds-code-line"><span class="ds-code-ln">${idx + 1}</span><span class="ds-code-src">${highlightLine(ln)}</span></div>`
+  return lines.map(highlightLine);
+}
+
+function formatCppCodeHtml(code) {
+  return highlightCppLines(code).map((hl, idx) =>
+    `<div class="ds-code-line"><span class="ds-code-ln">${idx + 1}</span><span class="ds-code-src">${hl || ' '}</span></div>`
   ).join('');
+}
+
+function formatCppHighlightOverlay(code) {
+  return highlightCppLines(code).join('\n') + '\n ';
 }
 
 function copyDsTemplate() {
@@ -7925,9 +7970,11 @@ function toggleDsCodeWrap() {
 
 function toggleDsIdeWrap() {
   const ed = document.getElementById('ds-ide-editor');
+  const hl = document.getElementById('ds-ide-hl');
   const btn = document.getElementById('btn-ds-ide-wrap');
   if (!ed) return;
   const wrapped = ed.classList.toggle('wrapped');
+  if (hl) hl.classList.toggle('wrapped', wrapped);
   if (btn) {
     btn.style.background = wrapped ? 'var(--bg-active)' : '';
     btn.style.color = wrapped ? 'var(--text-active)' : '';
