@@ -171,22 +171,37 @@
     }
     .nav-btn span { font-size: 11.5px; font-weight: 600; }
 
+    /* Scrollbar Polish across all panes */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.42); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.68); }
+
     /* Split Workspace: Left 40% + Right 60% */
     .split-workspace {
       display: flex; flex-direction: row; flex: 1; min-width: 0; height: 100%; overflow: hidden;
     }
     .left-pane {
-      width: 43%; min-width: 375px; height: 100%;
+      width: 42%; min-width: 340px; height: 100%;
       display: flex; flex-direction: column; justify-content: space-between;
       background: var(--bg-panel);
       border-right: 1px solid var(--border-line);
       overflow: hidden; flex-shrink: 0;
+      transition: width 0.18s ease;
+    }
+    .left-pane.pane-collapsed {
+      display: none !important;
     }
     .right-pane {
-      width: 57%; flex: 1; min-width: 430px; height: 100%;
+      width: 58%; flex: 1; min-width: 360px; height: 100%;
       display: flex; flex-direction: column;
       background: var(--bg-app);
       overflow-y: auto; overflow-x: hidden;
+    }
+    @media (max-width: 960px) {
+      .split-workspace { flex-direction: column; overflow-y: auto; }
+      .left-pane { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto; max-height: 48vh; border-right: none; border-bottom: 1px solid var(--border-line); }
+      .right-pane { width: 100% !important; min-width: 0 !important; height: auto; min-height: 58vh; }
     }
 
     .pane-scroll { flex: 1; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; min-height: 0; }
@@ -229,7 +244,7 @@
     .cube-viewport {
       perspective: 1000px;
       touch-action: none;
-      width: 100%; height: 266px; flex: none; margin-top: 0;
+      width: 100%; height: clamp(195px, 30vh, 260px); flex: none; margin-top: 0;
       border-radius: 16px; border: 1px solid var(--border-line);
       background: radial-gradient(circle at center, var(--bg-card) 0%, var(--bg-subtle) 100%);
       display: flex; align-items: center; justify-content: center;
@@ -469,11 +484,11 @@
        Knowledge Vault & Word/MD/LaTeX/PDF Editor Styles
        ====================================================================== */
     #view-knowledge .left-pane {
-      width: 31%; min-width: 315px; max-width: 410px;
+      width: 29%; min-width: 285px; max-width: 390px;
       padding: 10px; gap: 8px; justify-content: flex-start;
     }
     .vault-canvas-wrap {
-      flex: 1 1 60%; display: flex; flex-direction: column; min-height: 280px; margin-top: 0;
+      flex: 1 1 56%; display: flex; flex-direction: column; min-height: 185px; margin-top: 0;
       border: 1px solid var(--border-line); border-radius: 14px; background: var(--bg-app);
       overflow: hidden; position: relative;
     }
@@ -497,7 +512,7 @@
     .vault-svg-area { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px; position: relative; }
 
     .md-cheat-card {
-      flex: 0 0 auto; max-height: 37%; overflow-y: auto;
+      flex: 0 0 auto; max-height: 44%; overflow-y: auto;
       background: var(--bg-card); border: 1px solid var(--border-line); border-radius: 12px;
       padding: 9px 11px;
     }
@@ -527,17 +542,25 @@
       gap: 6px; flex-shrink: 0; z-index: 10;
     }
     .editor-content-wrap {
-      padding: 10px 12px; flex: 1; display: block;
+      padding: 12px 14px; flex: 1; display: block;
       min-height: 0; overflow: auto;
     }
     #view-knowledge .right-pane {
-      display: flex; flex-direction: row; overflow: hidden;
+      display: flex; flex-direction: row; overflow: hidden; min-width: 0;
     }
     .editor-side-dock {
-      width: 184px; flex-shrink: 0; height: 100%;
+      width: 186px; flex-shrink: 0; height: 100%;
       background: var(--bg-panel); border-right: 1px solid var(--border-line);
-      padding: 8px; display: flex; flex-direction: column; gap: 7px;
+      padding: 8px; display: flex; flex-direction: column; gap: 6px;
       overflow-y: auto; overflow-x: hidden; z-index: 12;
+    }
+    .editor-side-dock.dock-collapsed {
+      display: none !important;
+    }
+    .stage-mini-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 4px 10px; background: var(--bg-panel); border-bottom: 1px solid var(--border-line);
+      flex-shrink: 0; font-size: 11px;
     }
     .editor-stage-col {
       flex: 1; min-width: 0; height: 100%;
@@ -873,10 +896,10 @@
        TAB 4: C++ Data Structures & Algorithms Workspace (#view-ds)
        ====================================================================== */
     #view-ds .left-pane {
-      width: 41%; min-width: 360px; padding: 12px; gap: 10px; justify-content: flex-start;
+      width: 38%; min-width: 330px; max-width: 470px; padding: 10px; gap: 8px; justify-content: flex-start;
     }
     #view-ds .right-pane {
-      width: 59%; padding: 12px 14px; gap: 10px; overflow: hidden; background: var(--bg-app);
+      width: 62%; min-width: 0; padding: 10px 12px; gap: 8px; overflow-y: auto; overflow-x: hidden; background: var(--bg-app);
     }
     .ds-card {
       background: var(--bg-card); border: 1px solid var(--border-line);
@@ -884,8 +907,8 @@
       display: flex; flex-direction: column; overflow: hidden;
     }
     .ds-card-head {
-      padding: 8px 12px; border-bottom: 1px solid var(--border-line);
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding: 7px 11px; border-bottom: 1px solid var(--border-line);
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;
       background: var(--bg-panel); flex-shrink: 0;
     }
     .ds-pill {
@@ -896,10 +919,10 @@
     .ds-pill.purple { background: var(--purple-soft); color: var(--purple); }
     .ds-pill.amber { background: rgba(245, 158, 11, 0.14); color: #D97706; }
 
-    .ds-chapters-card { flex: 1.25; min-height: 0; }
+    .ds-chapters-card { flex: 1 1 0; min-height: 220px; }
     .ds-filter-bar {
-      padding: 8px 10px; border-bottom: 1px solid var(--border-line);
-      display: flex; flex-direction: column; gap: 6px; background: var(--bg-app); flex-shrink: 0;
+      padding: 7px 9px; border-bottom: 1px solid var(--border-line);
+      display: flex; flex-direction: column; gap: 5px; background: var(--bg-app); flex-shrink: 0;
     }
     .ds-search-inp {
       width: 100%; background: var(--bg-panel); border: 1px solid var(--border-line);
@@ -908,20 +931,20 @@
     .ds-search-inp:focus { border-color: var(--blue); }
     .ds-cat-row { display: flex; flex-wrap: wrap; gap: 4px; }
     .ds-cat-btn {
-      font-size: 10px; padding: 2px 8px; border-radius: 6px;
+      font-size: 10px; padding: 2px 7px; border-radius: 6px;
       border: 1px solid var(--border-line); background: var(--bg-panel);
       color: var(--text-secondary); font-weight: 500;
     }
     .ds-cat-btn.active { background: var(--bg-active); color: var(--text-active); border-color: var(--bg-active); }
 
-    .ds-chap-scroll { flex: 1; overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .ds-chap-scroll { flex: 1; overflow-y: auto; padding: 7px 9px; display: flex; flex-direction: column; gap: 5px; }
     .ds-chap-box { border: 1px solid var(--border-line); border-radius: 10px; overflow: hidden; background: var(--bg-panel); flex-shrink: 0; }
     .ds-chap-head {
-      width: 100%; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      width: 100%; padding: 6px 9px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
       font-size: 11.5px; font-weight: 700; background: var(--bg-subtle); text-align: left;
     }
     .ds-chap-box.open .ds-chap-head { background: var(--blue-soft); color: var(--blue); border-bottom: 1px solid var(--border-line); }
-    .ds-les-list { padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+    .ds-les-list { padding: 4px; display: flex; flex-direction: column; gap: 2px; }
     .ds-les-btn {
       width: 100%; padding: 5px 8px; border-radius: 7px; font-size: 11px;
       display: flex; align-items: center; justify-content: space-between; gap: 6px;
@@ -933,45 +956,54 @@
       border: 1px solid rgba(37, 99, 235, 0.28);
     }
 
-    .ds-viz-card { flex: 0.85; min-height: 220px; }
+    .ds-viz-card { flex: 0 0 auto; min-height: 0; }
     .ds-viz-stage {
-      flex: 1; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between;
-      background: var(--bg-app); min-height: 0;
+      padding: 6px 10px 8px 10px; display: flex; flex-direction: column; gap: 6px;
+      background: var(--bg-app);
+    }
+    #ds-viz-svg {
+      width: 100%; height: clamp(102px, 16vh, 136px); display: block;
     }
     .ds-viz-ctl {
-      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px;
       padding-top: 6px; border-top: 1px dashed var(--border-line); font-size: 10.5px; flex-shrink: 0;
+    }
+    #ds-viz-caption {
+      font-size: 10.5px; color: var(--text-secondary); flex: 1 1 160px;
+      line-height: 1.35; text-align: right; white-space: normal; word-break: break-word;
     }
 
     /* Right Top: Colorful Web Page Tutorial */
-    .ds-tutorial-card { flex: 0.96; min-height: 0; }
+    .ds-tutorial-card { flex: 1 1 44%; min-height: 235px; }
+    .ds-tutorial-card.ds-panel-expanded { flex: 1 1 100% !important; min-height: 460px !important; }
+    .ds-tutorial-card.ds-panel-hidden { display: none !important; }
     .ds-tutorial-body {
-      flex: 1; display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 10px;
-      padding: 10px 12px; min-height: 0; overflow: hidden;
+      flex: 1; display: grid; grid-template-columns: 1.04fr 0.96fr; gap: 10px;
+      padding: 9px 11px; min-height: 0; overflow: hidden;
     }
-    .ds-tut-scroll { overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 7px; font-size: 11.5px; line-height: 1.55; }
+    .ds-tut-scroll { overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 7px; font-size: 11.8px; line-height: 1.58; }
     .ds-tut-lead {
       background: linear-gradient(135deg, var(--blue-soft), var(--purple-soft));
-      border-left: 3px solid var(--blue); border-radius: 0 9px 9px 0;
-      padding: 7px 10px; font-size: 11.5px; color: var(--text-primary);
+      border-left: 3.5px solid var(--blue); border-radius: 0 9px 9px 0;
+      padding: 8px 10px; font-size: 11.8px; color: var(--text-primary);
     }
-    .ds-tut-steps { display: flex; flex-direction: column; gap: 5px; }
+    .ds-tut-steps { display: flex; flex-direction: column; gap: 6px; }
     .ds-step-card {
-      border-radius: 8px; padding: 6px 9px; border: 1px solid var(--border-line); background: var(--bg-subtle);
+      border-radius: 9px; padding: 7px 10px; border: 1px solid var(--border-line); background: var(--bg-subtle);
     }
-    .ds-step-card.tone-blue   { border-left: 3px solid #2563EB; background: rgba(37, 99, 235, 0.05); }
-    .ds-step-card.tone-green  { border-left: 3px solid #059669; background: rgba(16, 185, 129, 0.06); }
-    .ds-step-card.tone-purple { border-left: 3px solid #7C3AED; background: rgba(124, 58, 237, 0.05); }
-    .ds-step-card.tone-amber  { border-left: 3px solid #D97706; background: rgba(245, 158, 11, 0.06); }
-    .ds-step-title { font-weight: 700; font-size: 11px; color: var(--text-primary); display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
-    .ds-step-num { font-size: 11px; color: var(--blue); }
-    .ds-step-desc { font-size: 11px; color: var(--text-secondary); }
+    .ds-step-card.tone-blue   { border-left: 3.5px solid #2563EB; background: rgba(37, 99, 235, 0.05); }
+    .ds-step-card.tone-green  { border-left: 3.5px solid #059669; background: rgba(16, 185, 129, 0.06); }
+    .ds-step-card.tone-purple { border-left: 3.5px solid #7C3AED; background: rgba(124, 58, 237, 0.05); }
+    .ds-step-card.tone-amber  { border-left: 3.5px solid #D97706; background: rgba(245, 158, 11, 0.06); }
+    .ds-step-title { font-weight: 700; font-size: 11.5px; color: var(--text-primary); display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+    .ds-step-num { font-size: 11.5px; color: var(--blue); }
+    .ds-step-desc { font-size: 11.5px; color: var(--text-secondary); }
     .ds-step-desc code, .ds-tut-lead code, .ds-pitfall-box code {
-      font-family: Consolas, monospace; font-size: 10.5px;
+      font-family: Consolas, monospace; font-size: 10.8px;
       background: rgba(148,163,184,0.16); padding: 0 4px; border-radius: 4px;
     }
     .ds-tut-table-wrap { overflow-x: auto; }
-    .ds-tut-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+    .ds-tut-table { width: 100%; border-collapse: collapse; font-size: 10.8px; }
     .ds-tut-table th, .ds-tut-table td { border: 1px solid var(--border-line); padding: 4px 7px; text-align: left; }
     .ds-tut-table th { background: var(--bg-subtle); font-weight: 700; }
     .ds-tag { padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
@@ -982,7 +1014,7 @@
     .ds-tag.purple { background: var(--purple-soft); color: var(--purple); }
     .ds-pitfall-box {
       background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 8px; padding: 6px 9px; font-size: 10.8px; color: var(--text-secondary);
+      border-radius: 8px; padding: 7px 10px; font-size: 11px; color: var(--text-secondary);
     }
 
     .ds-code-ref {
@@ -991,24 +1023,26 @@
       border: 1px solid #262B35;
     }
     .ds-code-ref-head {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;
       font-size: 10.5px; color: #9CA3AF; padding-bottom: 5px; border-bottom: 1px solid #262B35; margin-bottom: 5px;
       flex-shrink: 0;
     }
     .ds-code-ref-pre {
-      margin: 0; flex: 1; overflow: auto; font-size: 11px; line-height: 1.52;
-      white-space: pre; color: #E5E7EB; scrollbar-color: #374151 #14171C; scrollbar-width: thin;
+      margin: 0; flex: 1; overflow: auto; font-size: 11.2px; line-height: 1.54;
+      white-space: pre; color: #E5E7EB; scrollbar-color: #4B5563 #14171C; scrollbar-width: thin;
     }
-    .ds-code-ref-pre::-webkit-scrollbar, .ds-ide-editor::-webkit-scrollbar { width: 6px; height: 6px; }
+    .ds-code-ref-pre::-webkit-scrollbar, .ds-ide-editor::-webkit-scrollbar { width: 7px; height: 7px; }
     .ds-code-ref-pre::-webkit-scrollbar-track, .ds-ide-editor::-webkit-scrollbar-track { background: #14171C; }
-    .ds-code-ref-pre::-webkit-scrollbar-thumb, .ds-ide-editor::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-    .ds-code-ref-pre::-webkit-scrollbar-thumb:hover, .ds-ide-editor::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+    .ds-code-ref-pre::-webkit-scrollbar-thumb, .ds-ide-editor::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 4px; }
+    .ds-code-ref-pre::-webkit-scrollbar-thumb:hover, .ds-ide-editor::-webkit-scrollbar-thumb:hover { background: #64748B; }
     .ds-code-line { display: flex; min-width: max-content; }
     .ds-code-ln {
-      width: 28px; flex-shrink: 0; color: #525B6B; text-align: right;
-      padding-right: 9px; margin-right: 8px; border-right: 1px solid #232832; user-select: none;
+      width: 28px; min-width: 28px; flex-shrink: 0; color: #5B6474; text-align: right;
+      padding-right: 8px; margin-right: 8px; border-right: 1px solid #232832; user-select: none;
     }
     .ds-code-src { flex: 1; white-space: pre; }
+    .ds-code-ref.wrapped .ds-code-line { min-width: 0; }
+    .ds-code-ref.wrapped .ds-code-src { white-space: pre-wrap; overflow-wrap: anywhere; }
     .tok-kw { color: #C084FC; font-weight: 600; }
     .tok-ty { color: #60A5FA; }
     .tok-fn { color: #34D399; }
@@ -1017,11 +1051,24 @@
     .tok-pp { color: #F472B6; }
     .tok-nm { color: #FB923C; }
 
+    /* Right Splitter Handle */
+    .ds-right-resizer {
+      height: 6px; margin: -2px 0; cursor: row-resize; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ds-right-resizer::before {
+      content: ''; width: 48px; height: 3px; border-radius: 999px; background: var(--border-line);
+      transition: background 0.15s;
+    }
+    .ds-right-resizer:hover::before { background: var(--blue); }
+
     /* Right Bottom: Dedicated C++ Practice Box (练习框) */
-    .ds-practice-card { flex: 1.24; min-height: 0; border: 1.5px solid rgba(37, 99, 235, 0.38); }
+    .ds-practice-card { flex: 1.25 1 56%; min-height: 290px; border: 1.5px solid rgba(37, 99, 235, 0.38); }
+    .ds-practice-card.ds-panel-expanded { flex: 1 1 100% !important; min-height: 480px !important; }
+    .ds-practice-card.ds-panel-hidden { display: none !important; }
     .ds-ex-tabs {
       padding: 6px 10px; border-bottom: 1px solid var(--border-line); background: var(--bg-subtle);
-      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; flex-shrink: 0;
     }
     .ds-ex-tab-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
     .ds-ex-tab {
@@ -1030,29 +1077,30 @@
     .ds-ex-tab.active { background: var(--bg-card); color: var(--blue); border: 1px solid rgba(37,99,235,0.28); }
     .ds-ex-prompt {
       padding: 6px 12px; background: var(--bg-app); border-bottom: 1px solid var(--border-line);
-      font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0;
+      font-size: 11.2px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; flex-shrink: 0;
     }
     .ds-ide-wrap {
-      flex: 1.25; display: flex; background: #14171C; color: #E5E7EB; min-height: 0; overflow: hidden; position: relative;
+      flex: 1.35; display: flex; background: #14171C; color: #E5E7EB; min-height: 125px; overflow: hidden; position: relative;
     }
     .ds-ide-gutter {
-      padding: 8px 6px; background: #101216; color: #525B6B; text-align: right;
-      font-size: 11.5px; line-height: 1.55; width: 38px; min-width: 38px; flex-shrink: 0;
+      padding: 8px 6px 18px 6px; background: #101216; color: #525B6B; text-align: right;
+      font-size: 12px; line-height: 1.55; width: 38px; min-width: 38px; flex-shrink: 0;
       white-space: pre; border-right: 1px solid #262B35; user-select: none; overflow: hidden;
     }
     .ds-ide-editor {
       flex: 1; background: transparent; color: #E5E7EB; border: none; outline: none;
-      resize: none; padding: 8px 10px; font-size: 11.5px; line-height: 1.55;
-      tab-size: 4; white-space: pre; overflow: auto; scrollbar-color: #374151 #14171C; scrollbar-width: thin;
+      resize: none; padding: 8px 10px; font-size: 12px; line-height: 1.55;
+      tab-size: 4; white-space: pre; overflow: auto; scrollbar-color: #4B5563 #14171C; scrollbar-width: thin;
     }
+    .ds-ide-editor.wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
     .ds-ex-actions {
       padding: 6px 10px; background: var(--bg-panel);
       border-top: 1px solid var(--border-line); border-bottom: 1px solid var(--border-line);
-      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; flex-shrink: 0;
     }
     .ds-ex-console {
-      flex: 0.72; min-height: 74px; max-height: 132px; overflow-y: auto;
-      background: var(--bg-app); padding: 6px 10px; font-size: 10.8px;
+      flex: 0.65; min-height: 64px; max-height: 145px; overflow-y: auto;
+      background: var(--bg-app); padding: 6px 10px; font-size: 11px;
       display: flex; flex-direction: column; gap: 4px;
     }
     .ds-tc-row {
@@ -1402,7 +1450,7 @@
          TAB 2：本地知识库 + MD ↔ Word (.docx) ↔ PDF 互通编辑器
          ==================================================================== -->
     <main id="view-knowledge" class="hidden split-workspace">
-      <section class="left-pane">
+      <section id="knowledge-left-pane" class="left-pane">
         <!-- 上半部分：Wi-Fi 同心圆弧卡片（左上角集成路径+选择，右上角集成新建/刷新） -->
         <div class="vault-canvas-wrap">
           <div class="vault-top-hud">
@@ -1455,7 +1503,7 @@
 
       <section class="right-pane" oncontextmenu="openEditorContextMenu(event)">
         <!-- 左侧停靠文档控制、A4 缩放与 WPS 排版工具栏 -->
-        <aside class="editor-side-dock">
+        <aside id="knowledge-side-dock" class="editor-side-dock">
           <!-- 1. 当前文档、视图模式、保存与导出 -->
           <div class="dock-card">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">
@@ -1683,6 +1731,13 @@
 
         <!-- 右侧 A4 纸张舞台主编辑列 -->
         <div class="editor-stage-col">
+          <div class="stage-mini-bar">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button id="btn-toggle-know-left" class="word-pager-btn" onclick="toggleKnowledgeLeftPane()" title="收起/展开左侧知识库目录">◀ 收起目录</button>
+              <button id="btn-toggle-know-dock" class="word-pager-btn" onclick="toggleKnowledgeDock()" title="收起/展开左侧排版工具栏">◧ 收起工具栏</button>
+            </div>
+            <span class="mono" style="color:var(--text-muted);font-size:10.5px;">A4 多页实时排版 · 支持右侧Ctrl+滚轮缩放</span>
+          </div>
           <div class="editor-content-wrap">
             <!-- 1. Word 视图 (标准 A4 210×297mm 多页独立纸张 + 分页与翻页) -->
             <div id="editor-view-word" class="word-pages-stage selectable-text">
@@ -1745,7 +1800,7 @@
          TAB 4：C++ 数据结构与算法工作台 (放在工具上方 · 多章节 + 练习框)
          ==================================================================== -->
     <main id="view-ds" class="hidden split-workspace">
-      <section class="left-pane">
+      <section id="ds-left-pane" class="left-pane">
         <!-- 左上：多章节可折叠课程目录 + 搜索筛选 + SQLite3 进度 -->
         <div class="ds-card ds-chapters-card">
           <div class="ds-card-head">
@@ -1776,14 +1831,14 @@
             <span id="ds-viz-step-pill" class="ds-pill blue mono">Step 1 / 4</span>
           </div>
           <div class="ds-viz-stage">
-            <svg id="ds-viz-svg" viewBox="0 0 510 140" style="width:100%;height:132px;"></svg>
+            <svg id="ds-viz-svg" viewBox="0 0 510 140"></svg>
             <div class="ds-viz-ctl">
               <div style="display:flex;gap:4px;">
                 <button class="btn-subtle" style="padding:2px 8px;font-size:10.5px;" onclick="stepDsViz(-1)">⏮ 上一步</button>
                 <button id="ds-viz-play-btn" class="btn-primary" style="padding:2px 9px;font-size:10.5px;" onclick="toggleDsVizPlay()">⏯ 自动演示</button>
                 <button class="btn-subtle" style="padding:2px 8px;font-size:10.5px;" onclick="stepDsViz(1)">⏭ 下一步</button>
               </div>
-              <span id="ds-viz-caption" class="mono" style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+              <span id="ds-viz-caption" class="mono"></span>
             </div>
           </div>
         </div>
@@ -1791,15 +1846,17 @@
 
       <section class="right-pane">
         <!-- 右上：彩色网页排版教程 + 核心源码模板 -->
-        <div class="ds-card ds-tutorial-card">
+        <div id="ds-tutorial-card" class="ds-card ds-tutorial-card">
           <div class="ds-card-head">
             <div style="display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap;">
+              <button id="btn-toggle-ds-left" class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsLeftPane()" title="收起/展开左侧章节目录">◀ 收起目录</button>
               <span id="ds-les-title" style="font-size:12.5px;font-weight:700;">加载教程中...</span>
               <span id="ds-les-time" class="ds-pill blue mono">O(n)</span>
               <span id="ds-les-space" class="ds-pill green mono">O(1)</span>
             </div>
-            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex-shrink:0;">
               <span id="ds-les-src" class="ds-pill purple" style="max-width:170px;overflow:hidden;text-overflow:ellipsis;">—</span>
+              <button id="btn-focus-tut" class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsFocus('tutorial')" title="展开全高阅读教程与源码模板">⤢ 展开教程</button>
               <button id="ds-mastered-btn" class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsMastered()">○ 标为已掌握</button>
               <button class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsNoteDrawer()">📒 笔记</button>
               <button class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="saveDsNoteToVault()">✎ 存入知识库</button>
@@ -1811,10 +1868,11 @@
           </div>
           <div class="ds-tutorial-body">
             <div id="ds-tutorial-html" class="ds-tut-scroll selectable-text"></div>
-            <div class="ds-code-ref">
+            <div id="ds-code-ref-box" class="ds-code-ref wrapped">
               <div class="ds-code-ref-head">
                 <span class="mono">核心源码模板 (C++17)</span>
-                <div style="display:flex;gap:6px;">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button id="btn-ds-code-wrap" onclick="toggleDsCodeWrap()" style="color:#A7F3D0;font-size:10px;font-weight:600;">↩ 自动换行:开</button>
                   <button onclick="copyDsTemplate()" style="color:#93C5FD;font-size:10px;font-weight:600;">📋 复制</button>
                   <button onclick="loadDsTemplateToPractice()" style="color:#60A5FA;font-size:10px;font-weight:600;">⬇ 载入到练习框</button>
                 </div>
@@ -1824,11 +1882,15 @@
           </div>
         </div>
 
+        <div id="ds-right-resizer" class="ds-right-resizer" title="上下拖动调节教程区与练习框高度"></div>
+
         <!-- 右下：专设 C++ 随堂练习框（多题切换 + 实时编译评测） -->
-        <div class="ds-card ds-practice-card">
+        <div id="ds-practice-card" class="ds-card ds-practice-card">
           <div class="ds-ex-tabs">
             <div id="ds-ex-tab-row" class="ds-ex-tab-row"></div>
-            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;flex-wrap:wrap;">
+              <button id="btn-ds-ide-wrap" class="btn-subtle" style="padding:2px 7px;font-size:10px;" onclick="toggleDsIdeWrap()" title="切换练习框自动换行">↩ 换行</button>
+              <button id="btn-focus-prac" class="btn-subtle" style="padding:2px 8px;font-size:10px;" onclick="toggleDsFocus('practice')" title="放大专注练习框">⤢ 放大练习</button>
               <span id="ds-ex-mode-pill" class="ds-pill blue">模式：核心填空补全</span>
               <span id="ds-ex-status-pill" class="ds-pill amber">未评测</span>
             </div>
@@ -3068,9 +3130,9 @@ function fitWordSheetScale() {
   const availH = Math.max(320, wrap.clientHeight - 20);
   let z = 1;
   if (wordFitMode === 'width') {
-    z = Math.max(0.9, Math.min(1.45, availW / WORD_PAGE_W));
+    z = Math.max(0.55, Math.min(1.45, availW / WORD_PAGE_W));
   } else if (wordFitMode === 'page') {
-    z = Math.max(0.55, Math.min(1.2, availW / WORD_PAGE_W, availH / WORD_PAGE_H));
+    z = Math.max(0.5, Math.min(1.25, availW / WORD_PAGE_W, availH / WORD_PAGE_H));
   } else {
     z = Math.max(0.5, Math.min(1.8, wordCustomZoom));
   }
@@ -3111,6 +3173,24 @@ function stepWordZoom(delta) {
   const base = wordEffectiveZoom || 1.0;
   const next = Math.round((base + delta) * 20) / 20;
   setWordCustomZoom(next);
+}
+
+function toggleKnowledgeLeftPane() {
+  const pane = document.getElementById('knowledge-left-pane');
+  const btn = document.getElementById('btn-toggle-know-left');
+  if (!pane) return;
+  const collapsed = pane.classList.toggle('pane-collapsed');
+  if (btn) btn.textContent = collapsed ? '▶ 展开目录' : '◀ 收起目录';
+  requestAnimationFrame(() => fitWordSheetScale());
+}
+
+function toggleKnowledgeDock() {
+  const dock = document.getElementById('knowledge-side-dock');
+  const btn = document.getElementById('btn-toggle-know-dock');
+  if (!dock) return;
+  const collapsed = dock.classList.toggle('dock-collapsed');
+  if (btn) btn.textContent = collapsed ? '◧ 展开工具栏' : '◧ 收起工具栏';
+  requestAnimationFrame(() => fitWordSheetScale());
 }
 
 async function autoOpenFirstDoc() {
@@ -7323,9 +7403,9 @@ let dsVizStep = 0;
 let dsVizTimer = null;
 let dsSearchTimer = null;
 
-function ensureDsLoaded() {
+async function ensureDsLoaded() {
   if (!dsCatalogData) {
-    loadDsCatalog(true);
+    await loadDsCatalog(true);
   }
 }
 
@@ -7806,6 +7886,80 @@ function loadDsExerciseBadgeOnly(ex) {
   }
 }
 
+let dsFocusMode = 'split'; // 'split' | 'tutorial' | 'practice'
+
+function toggleDsLeftPane() {
+  const pane = document.getElementById('ds-left-pane');
+  const btn = document.getElementById('btn-toggle-ds-left');
+  if (!pane) return;
+  const collapsed = pane.classList.toggle('pane-collapsed');
+  if (btn) btn.textContent = collapsed ? '▶ 展开目录' : '◀ 收起目录';
+}
+
+function toggleDsFocus(mode) {
+  const tut = document.getElementById('ds-tutorial-card');
+  const prac = document.getElementById('ds-practice-card');
+  const resizer = document.getElementById('ds-right-resizer');
+  const bt = document.getElementById('btn-focus-tut');
+  const bp = document.getElementById('btn-focus-prac');
+  if (!tut || !prac) return;
+  dsFocusMode = (dsFocusMode === mode) ? 'split' : mode;
+  tut.style.flex = '';
+  prac.style.flex = '';
+  tut.classList.toggle('ds-panel-expanded', dsFocusMode === 'tutorial');
+  tut.classList.toggle('ds-panel-hidden', dsFocusMode === 'practice');
+  prac.classList.toggle('ds-panel-expanded', dsFocusMode === 'practice');
+  prac.classList.toggle('ds-panel-hidden', dsFocusMode === 'tutorial');
+  if (resizer) resizer.classList.toggle('hidden', dsFocusMode !== 'split');
+  if (bt) bt.textContent = dsFocusMode === 'tutorial' ? '⊟ 恢复分屏' : '⤢ 展开教程';
+  if (bp) bp.textContent = dsFocusMode === 'practice' ? '⊟ 恢复分屏' : '⤢ 放大练习';
+}
+
+function toggleDsCodeWrap() {
+  const box = document.getElementById('ds-code-ref-box');
+  const btn = document.getElementById('btn-ds-code-wrap');
+  if (!box) return;
+  const wrapped = box.classList.toggle('wrapped');
+  if (btn) btn.textContent = wrapped ? '↩ 自动换行:开' : '↩ 自动换行:关';
+}
+
+function toggleDsIdeWrap() {
+  const ed = document.getElementById('ds-ide-editor');
+  const btn = document.getElementById('btn-ds-ide-wrap');
+  if (!ed) return;
+  const wrapped = ed.classList.toggle('wrapped');
+  if (btn) {
+    btn.style.background = wrapped ? 'var(--bg-active)' : '';
+    btn.style.color = wrapped ? 'var(--text-active)' : '';
+  }
+}
+
+function initDsRightResizer() {
+  const bar = document.getElementById('ds-right-resizer');
+  const pane = document.querySelector('#view-ds .right-pane');
+  const tut = document.getElementById('ds-tutorial-card');
+  const prac = document.getElementById('ds-practice-card');
+  if (!bar || !pane || !tut || !prac) return;
+  bar.addEventListener('pointerdown', (e) => {
+    if (dsFocusMode !== 'split') return;
+    e.preventDefault();
+    const rect = pane.getBoundingClientRect();
+    const onMove = (ev) => {
+      const y = ev.clientY - rect.top - 10;
+      const avail = Math.max(400, rect.height - 28);
+      const ratio = Math.max(0.24, Math.min(0.76, y / avail));
+      tut.style.flex = `${ratio.toFixed(3)} 1 0`;
+      prac.style.flex = `${(1 - ratio).toFixed(3)} 1 0`;
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  });
+}
+
 function stepDsViz(delta) {
   dsVizStep = (dsVizStep + delta + 4) % 4;
   renderDsViz();
@@ -8227,6 +8381,7 @@ function renderDsViz() {
 // 初始化与窗口生命周期心跳
 // ============================================================================
 window.addEventListener('DOMContentLoaded', async () => {
+  initDsRightResizer();
   bindCubeStageGestures();
   render3x3Cube();
   focusLetter('I', false);
@@ -8246,13 +8401,22 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (st.ok) {
       appState = st;
       recordVaultTreeSnapshot(st.tree);
+      const params = new URLSearchParams(window.location.search);
+      const qTab = params.get('tab');
+      const initTab = (qTab && ['english', 'knowledge', 'ds', 'tools'].includes(qTab))
+        ? qTab : (st.active_tab || 'english');
       applyTheme(st.theme || 'white', false);
-      switchTab(st.active_tab || 'english', false);
+      switchTab(initTab, false);
       updateVaultLabels(st.vault_path || '');
       renderVaultTree();
       if (typeof st.dict_total === 'number') {
         document.getElementById('dict-total-badge').textContent = `SQLite3 词库 (${st.dict_total} 词)`;
         wordPager.total = st.dict_total;
+      }
+      if (initTab === 'ds') {
+        await ensureDsLoaded();
+        const qLes = params.get('lesson');
+        if (qLes) await selectDsLesson(qLes);
       }
       await runWordQuery('', 1);
       await autoOpenFirstDoc();
