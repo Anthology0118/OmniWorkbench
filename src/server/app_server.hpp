@@ -2,6 +2,7 @@
 
 #include "../core/config.hpp"
 #include "../core/dict_manager.hpp"
+#include "../core/ds_manager.hpp"
 #include "../core/vault_manager.hpp"
 
 #include <atomic>
@@ -40,6 +41,7 @@ private:
     ConfigManager config_;
     VaultManager vault_;
     DictManager dict_;
+    DsManager ds_;
     std::mutex state_mutex_;
 
     std::atomic<bool> running_{false};

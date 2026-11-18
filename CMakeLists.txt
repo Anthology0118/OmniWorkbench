@@ -26,6 +26,7 @@ set(OMNI_CORE_SOURCES
     src/core/config.cpp
     src/core/dict_manager.cpp
     src/core/docx_converter.cpp
+    src/core/ds_manager.cpp
     src/core/json.cpp
     src/core/markdown.cpp
     src/core/pdf_converter.cpp

@@ -1,6 +1,7 @@
 #include "../src/core/config.hpp"
 #include "../src/core/dict_manager.hpp"
 #include "../src/core/docx_converter.hpp"
+#include "../src/core/ds_manager.hpp"
 #include "../src/core/json.hpp"
 #include "../src/core/markdown.hpp"
 #include "../src/core/pdf_converter.hpp"
@@ -326,9 +327,58 @@ static void test_http_server() {
     assert(rd_item.find("200 OK") != std::string::npos);
     assert(rd_item.find("passageEn") != std::string::npos);
 
+    std::string ds_cat = http_get(port, "/api/ds/catalog");
+    assert(ds_cat.find("200 OK") != std::string::npos);
+    assert(ds_cat.find("Dijkstra") != std::string::npos);
+    std::string ds_les = http_get(port, "/api/ds/lesson?id=7.3A");
+    assert(ds_les.find("200 OK") != std::string::npos);
+    assert(ds_les.find("reverseList") != std::string::npos);
+
     srv.stop();
     std::cout << "[PASS] test_http_server\n";
 #endif
+}
+
+static void test_ds_course(const fs::path& tmp_dir) {
+    fs::path dbp = tmp_dir / "test_ds.db";
+    omni::DsManager ds(dbp.string());
+    assert(ds.init());
+    assert(ds.total_lessons() >= 50);
+    assert(ds.total_exercises() >= 55);
+
+    auto cat = ds.get_catalog("", "");
+    assert(cat.get("ok").as_bool(false));
+    assert(cat.get("chapters").arr_val.size() >= 10);
+
+    auto filt = ds.get_catalog("Dijkstra", "");
+    assert(filt.get("chapters").arr_val.size() == 1);
+
+    omni::DsLesson les;
+    assert(ds.get_lesson("7.3A", les));
+    assert(!les.tutorial_html.empty());
+    assert(!les.exercises.empty());
+    assert(ds.save_progress("7.3A", true, "三指针注意nxt保后继", les.exercises[0].id, "// saved", "PASS", true));
+
+    // Verify reload persistence
+    {
+        omni::DsManager ds2(dbp.string());
+        assert(ds2.init());
+        omni::DsLesson les2;
+        assert(ds2.get_lesson("7.3A", les2));
+        assert(les2.mastered == true);
+        assert(les2.note == "三指针注意nxt保后继");
+        assert(les2.exercises[0].completed == true);
+    }
+
+    // If g++ is available in environment, verify solution compilation & grading
+    if (!omni::DsManager::find_cpp_compiler().empty()) {
+        auto rr = ds.run_and_grade(les.exercises[0].id, les.exercises[0].solution_code, "", true);
+        assert(rr.compiled);
+        assert(rr.all_passed);
+        assert(rr.passed_count == rr.total_count);
+    }
+
+    std::cout << "[PASS] test_ds_course\n";
 }
 
 int main() {
@@ -341,6 +391,7 @@ int main() {
     test_zip_and_xml();
     test_md_docx_roundtrip_and_pdf(tmp);
     test_vault_and_dict(tmp);
+    test_ds_course(tmp);
     test_http_server();
 
     fs::remove_all(tmp, ec);

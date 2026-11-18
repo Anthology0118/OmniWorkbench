@@ -121,6 +121,7 @@ AppServer::AppServer(std::string ui_html)
     : ui_html_(std::move(ui_html)),
       vault_(config_.get().vault_path) {
     dict_.init();
+    ds_.init();
 }
 
 AppServer::~AppServer() {
@@ -399,6 +400,8 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         res["vault_path"] = vault_.root();
         res["tree"] = vault_.scan_tree();
         res["dict_total"] = dict_.total_count();
+        res["ds_total_lessons"] = ds_.total_lessons();
+        res["ds_completed_exercises"] = ds_.completed_exercises();
 
         JsonValue words = JsonValue::make_array();
         for (const auto& w : dict_.search("", 30)) {
@@ -963,6 +966,69 @@ AppServer::HttpResponse AppServer::route_request(const HttpRequest& req) {
         JsonValue res = JsonValue::make_object();
         res["ok"] = true;
         res["marks"] = dict_.marks_to_json(dict_.get_reading_marks(m.article_id));
+        return {200, "application/json; charset=utf-8", res.dump()};
+    }
+
+    if (req.method == "GET" && req.path == "/api/ds/catalog") {
+        std::string q = get_query_param(req.query, "q");
+        std::string cat = get_query_param(req.query, "category");
+        return {200, "application/json; charset=utf-8", ds_.get_catalog(q, cat).dump()};
+    }
+
+    if (req.method == "GET" && req.path == "/api/ds/lesson") {
+        std::string id = get_query_param(req.query, "id");
+        DsLesson les;
+        if (id.empty() || !ds_.get_lesson(id, les)) {
+            return {404, "application/json; charset=utf-8", make_error("Lesson not found").dump()};
+        }
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = true;
+        res["lesson"] = ds_.lesson_to_json(les);
+        return {200, "application/json; charset=utf-8", res.dump()};
+    }
+
+    if (req.method == "POST" && req.path == "/api/ds/save-progress") {
+        JsonValue body;
+        if (!JsonValue::parse(req.body, body)) {
+            return {400, "application/json; charset=utf-8", make_error("Invalid JSON").dump()};
+        }
+        std::string lesson_id = body.get("lesson_id").as_string();
+        bool mastered = body.get("mastered").as_bool(false);
+        std::string note = body.get("note").as_string();
+        std::string exercise_id = body.get("exercise_id").as_string();
+        std::string user_code = body.get("user_code").as_string();
+        bool ok = ds_.save_progress(lesson_id, mastered, note, exercise_id, user_code, "", false);
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = ok;
+        res["completed_exercises"] = ds_.completed_exercises();
+        res["total_exercises"] = ds_.total_exercises();
+        return {200, "application/json; charset=utf-8", res.dump()};
+    }
+
+    if (req.method == "POST" && req.path == "/api/ds/run") {
+        JsonValue body;
+        if (!JsonValue::parse(req.body, body)) {
+            return {400, "application/json; charset=utf-8", make_error("Invalid JSON").dump()};
+        }
+        std::string exercise_id = body.get("exercise_id").as_string();
+        std::string user_code = body.get("user_code").as_string();
+        std::string custom_input = body.get("custom_input").as_string();
+        bool run_tests = body.get("run_tests").as_bool(true);
+
+        DsRunResult rr = ds_.run_and_grade(exercise_id, user_code, custom_input, run_tests);
+        JsonValue res = JsonValue::make_object();
+        res["ok"] = rr.ok;
+        res["compiled"] = rr.compiled;
+        res["all_passed"] = rr.all_passed;
+        res["compiler_used"] = rr.compiler_used;
+        res["compile_ms"] = rr.compile_ms;
+        res["stdout"] = rr.stdout_text;
+        res["stderr"] = rr.stderr_text;
+        res["passed_count"] = rr.passed_count;
+        res["total_count"] = rr.total_count;
+        res["case_results"] = std::move(rr.case_results);
+        res["completed_exercises"] = ds_.completed_exercises();
+        res["total_exercises"] = ds_.total_exercises();
         return {200, "application/json; charset=utf-8", res.dump()};
     }
 

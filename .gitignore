@@ -2,6 +2,9 @@
 build/
 build-*/
 *.exe
+!releases/
+!releases/*.exe
+!releases/*.zip
 *.o
 *.a
 *.so

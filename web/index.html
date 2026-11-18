@@ -469,8 +469,8 @@
        Knowledge Vault & Word/MD/LaTeX/PDF Editor Styles
        ====================================================================== */
     #view-knowledge .left-pane {
-      width: 39%; min-width: 360px; max-width: 500px;
-      padding: 12px; gap: 10px; justify-content: flex-start;
+      width: 31%; min-width: 315px; max-width: 410px;
+      padding: 10px; gap: 8px; justify-content: flex-start;
     }
     .vault-canvas-wrap {
       flex: 1 1 60%; display: flex; flex-direction: column; min-height: 280px; margin-top: 0;
@@ -527,10 +527,49 @@
       gap: 6px; flex-shrink: 0; z-index: 10;
     }
     .editor-content-wrap {
-      padding: 12px 14px; flex: 1; display: flex; flex-direction: column; align-items: center;
+      padding: 10px 12px; flex: 1; display: block;
       min-height: 0; overflow: auto;
     }
-    #view-knowledge .right-pane { overflow: hidden; }
+    #view-knowledge .right-pane {
+      display: flex; flex-direction: row; overflow: hidden;
+    }
+    .editor-side-dock {
+      width: 184px; flex-shrink: 0; height: 100%;
+      background: var(--bg-panel); border-right: 1px solid var(--border-line);
+      padding: 8px; display: flex; flex-direction: column; gap: 7px;
+      overflow-y: auto; overflow-x: hidden; z-index: 12;
+    }
+    .editor-stage-col {
+      flex: 1; min-width: 0; height: 100%;
+      display: flex; flex-direction: column; overflow: hidden;
+      background: var(--bg-app);
+    }
+    .dock-card {
+      background: var(--bg-card); border: 1px solid var(--border-line);
+      border-radius: 10px; padding: 7px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .dock-card-title {
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .zoom-ctl-row {
+      display: flex; align-items: center; gap: 4px;
+    }
+    .zoom-step-btn {
+      width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--border-line);
+      background: var(--bg-subtle); color: var(--text-primary); font-size: 13px; font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .zoom-step-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .zoom-pct-badge {
+      flex: 1; text-align: center; font-size: 11px; font-weight: 700;
+      padding: 2px 4px; border-radius: 6px; background: var(--bg-subtle);
+      border: 1px solid var(--border-line); cursor: pointer;
+    }
+    .zoom-pct-badge:hover { border-color: var(--blue); color: var(--blue); }
+    .wps-group-label {
+      font-size: 9.5px; font-weight: 700; color: var(--text-muted); margin-top: 2px;
+    }
     /* 标准 Microsoft Word 多页 A4 纸张舞台：210mm × 297mm (794px × 1123px)，四边 25.4mm 页边距 (96px) */
     .word-pages-stage {
       position: relative; width: 794px; flex-shrink: 0; margin: 0 auto;
@@ -707,11 +746,11 @@
 
     /* WPS-Style Compact Symbol Ribbon & Floating Selection Toolbar */
     .wps-ribbon {
-      background: var(--bg-panel); border-bottom: 1px solid var(--border-line);
-      padding: 4px 10px; display: flex; flex-direction: column; gap: 3px;
+      background: var(--bg-card); border: 1px solid var(--border-line);
+      border-radius: 10px; padding: 7px; display: flex; flex-direction: column; gap: 6px;
       flex-shrink: 0; z-index: 9;
     }
-    .wps-row { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; }
+    .wps-row { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
     .wps-select {
       background: var(--bg-card); border: 1px solid var(--border-line); border-radius: 5px;
       padding: 1px 4px; font-size: 11px; color: var(--text-primary); outline: none; cursor: pointer;
@@ -741,7 +780,7 @@
       padding: 2px 7px; font-size: 10.5px; border-radius: 5px; line-height: 1.3;
     }
     .export-pop-menu {
-      position: absolute; top: 28px; right: 0; z-index: 50; width: 156px;
+      position: absolute; top: 28px; right: 0; left: auto; z-index: 50; width: 148px;
       background: var(--bg-card); border: 1px solid var(--border-line);
       border-radius: 10px; box-shadow: 0 12px 28px rgba(15,23,42,0.16); padding: 4px;
     }
@@ -752,9 +791,9 @@
     .export-pop-item:hover { background: var(--bg-subtle); color: var(--blue); }
     .wps-color-wrap { position: relative; display: inline-flex; align-items: center; }
     .wps-color-pop {
-      position: absolute; top: 30px; left: 0; z-index: 45;
+      position: absolute; top: 28px; left: -24px; z-index: 45; width: 114px;
       background: var(--bg-card); border: 1px solid var(--border-line); border-radius: 10px;
-      box-shadow: 0 10px 26px rgba(15,23,42,0.16); padding: 7px; display: flex; gap: 5px;
+      box-shadow: 0 10px 26px rgba(15,23,42,0.16); padding: 7px; display: flex; flex-wrap: wrap; gap: 5px;
     }
     #wps-float-toolbar {
       position: fixed; z-index: 75;
@@ -829,6 +868,199 @@
       background: var(--bg-card); border: 1px solid var(--border-line);
       border-radius: 12px; padding: 12px 14px;
     }
+
+    /* ======================================================================
+       TAB 4: C++ Data Structures & Algorithms Workspace (#view-ds)
+       ====================================================================== */
+    #view-ds .left-pane {
+      width: 41%; min-width: 360px; padding: 12px; gap: 10px; justify-content: flex-start;
+    }
+    #view-ds .right-pane {
+      width: 59%; padding: 12px 14px; gap: 10px; overflow: hidden; background: var(--bg-app);
+    }
+    .ds-card {
+      background: var(--bg-card); border: 1px solid var(--border-line);
+      border-radius: 13px; box-shadow: var(--card-shadow);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .ds-card-head {
+      padding: 8px 12px; border-bottom: 1px solid var(--border-line);
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      background: var(--bg-panel); flex-shrink: 0;
+    }
+    .ds-pill {
+      font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; white-space: nowrap;
+    }
+    .ds-pill.blue { background: var(--blue-soft); color: var(--blue); }
+    .ds-pill.green { background: var(--emerald-soft); color: var(--emerald); }
+    .ds-pill.purple { background: var(--purple-soft); color: var(--purple); }
+    .ds-pill.amber { background: rgba(245, 158, 11, 0.14); color: #D97706; }
+
+    .ds-chapters-card { flex: 1.25; min-height: 0; }
+    .ds-filter-bar {
+      padding: 8px 10px; border-bottom: 1px solid var(--border-line);
+      display: flex; flex-direction: column; gap: 6px; background: var(--bg-app); flex-shrink: 0;
+    }
+    .ds-search-inp {
+      width: 100%; background: var(--bg-panel); border: 1px solid var(--border-line);
+      border-radius: 8px; padding: 5px 9px; font-size: 11px; outline: none;
+    }
+    .ds-search-inp:focus { border-color: var(--blue); }
+    .ds-cat-row { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ds-cat-btn {
+      font-size: 10px; padding: 2px 8px; border-radius: 6px;
+      border: 1px solid var(--border-line); background: var(--bg-panel);
+      color: var(--text-secondary); font-weight: 500;
+    }
+    .ds-cat-btn.active { background: var(--bg-active); color: var(--text-active); border-color: var(--bg-active); }
+
+    .ds-chap-scroll { flex: 1; overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+    .ds-chap-box { border: 1px solid var(--border-line); border-radius: 10px; overflow: hidden; background: var(--bg-panel); flex-shrink: 0; }
+    .ds-chap-head {
+      width: 100%; padding: 7px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      font-size: 11.5px; font-weight: 700; background: var(--bg-subtle); text-align: left;
+    }
+    .ds-chap-box.open .ds-chap-head { background: var(--blue-soft); color: var(--blue); border-bottom: 1px solid var(--border-line); }
+    .ds-les-list { padding: 4px; display: flex; flex-direction: column; gap: 3px; }
+    .ds-les-btn {
+      width: 100%; padding: 5px 8px; border-radius: 7px; font-size: 11px;
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      color: var(--text-secondary); text-align: left;
+    }
+    .ds-les-btn:hover { background: var(--bg-subtle); }
+    .ds-les-btn.active {
+      background: var(--blue-soft); color: var(--blue); font-weight: 700;
+      border: 1px solid rgba(37, 99, 235, 0.28);
+    }
+
+    .ds-viz-card { flex: 0.85; min-height: 220px; }
+    .ds-viz-stage {
+      flex: 1; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between;
+      background: var(--bg-app); min-height: 0;
+    }
+    .ds-viz-ctl {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px;
+      padding-top: 6px; border-top: 1px dashed var(--border-line); font-size: 10.5px; flex-shrink: 0;
+    }
+
+    /* Right Top: Colorful Web Page Tutorial */
+    .ds-tutorial-card { flex: 0.96; min-height: 0; }
+    .ds-tutorial-body {
+      flex: 1; display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 10px;
+      padding: 10px 12px; min-height: 0; overflow: hidden;
+    }
+    .ds-tut-scroll { overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 7px; font-size: 11.5px; line-height: 1.55; }
+    .ds-tut-lead {
+      background: linear-gradient(135deg, var(--blue-soft), var(--purple-soft));
+      border-left: 3px solid var(--blue); border-radius: 0 9px 9px 0;
+      padding: 7px 10px; font-size: 11.5px; color: var(--text-primary);
+    }
+    .ds-tut-steps { display: flex; flex-direction: column; gap: 5px; }
+    .ds-step-card {
+      border-radius: 8px; padding: 6px 9px; border: 1px solid var(--border-line); background: var(--bg-subtle);
+    }
+    .ds-step-card.tone-blue   { border-left: 3px solid #2563EB; background: rgba(37, 99, 235, 0.05); }
+    .ds-step-card.tone-green  { border-left: 3px solid #059669; background: rgba(16, 185, 129, 0.06); }
+    .ds-step-card.tone-purple { border-left: 3px solid #7C3AED; background: rgba(124, 58, 237, 0.05); }
+    .ds-step-card.tone-amber  { border-left: 3px solid #D97706; background: rgba(245, 158, 11, 0.06); }
+    .ds-step-title { font-weight: 700; font-size: 11px; color: var(--text-primary); display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+    .ds-step-num { font-size: 11px; color: var(--blue); }
+    .ds-step-desc { font-size: 11px; color: var(--text-secondary); }
+    .ds-step-desc code, .ds-tut-lead code, .ds-pitfall-box code {
+      font-family: Consolas, monospace; font-size: 10.5px;
+      background: rgba(148,163,184,0.16); padding: 0 4px; border-radius: 4px;
+    }
+    .ds-tut-table-wrap { overflow-x: auto; }
+    .ds-tut-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+    .ds-tut-table th, .ds-tut-table td { border: 1px solid var(--border-line); padding: 4px 7px; text-align: left; }
+    .ds-tut-table th { background: var(--bg-subtle); font-weight: 700; }
+    .ds-tag { padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .ds-tag.green { background: var(--emerald-soft); color: var(--emerald); }
+    .ds-tag.blue { background: var(--blue-soft); color: var(--blue); }
+    .ds-tag.amber { background: rgba(245,158,11,0.15); color: #D97706; }
+    .ds-tag.red { background: rgba(220,38,38,0.12); color: #DC2626; }
+    .ds-tag.purple { background: var(--purple-soft); color: var(--purple); }
+    .ds-pitfall-box {
+      background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 8px; padding: 6px 9px; font-size: 10.8px; color: var(--text-secondary);
+    }
+
+    .ds-code-ref {
+      background: #14171C; color: #E5E7EB; border-radius: 10px; padding: 8px 10px;
+      display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+      border: 1px solid #262B35;
+    }
+    .ds-code-ref-head {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10.5px; color: #9CA3AF; padding-bottom: 5px; border-bottom: 1px solid #262B35; margin-bottom: 5px;
+      flex-shrink: 0;
+    }
+    .ds-code-ref-pre {
+      margin: 0; flex: 1; overflow: auto; font-size: 11px; line-height: 1.52;
+      white-space: pre; color: #E5E7EB; scrollbar-color: #374151 #14171C; scrollbar-width: thin;
+    }
+    .ds-code-ref-pre::-webkit-scrollbar, .ds-ide-editor::-webkit-scrollbar { width: 6px; height: 6px; }
+    .ds-code-ref-pre::-webkit-scrollbar-track, .ds-ide-editor::-webkit-scrollbar-track { background: #14171C; }
+    .ds-code-ref-pre::-webkit-scrollbar-thumb, .ds-ide-editor::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .ds-code-ref-pre::-webkit-scrollbar-thumb:hover, .ds-ide-editor::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+    .ds-code-line { display: flex; min-width: max-content; }
+    .ds-code-ln {
+      width: 28px; flex-shrink: 0; color: #525B6B; text-align: right;
+      padding-right: 9px; margin-right: 8px; border-right: 1px solid #232832; user-select: none;
+    }
+    .ds-code-src { flex: 1; white-space: pre; }
+    .tok-kw { color: #C084FC; font-weight: 600; }
+    .tok-ty { color: #60A5FA; }
+    .tok-fn { color: #34D399; }
+    .tok-cm { color: #6B7280; font-style: italic; }
+    .tok-st { color: #FBBF24; }
+    .tok-pp { color: #F472B6; }
+    .tok-nm { color: #FB923C; }
+
+    /* Right Bottom: Dedicated C++ Practice Box (练习框) */
+    .ds-practice-card { flex: 1.24; min-height: 0; border: 1.5px solid rgba(37, 99, 235, 0.38); }
+    .ds-ex-tabs {
+      padding: 6px 10px; border-bottom: 1px solid var(--border-line); background: var(--bg-subtle);
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0;
+    }
+    .ds-ex-tab-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .ds-ex-tab {
+      padding: 3px 9px; border-radius: 7px; font-size: 10.5px; font-weight: 600; color: var(--text-secondary);
+    }
+    .ds-ex-tab.active { background: var(--bg-card); color: var(--blue); border: 1px solid rgba(37,99,235,0.28); }
+    .ds-ex-prompt {
+      padding: 6px 12px; background: var(--bg-app); border-bottom: 1px solid var(--border-line);
+      font-size: 11px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-shrink: 0;
+    }
+    .ds-ide-wrap {
+      flex: 1.25; display: flex; background: #14171C; color: #E5E7EB; min-height: 0; overflow: hidden; position: relative;
+    }
+    .ds-ide-gutter {
+      padding: 8px 6px; background: #101216; color: #525B6B; text-align: right;
+      font-size: 11.5px; line-height: 1.55; width: 38px; min-width: 38px; flex-shrink: 0;
+      white-space: pre; border-right: 1px solid #262B35; user-select: none; overflow: hidden;
+    }
+    .ds-ide-editor {
+      flex: 1; background: transparent; color: #E5E7EB; border: none; outline: none;
+      resize: none; padding: 8px 10px; font-size: 11.5px; line-height: 1.55;
+      tab-size: 4; white-space: pre; overflow: auto; scrollbar-color: #374151 #14171C; scrollbar-width: thin;
+    }
+    .ds-ex-actions {
+      padding: 6px 10px; background: var(--bg-panel);
+      border-top: 1px solid var(--border-line); border-bottom: 1px solid var(--border-line);
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0;
+    }
+    .ds-ex-console {
+      flex: 0.72; min-height: 74px; max-height: 132px; overflow-y: auto;
+      background: var(--bg-app); padding: 6px 10px; font-size: 10.8px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .ds-tc-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 3px 8px; border-radius: 6px; font-size: 10.5px;
+    }
+    .ds-tc-row.pass { background: var(--emerald-soft); color: var(--emerald); }
+    .ds-tc-row.fail { background: rgba(220,38,38,0.12); color: #DC2626; }
   </style>
 </head>
 <body data-theme="white">
@@ -870,6 +1102,15 @@
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke-linejoin="round"/>
         </svg>
         <span>知识</span>
+      </button>
+      <button id="nav-ds" class="nav-btn" onclick="switchTab('ds')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="5" r="2.5"/>
+          <circle cx="6" cy="18" r="2.5"/>
+          <circle cx="18" cy="18" r="2.5"/>
+          <path d="M10.5 7L7.5 15.5M13.5 7l3 8.5M8.5 18h7" stroke-linecap="round"/>
+        </svg>
+        <span>数据结构</span>
       </button>
       <button id="nav-tools" class="nav-btn" onclick="switchTab('tools')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1213,246 +1454,410 @@
       </section>
 
       <section class="right-pane" oncontextmenu="openEditorContextMenu(event)">
-        <div class="editor-topbar" style="padding:5px 10px;">
-          <div style="display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap;">
-            <span id="active-doc-tab" class="btn-subtle mono" style="padding:2px 7px;font-size:10.5px;font-weight:600;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-              未打开文档
-            </span>
-            <div class="mode-switcher-mini" title="切换视图">
-              <button id="mode-btn-word" class="theme-btn" onclick="switchEditorMode('word')">Word</button>
-              <button id="mode-btn-md" class="theme-btn" onclick="switchEditorMode('md')">MD</button>
-              <button id="mode-btn-latex" class="theme-btn" onclick="switchEditorMode('latex')">TeX</button>
+        <!-- 左侧停靠文档控制、A4 缩放与 WPS 排版工具栏 -->
+        <aside class="editor-side-dock">
+          <!-- 1. 当前文档、视图模式、保存与导出 -->
+          <div class="dock-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;">
+              <span id="active-doc-tab" class="btn-subtle mono" style="padding:2px 6px;font-size:10px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                未打开文档
+              </span>
+              <span id="doc-dirty-badge" class="hidden" style="font-size:10px;color:#D97706;font-weight:700;flex-shrink:0;">●</span>
             </div>
-            <button id="word-zoom-btn" onclick="toggleWordFitMode()" class="btn-subtle" style="padding:2px 7px;font-size:10px;" title="切换整页完整预览 / 适宽放大编辑">📄 整页 (A4)</button>
-            <span id="doc-dirty-badge" class="hidden" style="font-size:10px;color:#D97706;font-weight:700;">●</span>
-          </div>
-
-          <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
-            <button onclick="saveActiveDoc()" class="btn-primary" style="padding:3px 9px;font-size:10.5px;" title="保存 Ctrl+S">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;"><path d="M2.5 2.5h9l2 2v9h-11z"/><path d="M5 2.5v3.5h5V2.5"/><path d="M5 13.5v-4h6v4"/></svg>
-              <span>保存</span>
-            </button>
-            <div class="wps-color-wrap">
-              <button onclick="toggleExportMenu(event)" class="btn-secondary" style="padding:3px 8px;font-size:10.5px;" title="导出或另存为 Word / MD / PDF">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;"><path d="M8 2v8M5 7l3 3 3-3M3 12.5h10"/></svg>
-                <span>导出 ▾</span>
+            <div class="mode-switcher-mini" style="width:100%;display:grid;grid-template-columns:repeat(3,1fr);" title="切换视图">
+              <button id="mode-btn-word" class="theme-btn" style="justify-content:center;" onclick="switchEditorMode('word')">Word</button>
+              <button id="mode-btn-md" class="theme-btn" style="justify-content:center;" onclick="switchEditorMode('md')">MD</button>
+              <button id="mode-btn-latex" class="theme-btn" style="justify-content:center;" onclick="switchEditorMode('latex')">TeX</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <button onclick="saveActiveDoc()" class="btn-primary" style="flex:1;justify-content:center;padding:4px 6px;font-size:10.5px;" title="保存 Ctrl+S">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;"><path d="M2.5 2.5h9l2 2v9h-11z"/><path d="M5 2.5v3.5h5V2.5"/><path d="M5 13.5v-4h6v4"/></svg>
+                <span>保存</span>
               </button>
-              <div id="export-pop-menu" class="hidden export-pop-menu">
-                <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('docx',false)">📘 Word (.docx)</button>
-                <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('md',false)">📝 Markdown (.md)</button>
-                <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('pdf',false)">📑 A4 PDF (.pdf)</button>
-                <div style="border-top:1px solid var(--border-line);margin:3px 0;"></div>
-                <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('docx',true)">💾 另存 Word...</button>
-                <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('pdf',true)">💾 另存 PDF...</button>
+              <div class="wps-color-wrap" style="flex:1;">
+                <button onclick="toggleExportMenu(event)" class="btn-secondary" style="width:100%;justify-content:center;padding:4px 6px;font-size:10.5px;" title="导出或另存为 Word / MD / PDF">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" style="width:12px;height:12px;"><path d="M8 2v8M5 7l3 3 3-3M3 12.5h10"/></svg>
+                  <span>导出 ▾</span>
+                </button>
+                <div id="export-pop-menu" class="hidden export-pop-menu">
+                  <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('docx',false)">📘 Word (.docx)</button>
+                  <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('md',false)">📝 Markdown (.md)</button>
+                  <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('pdf',false)">📑 A4 PDF (.pdf)</button>
+                  <div style="border-top:1px solid var(--border-line);margin:3px 0;"></div>
+                  <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('docx',true)">💾 另存 Word...</button>
+                  <button class="export-pop-item" onclick="closeExportMenu();convertActiveDoc('pdf',true)">💾 另存 PDF...</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- WPS 紧凑符号工具栏 (全符号图标 + 下拉 + 工具集中) -->
-        <div id="wps-ribbon-bar" class="wps-ribbon">
-          <div class="wps-row">
-            <select id="wps-block-style" class="wps-select" style="width:66px;" onchange="wpsSetBlockType(this.value)" title="段落样式（标题默认黑体）">
-              <option value="p">正文</option>
-              <option value="h1">H1 黑</option>
-              <option value="h2">H2 黑</option>
-              <option value="h3">H3 黑</option>
-              <option value="h4">H4 黑</option>
-              <option value="blockquote">引用</option>
-            </select>
-            <select id="wps-font-family" class="wps-select" style="width:92px;" onchange="wpsSetFontFamily(this.value)" title="字体（标题黑体/正文宋体/Times）">
-              <option value="宋体">宋体</option>
-              <option value="黑体">黑体</option>
-              <option value="Times New Roman">Times</option>
-              <option value="楷体">楷体</option>
-              <option value="微软雅黑">雅黑</option>
-              <option value="Consolas">Consolas</option>
-            </select>
-            <select id="wps-font-size" class="wps-select" style="width:76px;" onchange="wpsSetFontSize(parseFloat(this.value))" title="Word 字号">
-              <option value="42">初号42</option>
-              <option value="36">小初36</option>
-              <option value="26">一号26</option>
-              <option value="24">小一24</option>
-              <option value="22">二号22</option>
-              <option value="18">小二18</option>
-              <option value="16">三号16</option>
-              <option value="15">小三15</option>
-              <option value="14">四号14</option>
-              <option value="12">小四12</option>
-              <option value="10.5" selected>五号10.5</option>
-              <option value="9">小五9</option>
-              <option value="7.5">六号7.5</option>
-            </select>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsStepFontSize(1.5)" title="增大字号 A+">A⁺</button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsStepFontSize(-1.5)" title="减小字号 A-">A⁻</button>
-            <span class="wps-sep"></span>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('bold')" title="加粗 Ctrl+B"><b>B</b></button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('italic')" title="斜体 Ctrl+I"><i>I</i></button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('underline')" title="下划线 Ctrl+U"><u>U</u></button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('strike')" title="删除线"><s>S</s></button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('sup')" title="上标">x²</button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('sub')" title="下标">x₂</button>
-            <button class="wps-btn mono" onmousedown="event.preventDefault();wpsToggleInline('code')" title="行内代码">`c`</button>
-            <span class="wps-sep"></span>
-            <div class="wps-color-wrap">
-              <button class="wps-btn" onmousedown="event.preventDefault();toggleColorPop('hl-pop')" title="高亮底色" style="border-bottom:2.5px solid #FACC15;">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 2.5l4 4-6.5 6.5H3V9L9.5 2.5z"/><path d="M2.5 14h11"/></svg>
+          <!-- 2. A4 页面放大缩小与视野预设 -->
+          <div id="word-zoom-dock" class="dock-card">
+            <div class="dock-card-title">
+              <span>A4 纸张缩放</span>
+              <span style="font-weight:400;">Ctrl+滚轮</span>
+            </div>
+            <div class="zoom-ctl-row">
+              <button class="zoom-step-btn" onclick="stepWordZoom(-0.1)" title="缩小 10%">−</button>
+              <button id="word-zoom-pct" class="zoom-pct-badge mono" onclick="setWordCustomZoom(1.0)" title="点击恢复 100% 原寸">100%</button>
+              <button class="zoom-step-btn" onclick="stepWordZoom(0.1)" title="放大 10%">+</button>
+            </div>
+            <input id="word-zoom-range" type="range" min="50" max="180" step="5" value="110"
+                   oninput="setWordCustomZoom(parseInt(this.value,10)/100)"
+                   style="width:100%;accent-color:var(--blue);cursor:pointer;margin:1px 0;" />
+            <div style="display:flex;gap:4px;">
+              <button id="word-fit-width-btn" onclick="setWordFitMode('width')" class="btn-subtle" style="flex:1;justify-content:center;padding:3px 4px;font-size:10px;" title="放大适应右侧编辑区宽度">🔍 适宽大图</button>
+              <button id="word-zoom-btn" onclick="toggleWordFitMode()" class="btn-subtle" style="flex:1;justify-content:center;padding:3px 4px;font-size:10px;" title="完整单页一屏浏览">📄 整页</button>
+            </div>
+          </div>
+
+          <!-- 3. WPS 竖排紧凑排版与插入工具栏 -->
+          <div id="wps-ribbon-bar" class="wps-ribbon">
+            <div class="wps-group-label">字体与字号</div>
+            <div class="wps-row">
+              <select id="wps-block-style" class="wps-select" style="width:74px;" onchange="wpsSetBlockType(this.value)" title="段落样式（标题默认黑体）">
+                <option value="p">正文</option>
+                <option value="h1">H1 黑</option>
+                <option value="h2">H2 黑</option>
+                <option value="h3">H3 黑</option>
+                <option value="h4">H4 黑</option>
+                <option value="blockquote">引用</option>
+              </select>
+              <select id="wps-font-family" class="wps-select" style="flex:1;min-width:74px;" onchange="wpsSetFontFamily(this.value)" title="字体（标题黑体/正文宋体/Times）">
+                <option value="宋体">宋体</option>
+                <option value="黑体">黑体</option>
+                <option value="Times New Roman">Times</option>
+                <option value="楷体">楷体</option>
+                <option value="微软雅黑">雅黑</option>
+                <option value="Consolas">Consolas</option>
+              </select>
+            </div>
+            <div class="wps-row">
+              <select id="wps-font-size" class="wps-select" style="flex:1;" onchange="wpsSetFontSize(parseFloat(this.value))" title="Word 字号">
+                <option value="42">初号42</option>
+                <option value="36">小初36</option>
+                <option value="26">一号26</option>
+                <option value="24">小一24</option>
+                <option value="22">二号22</option>
+                <option value="18">小二18</option>
+                <option value="16">三号16</option>
+                <option value="15">小三15</option>
+                <option value="14">四号14</option>
+                <option value="12">小四12</option>
+                <option value="10.5" selected>五号10.5</option>
+                <option value="9">小五9</option>
+                <option value="7.5">六号7.5</option>
+              </select>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsStepFontSize(1.5)" title="增大字号 A+">A⁺</button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsStepFontSize(-1.5)" title="减小字号 A-">A⁻</button>
+            </div>
+
+            <div class="wps-group-label">字形与色彩</div>
+            <div class="wps-row">
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('bold')" title="加粗 Ctrl+B"><b>B</b></button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('italic')" title="斜体 Ctrl+I"><i>I</i></button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('underline')" title="下划线 Ctrl+U"><u>U</u></button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('strike')" title="删除线"><s>S</s></button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('sup')" title="上标">x²</button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleInline('sub')" title="下标">x₂</button>
+              <button class="wps-btn mono" onmousedown="event.preventDefault();wpsToggleInline('code')" title="行内代码">`c`</button>
+              <div class="wps-color-wrap">
+                <button class="wps-btn" onmousedown="event.preventDefault();toggleColorPop('hl-pop')" title="高亮底色" style="border-bottom:2.5px solid #FACC15;">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 2.5l4 4-6.5 6.5H3V9L9.5 2.5z"/><path d="M2.5 14h11"/></svg>
+                </button>
+                <div id="hl-pop" class="hidden wps-color-pop">
+                  <button class="color-swatch-btn" style="background:#FEF08A" onmousedown="event.preventDefault();wpsApplyHighlight('#FEF08A')"></button>
+                  <button class="color-swatch-btn" style="background:#BBF7D0" onmousedown="event.preventDefault();wpsApplyHighlight('#BBF7D0')"></button>
+                  <button class="color-swatch-btn" style="background:#BFDBFE" onmousedown="event.preventDefault();wpsApplyHighlight('#BFDBFE')"></button>
+                  <button class="color-swatch-btn" style="background:#FBCFE8" onmousedown="event.preventDefault();wpsApplyHighlight('#FBCFE8')"></button>
+                  <button class="color-swatch-btn" style="background:#FFFFFF" onmousedown="event.preventDefault();wpsApplyHighlight('')" title="无高亮">✕</button>
+                </div>
+              </div>
+              <div class="wps-color-wrap">
+                <button class="wps-btn" onmousedown="event.preventDefault();toggleColorPop('fg-pop')" title="字体颜色" style="border-bottom:2.5px solid #2563EB;"><b>A</b></button>
+                <div id="fg-pop" class="hidden wps-color-pop">
+                  <button class="color-swatch-btn" style="background:#111827" onmousedown="event.preventDefault();wpsApplyColor('#111827')"></button>
+                  <button class="color-swatch-btn" style="background:#DC2626" onmousedown="event.preventDefault();wpsApplyColor('#DC2626')"></button>
+                  <button class="color-swatch-btn" style="background:#2563EB" onmousedown="event.preventDefault();wpsApplyColor('#2563EB')"></button>
+                  <button class="color-swatch-btn" style="background:#16A34A" onmousedown="event.preventDefault();wpsApplyColor('#16A34A')"></button>
+                  <button class="color-swatch-btn" style="background:#7C3AED" onmousedown="event.preventDefault();wpsApplyColor('#7C3AED')"></button>
+                  <button class="color-swatch-btn" style="background:#EA580C" onmousedown="event.preventDefault();wpsApplyColor('#EA580C')"></button>
+                </div>
+              </div>
+              <button id="wps-painter-btn" class="wps-btn" onmousedown="event.preventDefault();wpsToggleFormatPainter()" title="格式刷">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2" width="10" height="4" rx="1"/><path d="M8 6v3l-1.5 1.5v3.5h3v-3.5L8 9"/></svg>
               </button>
-              <div id="hl-pop" class="hidden wps-color-pop">
-                <button class="color-swatch-btn" style="background:#FEF08A" onmousedown="event.preventDefault();wpsApplyHighlight('#FEF08A')"></button>
-                <button class="color-swatch-btn" style="background:#BBF7D0" onmousedown="event.preventDefault();wpsApplyHighlight('#BBF7D0')"></button>
-                <button class="color-swatch-btn" style="background:#BFDBFE" onmousedown="event.preventDefault();wpsApplyHighlight('#BFDBFE')"></button>
-                <button class="color-swatch-btn" style="background:#FBCFE8" onmousedown="event.preventDefault();wpsApplyHighlight('#FBCFE8')"></button>
-                <button class="color-swatch-btn" style="background:#FFFFFF" onmousedown="event.preventDefault();wpsApplyHighlight('')" title="无高亮">✕</button>
-              </div>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsClearFormat()" title="清除格式">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3l4 4-6 6H4l-2-2 7-8z"/><path d="M2 13h12"/></svg>
+              </button>
             </div>
-            <div class="wps-color-wrap">
-              <button class="wps-btn" onmousedown="event.preventDefault();toggleColorPop('fg-pop')" title="字体颜色" style="border-bottom:2.5px solid #2563EB;"><b>A</b></button>
-              <div id="fg-pop" class="hidden wps-color-pop">
-                <button class="color-swatch-btn" style="background:#111827" onmousedown="event.preventDefault();wpsApplyColor('#111827')"></button>
-                <button class="color-swatch-btn" style="background:#DC2626" onmousedown="event.preventDefault();wpsApplyColor('#DC2626')"></button>
-                <button class="color-swatch-btn" style="background:#2563EB" onmousedown="event.preventDefault();wpsApplyColor('#2563EB')"></button>
-                <button class="color-swatch-btn" style="background:#16A34A" onmousedown="event.preventDefault();wpsApplyColor('#16A34A')"></button>
-                <button class="color-swatch-btn" style="background:#7C3AED" onmousedown="event.preventDefault();wpsApplyColor('#7C3AED')"></button>
-                <button class="color-swatch-btn" style="background:#EA580C" onmousedown="event.preventDefault();wpsApplyColor('#EA580C')"></button>
-              </div>
-            </div>
-            <button id="wps-painter-btn" class="wps-btn" onmousedown="event.preventDefault();wpsToggleFormatPainter()" title="格式刷">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="2" width="10" height="4" rx="1"/><path d="M8 6v3l-1.5 1.5v3.5h3v-3.5L8 9"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsClearFormat()" title="清除格式">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3l4 4-6 6H4l-2-2 7-8z"/><path d="M2 13h12"/></svg>
-            </button>
-          </div>
 
-          <div class="wps-row">
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('ul')" title="项目符号列表">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="3" cy="4" r="1" fill="currentColor"/><circle cx="3" cy="8" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><path d="M6 4h8M6 8h8M6 12h8"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('ol')" title="编号列表">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4.5h1.2v-2l-.8.5M2.2 8.5h1.6l-1.5 1.5h1.6M2.2 12.2h1.5v1.6H2.2"/><path d="M6.5 4h7.5M6.5 8h7.5M6.5 12h7.5"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('task')" title="待办复选框">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.2" y="3" width="10" height="10" rx="2"/><path d="M4.8 8l2 2 3.8-4"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsAdjustListIndent(-1)" title="减少缩进">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M4.5 6.5L2 8l2.5 1.5"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsAdjustListIndent(1)" title="增加缩进">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M2 6.5L4.5 8 2 9.5"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleFirstIndent()" title="首行缩进 2 字符">¶2</button>
-            <span class="wps-sep"></span>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('left')" title="左对齐">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M2 6.5h8M2 9.5h12M2 12.5h8"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('center')" title="居中对齐">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M4 6.5h8M2 9.5h12M4 12.5h8"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('right')" title="右对齐">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M6 6.5h8M2 9.5h12M6 12.5h8"/></svg>
-            </button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('justify')" title="两端对齐">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M2 6.5h12M2 9.5h12M2 12.5h12"/></svg>
-            </button>
-            <span class="wps-sep"></span>
-            <select id="wps-line-spacing" class="wps-select" style="width:74px;" onchange="wpsHandleLineSpacingSelect(this.value)" title="行距 (含最小值 23 磅)">
-              <option value="multi:1.0">↕ 1.0x</option>
-              <option value="multi:1.15">↕ 1.15x</option>
-              <option value="multi:1.5" selected>↕ 1.5x</option>
-              <option value="multi:2.0">↕ 2.0x</option>
-              <option value="min:20">≥ 20pt</option>
-              <option value="min:23">≥ 23pt</option>
-              <option value="min:24">≥ 24pt</option>
-              <option value="exact:20">= 20pt</option>
-              <option value="exact:22">= 22pt</option>
-              <option value="exact:23">= 23pt</option>
-              <option value="custom">自定义...</option>
-            </select>
-            <select id="wps-space-before" class="wps-select" style="width:58px;" onchange="wpsSetSpaceBefore(parseFloat(this.value))" title="段前间距 (pt)">
-              <option value="0" selected>↑0pt</option>
-              <option value="3">↑3pt</option>
-              <option value="6">↑6pt</option>
-              <option value="12">↑12pt</option>
-              <option value="18">↑18pt</option>
-            </select>
-            <select id="wps-space-after" class="wps-select" style="width:58px;" onchange="wpsSetSpaceAfter(parseFloat(this.value))" title="段后间距 (pt)">
-              <option value="0">↓0pt</option>
-              <option value="3">↓3pt</option>
-              <option value="6" selected>↓6pt</option>
-              <option value="12">↓12pt</option>
-              <option value="18">↓18pt</option>
-            </select>
-            <button class="wps-btn" onmousedown="event.preventDefault();openParagraphModal()" title="段落设置 (行距/段前段后/缩进)">¶</button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertSoftBreak()" title="段内软换行 (Shift+Enter)">↵</button>
-            <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleBlockBorder()" title="段落边框">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg>
-            </button>
-            <span class="wps-sep"></span>
-            <button class="wps-btn-accent mono" onclick="openCodeBoxModal()" title="插入代码框">&lt;/&gt;</button>
-            <button class="wps-btn-accent" onclick="openFormulaStudioModal()" title="插入数学公式框">∑</button>
-            <button class="wps-btn-accent" onclick="openFigmaStudioModal()" style="border-color:rgba(37,99,235,0.45);color:var(--blue);" title="Figma 算法可视化框">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="5" height="5" rx="2"/><rect x="9" y="2" width="5" height="5" rx="2"/><rect x="2" y="9" width="5" height="5" rx="2"/><circle cx="11.5" cy="11.5" r="2.5"/></svg>
-              <span style="font-size:10px;">Figma</span>
-            </button>
-            <button class="wps-btn-accent" onclick="wpsInsertTablePrompt()" title="插入表格">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M2 6h12M2 9.5h12M6.5 2.5v11M10.5 2.5v11"/></svg>
-            </button>
-            <button class="wps-btn-accent" onclick="document.getElementById('wps-img-file-input').click()" title="插入本地图片">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><circle cx="5.5" cy="6" r="1.2"/><path d="M2.5 12l3.2-3 2.3 2 2.5-2.6L13.5 12"/></svg>
-            </button>
+            <div class="wps-group-label">段落与对齐</div>
+            <div class="wps-row">
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('ul')" title="项目符号列表">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="3" cy="4" r="1" fill="currentColor"/><circle cx="3" cy="8" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><path d="M6 4h8M6 8h8M6 12h8"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('ol')" title="编号列表">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.5 4.5h1.2v-2l-.8.5M2.2 8.5h1.6l-1.5 1.5h1.6M2.2 12.2h1.5v1.6H2.2"/><path d="M6.5 4h7.5M6.5 8h7.5M6.5 12h7.5"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertList('task')" title="待办复选框">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.2" y="3" width="10" height="10" rx="2"/><path d="M4.8 8l2 2 3.8-4"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsAdjustListIndent(-1)" title="减少缩进">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M4.5 6.5L2 8l2.5 1.5"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsAdjustListIndent(1)" title="增加缩进">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M7 6.5h7M7 9.5h7M2 13h12M2 6.5L4.5 8 2 9.5"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleFirstIndent()" title="首行缩进 2 字符">¶2</button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('left')" title="左对齐">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M2 6.5h8M2 9.5h12M2 12.5h8"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('center')" title="居中对齐">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M4 6.5h8M2 9.5h12M4 12.5h8"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('right')" title="右对齐">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M6 6.5h8M2 9.5h12M6 12.5h8"/></svg>
+              </button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsSetBlockAlign('justify')" title="两端对齐">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3.5h12M2 6.5h12M2 9.5h12M2 12.5h12"/></svg>
+              </button>
+            </div>
+
+            <div class="wps-group-label">行距与间距</div>
+            <div class="wps-row">
+              <select id="wps-line-spacing" class="wps-select" style="width:74px;" onchange="wpsHandleLineSpacingSelect(this.value)" title="行距 (含最小值 23 磅)">
+                <option value="multi:1.0">↕ 1.0x</option>
+                <option value="multi:1.15">↕ 1.15x</option>
+                <option value="multi:1.5" selected>↕ 1.5x</option>
+                <option value="multi:2.0">↕ 2.0x</option>
+                <option value="min:20">≥ 20pt</option>
+                <option value="min:23">≥ 23pt</option>
+                <option value="min:24">≥ 24pt</option>
+                <option value="exact:20">= 20pt</option>
+                <option value="exact:22">= 22pt</option>
+                <option value="exact:23">= 23pt</option>
+                <option value="custom">自定义...</option>
+              </select>
+              <button class="wps-btn" onmousedown="event.preventDefault();openParagraphModal()" title="段落设置 (行距/段前段后/缩进)">¶</button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsInsertSoftBreak()" title="段内软换行 (Shift+Enter)">↵</button>
+              <button class="wps-btn" onmousedown="event.preventDefault();wpsToggleBlockBorder()" title="段落边框">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg>
+              </button>
+            </div>
+            <div class="wps-row">
+              <select id="wps-space-before" class="wps-select" style="flex:1;" onchange="wpsSetSpaceBefore(parseFloat(this.value))" title="段前间距 (pt)">
+                <option value="0" selected>↑0pt</option>
+                <option value="3">↑3pt</option>
+                <option value="6">↑6pt</option>
+                <option value="12">↑12pt</option>
+                <option value="18">↑18pt</option>
+              </select>
+              <select id="wps-space-after" class="wps-select" style="flex:1;" onchange="wpsSetSpaceAfter(parseFloat(this.value))" title="段后间距 (pt)">
+                <option value="0">↓0pt</option>
+                <option value="3">↓3pt</option>
+                <option value="6" selected>↓6pt</option>
+                <option value="12">↓12pt</option>
+                <option value="18">↓18pt</option>
+              </select>
+            </div>
+
+            <div class="wps-group-label">插入组件</div>
+            <div class="wps-row">
+              <button class="wps-btn-accent mono" onclick="openCodeBoxModal()" title="插入代码框">&lt;/&gt;</button>
+              <button class="wps-btn-accent" onclick="openFormulaStudioModal()" title="插入数学公式框">∑</button>
+              <button class="wps-btn-accent" onclick="openFigmaStudioModal()" style="border-color:rgba(37,99,235,0.45);color:var(--blue);" title="Figma 算法可视化框">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="5" height="5" rx="2"/><rect x="9" y="2" width="5" height="5" rx="2"/><rect x="2" y="9" width="5" height="5" rx="2"/><circle cx="11.5" cy="11.5" r="2.5"/></svg>
+                <span style="font-size:10px;">Figma</span>
+              </button>
+              <button class="wps-btn-accent" onclick="wpsInsertTablePrompt()" title="插入表格">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><path d="M2 6h12M2 9.5h12M6.5 2.5v11M10.5 2.5v11"/></svg>
+              </button>
+              <button class="wps-btn-accent" onclick="document.getElementById('wps-img-file-input').click()" title="插入本地图片">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2.5" width="12" height="11" rx="1.5"/><circle cx="5.5" cy="6" r="1.2"/><path d="M2.5 12l3.2-3 2.3 2 2.5-2.6L13.5 12"/></svg>
+              </button>
+            </div>
           </div>
-        </div>
+        </aside>
         <input id="wps-img-file-input" type="file" accept="image/*" class="hidden" onchange="handleWpsImageFile(this)" />
 
-        <div class="editor-content-wrap">
-          <!-- 1. Word 视图 (标准 A4 210×297mm 多页独立纸张 + 分页与翻页) -->
-          <div id="editor-view-word" class="word-pages-stage selectable-text">
-            <div id="word-pages-backdrop" class="word-pages-backdrop"></div>
-            <div id="word-rendered-body" class="a4-body" contenteditable="true" spellcheck="false"
-                 oninput="onWordBodyInput()"
-                 onmouseup="handleWordSelectionChange()"
-                 onkeyup="handleWordSelectionChange()"
-                 ondblclick="handleWordBodyDblClick(event)"
-                 onkeydown="handleWordBodyKeyDown(event)"></div>
+        <!-- 右侧 A4 纸张舞台主编辑列 -->
+        <div class="editor-stage-col">
+          <div class="editor-content-wrap">
+            <!-- 1. Word 视图 (标准 A4 210×297mm 多页独立纸张 + 分页与翻页) -->
+            <div id="editor-view-word" class="word-pages-stage selectable-text">
+              <div id="word-pages-backdrop" class="word-pages-backdrop"></div>
+              <div id="word-rendered-body" class="a4-body" contenteditable="true" spellcheck="false"
+                   oninput="onWordBodyInput()"
+                   onmouseup="handleWordSelectionChange()"
+                   onkeyup="handleWordSelectionChange()"
+                   ondblclick="handleWordBodyDblClick(event)"
+                   onkeydown="handleWordBodyKeyDown(event)"></div>
+            </div>
+
+            <!-- 2. Markdown 源码实时编辑 -->
+            <div id="editor-view-md" class="hidden" style="display:flex;flex-direction:column;height:100%;min-height:480px;max-width:794px;width:100%;margin:0 auto;">
+              <textarea id="md-source-editor" oninput="onMarkdownInput()" class="md-editor-box mono selectable-text" placeholder="在此编写 Markdown、表格与 $$LaTeX$$ 公式..."></textarea>
+            </div>
+
+            <!-- 3. LaTeX 公式工作台 -->
+            <div id="editor-view-latex" class="hidden" style="max-width:794px;width:100%;margin:0 auto;">
+              <div class="simple-card" style="padding:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                  <span style="font-size:12.5px;font-weight:600;">LaTeX 公式编辑与 Word OMML 转译</span>
+                  <button onclick="insertFormulaIntoDoc()" class="btn-primary">+ 插入为 $$ 公式块</button>
+                </div>
+                <textarea id="latex-code-box" rows="5" class="note-area mono selectable-text">\mathcal{L}_{total} = \sum_{i=1}^{N} (y_i - \hat{y}_i)^2 + \lambda \|\mathbf{W}\|_2^2</textarea>
+                <div style="margin-top:12px;">
+                  <span style="font-size:11px;color:var(--text-muted);font-weight:600;">当前文档中的公式列表：</span>
+                  <div id="doc-formulas-list" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- 2. Markdown 源码实时编辑 -->
-          <div id="editor-view-md" class="hidden" style="display:flex;flex-direction:column;flex:1;max-width:794px;width:100%;margin:0 auto;">
-            <textarea id="md-source-editor" oninput="onMarkdownInput()" class="md-editor-box mono selectable-text" placeholder="在此编写 Markdown、表格与 $$LaTeX$$ 公式..."></textarea>
+          <!-- Word 底部翻页、快捷缩放与页码状态栏 -->
+          <div id="word-status-bar" class="word-status-bar">
+            <div class="word-pager-group">
+              <button id="word-prev-page" class="word-pager-btn" onclick="stepWordPage(-1)" title="上一页">◀ 上一页</button>
+              <span style="font-size:11px;">第</span>
+              <input id="word-page-input" class="word-page-input mono" type="number" min="1" value="1"
+                     onchange="goToWordPage(parseInt(this.value,10) || 1)"
+                     onkeydown="if(event.key==='Enter'){this.blur();goToWordPage(parseInt(this.value,10)||1);}" />
+              <span id="word-page-total" style="font-size:11px;font-weight:600;">/ 1 页</span>
+              <button id="word-next-page" class="word-pager-btn" onclick="stepWordPage(1)" title="下一页">下一页 ▶</button>
+              <button class="word-pager-btn" onclick="insertWordPageBreak()" title="在光标处插入 Word 分页符 (Ctrl+Enter)">+ 分页</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--text-muted);">
+              <button class="word-pager-btn" onclick="stepWordZoom(-0.1)" title="缩小">−</button>
+              <button id="word-status-zoom-pct" class="word-pager-btn mono" onclick="setWordCustomZoom(1.0)" title="点击恢复 100%">100%</button>
+              <button class="word-pager-btn" onclick="stepWordZoom(0.1)" title="放大">+</button>
+              <span class="wps-sep"></span>
+              <span id="word-char-count">0 字</span>
+              <span>A4 (210×297mm)</span>
+            </div>
           </div>
+        </div>
+      </section>
+    </main>
 
-          <!-- 3. LaTeX 公式工作台 -->
-          <div id="editor-view-latex" class="hidden" style="max-width:794px;width:100%;margin:0 auto;">
-            <div class="simple-card" style="padding:18px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <span style="font-size:12.5px;font-weight:600;">LaTeX 公式编辑与 Word OMML 转译</span>
-                <button onclick="insertFormulaIntoDoc()" class="btn-primary">+ 插入为 $$ 公式块</button>
+    <!-- ====================================================================
+         TAB 4：C++ 数据结构与算法工作台 (放在工具上方 · 多章节 + 练习框)
+         ==================================================================== -->
+    <main id="view-ds" class="hidden split-workspace">
+      <section class="left-pane">
+        <!-- 左上：多章节可折叠课程目录 + 搜索筛选 + SQLite3 进度 -->
+        <div class="ds-card ds-chapters-card">
+          <div class="ds-card-head">
+            <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;">
+              <span>📚 C++ 数据结构课程库</span>
+              <span id="ds-progress-pill" class="ds-pill green">已练 0 / 0 题</span>
+            </div>
+            <span id="ds-db-badge" class="ds-pill blue mono">SQLite3 已入库</span>
+          </div>
+          <div class="ds-filter-bar">
+            <input id="ds-search-input" class="ds-search-inp" type="text" placeholder="🔍 搜索章节、算法名或结构（如 链表 / Dijkstra / KMP / AVL）..." oninput="debouncedLoadDsCatalog()" />
+            <div id="ds-cat-row" class="ds-cat-row">
+              <button class="ds-cat-btn active" onclick="setDsCategory('全部')">全部</button>
+              <button class="ds-cat-btn" onclick="setDsCategory('C语言入门(Ch0-3)')">C语言入门(Ch0-3)</button>
+              <button class="ds-cat-btn" onclick="setDsCategory('算法与数学(Ch4-5)')">算法与数学(Ch4-5)</button>
+              <button class="ds-cat-btn" onclick="setDsCategory('C++ STL(Ch6)')">C++ STL(Ch6)</button>
+              <button class="ds-cat-btn" onclick="setDsCategory('数据结构与搜索(Ch7-9)')">数据结构与搜索(Ch7-9)</button>
+              <button class="ds-cat-btn" onclick="setDsCategory('图论/DP/高阶(Ch10-13)')">图论/DP/高阶(Ch10-13)</button>
+            </div>
+          </div>
+          <div id="ds-chap-scroll" class="ds-chap-scroll"></div>
+        </div>
+
+        <!-- 左下：交互式数据结构指针与算法可视化沙盒 -->
+        <div class="ds-card ds-viz-card">
+          <div class="ds-card-head" style="padding:7px 11px;">
+            <span id="ds-viz-title" style="font-size:11.5px;font-weight:700;">🎯 结构动态演练</span>
+            <span id="ds-viz-step-pill" class="ds-pill blue mono">Step 1 / 4</span>
+          </div>
+          <div class="ds-viz-stage">
+            <svg id="ds-viz-svg" viewBox="0 0 510 140" style="width:100%;height:132px;"></svg>
+            <div class="ds-viz-ctl">
+              <div style="display:flex;gap:4px;">
+                <button class="btn-subtle" style="padding:2px 8px;font-size:10.5px;" onclick="stepDsViz(-1)">⏮ 上一步</button>
+                <button id="ds-viz-play-btn" class="btn-primary" style="padding:2px 9px;font-size:10.5px;" onclick="toggleDsVizPlay()">⏯ 自动演示</button>
+                <button class="btn-subtle" style="padding:2px 8px;font-size:10.5px;" onclick="stepDsViz(1)">⏭ 下一步</button>
               </div>
-              <textarea id="latex-code-box" rows="5" class="note-area mono selectable-text">\mathcal{L}_{total} = \sum_{i=1}^{N} (y_i - \hat{y}_i)^2 + \lambda \|\mathbf{W}\|_2^2</textarea>
-              <div style="margin-top:12px;">
-                <span style="font-size:11px;color:var(--text-muted);font-weight:600;">当前文档中的公式列表：</span>
-                <div id="doc-formulas-list" style="margin-top:6px;display:flex;flex-direction:column;gap:6px;"></div>
+              <span id="ds-viz-caption" class="mono" style="font-size:10px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="right-pane">
+        <!-- 右上：彩色网页排版教程 + 核心源码模板 -->
+        <div class="ds-card ds-tutorial-card">
+          <div class="ds-card-head">
+            <div style="display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap;">
+              <span id="ds-les-title" style="font-size:12.5px;font-weight:700;">加载教程中...</span>
+              <span id="ds-les-time" class="ds-pill blue mono">O(n)</span>
+              <span id="ds-les-space" class="ds-pill green mono">O(1)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <span id="ds-les-src" class="ds-pill purple" style="max-width:170px;overflow:hidden;text-overflow:ellipsis;">—</span>
+              <button id="ds-mastered-btn" class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsMastered()">○ 标为已掌握</button>
+              <button class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="toggleDsNoteDrawer()">📒 笔记</button>
+              <button class="btn-subtle" style="padding:3px 8px;font-size:10.5px;" onclick="saveDsNoteToVault()">✎ 存入知识库</button>
+            </div>
+          </div>
+          <div id="ds-note-drawer" class="hidden" style="padding:8px 12px;border-bottom:1px solid var(--border-line);background:var(--bg-subtle);display:flex;gap:8px;align-items:center;flex-shrink:0;">
+            <input id="ds-lesson-note-input" type="text" class="ds-search-inp selectable-text" placeholder="记录本节错题反思、模板细节（自动持久化保存）..." />
+            <button class="btn-primary" style="padding:4px 10px;font-size:10.5px;" onclick="saveDsLessonNote()">保存笔记</button>
+          </div>
+          <div class="ds-tutorial-body">
+            <div id="ds-tutorial-html" class="ds-tut-scroll selectable-text"></div>
+            <div class="ds-code-ref">
+              <div class="ds-code-ref-head">
+                <span class="mono">核心源码模板 (C++17)</span>
+                <div style="display:flex;gap:6px;">
+                  <button onclick="copyDsTemplate()" style="color:#93C5FD;font-size:10px;font-weight:600;">📋 复制</button>
+                  <button onclick="loadDsTemplateToPractice()" style="color:#60A5FA;font-size:10px;font-weight:600;">⬇ 载入到练习框</button>
+                </div>
               </div>
+              <pre id="ds-code-template" class="ds-code-ref-pre mono selectable-text"></pre>
             </div>
           </div>
         </div>
 
-        <!-- Word 底部翻页与页码状态栏 -->
-        <div id="word-status-bar" class="word-status-bar">
-          <div class="word-pager-group">
-            <button id="word-prev-page" class="word-pager-btn" onclick="stepWordPage(-1)" title="上一页">◀ 上一页</button>
-            <span style="font-size:11px;">第</span>
-            <input id="word-page-input" class="word-page-input mono" type="number" min="1" value="1"
-                   onchange="goToWordPage(parseInt(this.value,10) || 1)"
-                   onkeydown="if(event.key==='Enter'){this.blur();goToWordPage(parseInt(this.value,10)||1);}" />
-            <span id="word-page-total" style="font-size:11px;font-weight:600;">/ 1 页</span>
-            <button id="word-next-page" class="word-pager-btn" onclick="stepWordPage(1)" title="下一页">下一页 ▶</button>
-            <button class="word-pager-btn" onclick="insertWordPageBreak()" title="在光标处插入 Word 分页符 (Ctrl+Enter)">+ 分页</button>
+        <!-- 右下：专设 C++ 随堂练习框（多题切换 + 实时编译评测） -->
+        <div class="ds-card ds-practice-card">
+          <div class="ds-ex-tabs">
+            <div id="ds-ex-tab-row" class="ds-ex-tab-row"></div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <span id="ds-ex-mode-pill" class="ds-pill blue">模式：核心填空补全</span>
+              <span id="ds-ex-status-pill" class="ds-pill amber">未评测</span>
+            </div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:10.5px;color:var(--text-muted);">
-            <span id="word-char-count">0 字</span>
-            <span>A4 (210×297mm)</span>
+          <div class="ds-ex-prompt">
+            <div id="ds-ex-prompt-text" class="selectable-text" style="color:var(--text-primary);line-height:1.45;"></div>
+            <span id="ds-ex-sample-badge" class="mono" style="color:var(--text-muted);font-size:10px;white-space:nowrap;"></span>
+          </div>
+          <div class="ds-ide-wrap">
+            <div id="ds-ide-gutter" class="ds-ide-gutter mono">1</div>
+            <textarea id="ds-ide-editor" class="ds-ide-editor mono selectable-text" spellcheck="false"
+                      oninput="onDsEditorInput()"
+                      onscroll="document.getElementById('ds-ide-gutter').scrollTop=this.scrollTop;"
+                      onkeydown="handleDsEditorKeyDown(event)"></textarea>
+          </div>
+          <div class="ds-ex-actions">
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+              <button class="btn-primary" style="background:var(--blue);color:#fff;padding:4px 10px;" onclick="runDsExercise(false)">▶ 编译运行 (自定义输入)</button>
+              <button id="ds-submit-tests-btn" class="btn-primary" style="background:var(--emerald);color:#fff;padding:4px 10px;" onclick="runDsExercise(true)">✓ 提交自测用例</button>
+              <button class="btn-subtle" style="padding:4px 9px;" onclick="revealDsSolution()">💡 填入标准解答</button>
+              <button class="btn-subtle" style="padding:4px 9px;" onclick="resetDsStarter()">↺ 重置代码</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;min-width:150px;max-width:230px;flex:1;justify-content:flex-end;">
+              <span style="font-size:10px;color:var(--text-muted);flex-shrink:0;">输入:</span>
+              <input id="ds-custom-stdin" type="text" class="ds-search-inp mono selectable-text" style="padding:3px 7px;font-size:10.5px;" placeholder="自定义 stdin..." />
+            </div>
+          </div>
+          <div id="ds-ex-console" class="ds-ex-console mono selectable-text">
+            <div style="color:var(--text-muted);">点击「✓ 提交自测用例」或按 Ctrl+Enter 编译运行并评测当前 C++17 代码。</div>
           </div>
         </div>
       </section>
@@ -1916,9 +2321,10 @@ function applyTheme(theme, persist = true) {
 
 function switchTab(tab, persist = true) {
   appState.active_tab = tab;
-  ['english', 'knowledge', 'tools'].forEach(t => {
+  ['english', 'knowledge', 'ds', 'tools'].forEach(t => {
     const view = document.getElementById('view-' + t);
     const nav = document.getElementById('nav-' + t);
+    if (!view || !nav) return;
     if (t === tab) {
       view.classList.remove('hidden');
       nav.style.background = 'var(--bg-active)';
@@ -1935,6 +2341,9 @@ function switchTab(tab, persist = true) {
   if (typeof renderDockedMarks === 'function') renderDockedMarks();
   if (tab === 'knowledge' && typeof relayoutWordPages === 'function') {
     requestAnimationFrame(() => relayoutWordPages());
+  }
+  if (tab === 'ds' && typeof ensureDsLoaded === 'function') {
+    ensureDsLoaded();
   }
 }
 
@@ -2449,7 +2858,9 @@ const WORD_BODY_H = WORD_PAGE_H - WORD_MARGIN_Y * 2; // 931px printable area per
 const WORD_PAGE_GAP = 18;
 const WORD_PAGE_STEP = WORD_PAGE_H + WORD_PAGE_GAP;
 
-let wordFitMode = 'page'; // 'page' = 兼容 Word A4 整页可视, 'width' = 1:1 适宽排版编辑
+let wordFitMode = 'width'; // 'width' = 适宽大图清晰排版, 'page' = 整页完整预览, 'custom' = 手动滑块/Ctrl滚轮缩放
+let wordCustomZoom = 1.1;
+let wordEffectiveZoom = 1.1;
 let wordTotalPages = 1;
 let currentWordPage = 1;
 let wordScrollBound = false;
@@ -2467,6 +2878,12 @@ function bindWordWrapScroll() {
       syncCurrentWordPageFromScroll();
     });
   });
+  wrap.addEventListener('wheel', (e) => {
+    if ((e.ctrlKey || e.metaKey) && currentEditorMode === 'word') {
+      e.preventDefault();
+      stepWordZoom(e.deltaY < 0 ? 0.1 : -0.1);
+    }
+  }, { passive: false });
 }
 
 function updateWordPagerUI() {
@@ -2497,20 +2914,9 @@ function syncCurrentWordPageFromScroll() {
   const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
   const cards = Array.from(document.querySelectorAll('#word-pages-backdrop .word-page-card'));
   if (!wrap || cards.length === 0) return;
-  const wRect = wrap.getBoundingClientRect();
-  const focusY = wRect.top + wRect.height * 0.35;
-  let best = 1;
-  let bestDist = Infinity;
-  cards.forEach((c, idx) => {
-    const r = c.getBoundingClientRect();
-    const dist = (focusY >= r.top && focusY <= r.bottom)
-      ? 0
-      : Math.min(Math.abs(focusY - r.top), Math.abs(focusY - r.bottom));
-    if (dist < bestDist) {
-      bestDist = dist;
-      best = idx + 1;
-    }
-  });
+  const z = wordEffectiveZoom || 1;
+  const scrolledInStage = (wrap.scrollTop + wrap.clientHeight * 0.35) / z;
+  const best = Math.max(1, Math.min(wordTotalPages, Math.floor(Math.max(0, scrolledInStage) / WORD_PAGE_STEP) + 1));
   if (best !== currentWordPage) {
     currentWordPage = best;
     updateWordPagerUI();
@@ -2538,12 +2944,10 @@ function goToWordPage(pageNum) {
   currentWordPage = target;
   updateWordPagerUI();
   const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
-  const card = document.querySelector(`#word-pages-backdrop .word-page-card[data-page-idx="${target - 1}"]`);
-  if (wrap && card) {
-    const wRect = wrap.getBoundingClientRect();
-    const cRect = card.getBoundingClientRect();
-    const destTop = wrap.scrollTop + (cRect.top - wRect.top) - 10;
-    wrap.scrollTo({ top: Math.max(0, destTop), behavior: 'smooth' });
+  if (wrap) {
+    const z = wordEffectiveZoom || 1;
+    const destTop = Math.max(0, (target - 1) * WORD_PAGE_STEP * z - 6);
+    wrap.scrollTo({ top: destTop, behavior: 'smooth' });
   }
 }
 
@@ -2653,26 +3057,60 @@ function relayoutWordPages() {
 function fitWordSheetScale() {
   const sheet = document.getElementById('editor-view-word');
   const wrap = document.querySelector('#view-knowledge .editor-content-wrap');
-  const btn = document.getElementById('word-zoom-btn');
+  const fitWidthBtn = document.getElementById('word-fit-width-btn');
+  const pageBtn = document.getElementById('word-zoom-btn');
+  const pctBtn = document.getElementById('word-zoom-pct');
+  const stPctBtn = document.getElementById('word-status-zoom-pct');
+  const rangeEl = document.getElementById('word-zoom-range');
   if (!sheet || !wrap) return;
   if (sheet.classList.contains('hidden')) return;
-  const availW = Math.max(320, wrap.clientWidth - 28);
-  const availH = Math.max(300, wrap.clientHeight - 28);
+  const availW = Math.max(360, wrap.clientWidth - 24);
+  const availH = Math.max(320, wrap.clientHeight - 20);
   let z = 1;
-  if (wordFitMode === 'page') {
-    z = Math.min(1, availW / WORD_PAGE_W, availH / WORD_PAGE_H);
+  if (wordFitMode === 'width') {
+    z = Math.max(0.9, Math.min(1.45, availW / WORD_PAGE_W));
+  } else if (wordFitMode === 'page') {
+    z = Math.max(0.55, Math.min(1.2, availW / WORD_PAGE_W, availH / WORD_PAGE_H));
   } else {
-    z = Math.min(1, availW / WORD_PAGE_W);
+    z = Math.max(0.5, Math.min(1.8, wordCustomZoom));
   }
+  wordEffectiveZoom = z;
   sheet.style.zoom = z.toFixed(3);
-  if (btn) {
-    btn.textContent = wordFitMode === 'page' ? '📄 整页 (A4)' : '🔍 1:1 适宽';
+  const pct = Math.round(z * 100);
+  if (pctBtn) pctBtn.textContent = `${pct}%`;
+  if (stPctBtn) stPctBtn.textContent = `${pct}%`;
+  if (rangeEl && document.activeElement !== rangeEl) rangeEl.value = String(Math.max(50, Math.min(180, pct)));
+  if (fitWidthBtn) {
+    fitWidthBtn.style.background = (wordFitMode === 'width') ? 'var(--bg-active)' : '';
+    fitWidthBtn.style.color = (wordFitMode === 'width') ? 'var(--text-active)' : '';
   }
+  if (pageBtn) {
+    pageBtn.textContent = wordFitMode === 'page' ? '📄 整页 ✓' : '📄 整页';
+    pageBtn.style.background = (wordFitMode === 'page') ? 'var(--bg-active)' : '';
+    pageBtn.style.color = (wordFitMode === 'page') ? 'var(--text-active)' : '';
+  }
+}
+
+function setWordFitMode(mode) {
+  wordFitMode = (mode === 'page') ? 'page' : 'width';
+  fitWordSheetScale();
 }
 
 function toggleWordFitMode() {
   wordFitMode = (wordFitMode === 'page') ? 'width' : 'page';
   fitWordSheetScale();
+}
+
+function setWordCustomZoom(z) {
+  wordCustomZoom = Math.max(0.5, Math.min(1.8, z));
+  wordFitMode = 'custom';
+  fitWordSheetScale();
+}
+
+function stepWordZoom(delta) {
+  const base = wordEffectiveZoom || 1.0;
+  const next = Math.round((base + delta) * 20) / 20;
+  setWordCustomZoom(next);
 }
 
 async function autoOpenFirstDoc() {
@@ -3263,6 +3701,8 @@ function switchEditorMode(mode) {
   document.getElementById('wps-ribbon-bar').classList.toggle('hidden', mode === 'latex');
   const sb = document.getElementById('word-status-bar');
   if (sb) sb.classList.toggle('hidden', mode !== 'word');
+  const zoomDock = document.getElementById('word-zoom-dock');
+  if (zoomDock) zoomDock.classList.toggle('hidden', mode !== 'word');
   const zoomBtn = document.getElementById('word-zoom-btn');
   if (zoomBtn) zoomBtn.classList.toggle('hidden', mode !== 'word');
   hideFloatToolbar();
@@ -6868,6 +7308,919 @@ function resetCurrentReadingAnswers() {
   readingUserAnswers = {};
   readingGraded = false;
   renderActiveReading();
+}
+
+// ============================================================================
+// TAB 4：C++ 数据结构与算法工作台（多章多节 + 彩色网页教程 + 练习框实时评测）
+// ============================================================================
+let dsCatalogData = null;
+let dsCategoryFilter = '全部';
+let dsOpenChapters = { ch0: true, ch2: true, ch7: true };
+let dsActiveLesson = null;
+let dsActiveExId = '';
+let dsFreeCode = `#include <iostream>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nint main() {\n    cout << "Hello C++ Data Structures!" << "\\n";\n    return 0;\n}`;
+let dsVizStep = 0;
+let dsVizTimer = null;
+let dsSearchTimer = null;
+
+function ensureDsLoaded() {
+  if (!dsCatalogData) {
+    loadDsCatalog(true);
+  }
+}
+
+function debouncedLoadDsCatalog() {
+  clearTimeout(dsSearchTimer);
+  dsSearchTimer = setTimeout(() => loadDsCatalog(false), 180);
+}
+
+function setDsCategory(cat) {
+  dsCategoryFilter = cat;
+  document.querySelectorAll('#ds-cat-row .ds-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim() === cat);
+  });
+  loadDsCatalog(false);
+}
+
+async function loadDsCatalog(autoSelectFirst = false) {
+  const q = document.getElementById('ds-search-input')?.value.trim() || '';
+  const url = `/api/ds/catalog?q=${encodeURIComponent(q)}&category=${encodeURIComponent(dsCategoryFilter)}`;
+  const res = await api(url);
+  if (!res.ok) return;
+  dsCatalogData = res;
+
+  const progEl = document.getElementById('ds-progress-pill');
+  if (progEl) progEl.textContent = `已练 ${res.completed_exercises || 0} / ${res.total_exercises || 0} 题`;
+  const dbEl = document.getElementById('ds-db-badge');
+  if (dbEl) dbEl.textContent = (res.db_mode === 'sqlite3' ? 'SQLite3 课程库' : '课程库就绪') + (res.compiler_available ? ' · g++' : ' · 无g++');
+
+  renderDsCatalogTree();
+
+  if (autoSelectFirst && (!dsActiveLesson)) {
+    const preferred = '2.1';
+    let firstId = '';
+    for (const ch of (res.chapters || [])) {
+      for (const l of (ch.lessons || [])) {
+        if (!firstId) firstId = l.id;
+        if (l.id === preferred) { firstId = l.id; break; }
+      }
+      if (firstId === preferred) break;
+    }
+    if (firstId) await selectDsLesson(firstId);
+  }
+}
+
+function toggleDsChapter(chId) {
+  dsOpenChapters[chId] = !dsOpenChapters[chId];
+  renderDsCatalogTree();
+}
+
+function renderDsCatalogTree() {
+  const box = document.getElementById('ds-chap-scroll');
+  if (!box || !dsCatalogData) return;
+  const chapters = dsCatalogData.chapters || [];
+  if (chapters.length === 0) {
+    box.innerHTML = '<div style="padding:18px;text-align:center;font-size:11.5px;color:var(--text-muted);">未匹配到对应章节或算法关键词</div>';
+    return;
+  }
+  const hasSearch = !!(document.getElementById('ds-search-input')?.value.trim());
+  let html = '';
+  chapters.forEach(ch => {
+    const isOpen = hasSearch || !!dsOpenChapters[ch.id] || (dsActiveLesson && dsActiveLesson.chapter_id === ch.id);
+    const metaText = `${ch.lesson_count} 节 · ${ch.exercise_done}/${ch.exercise_total} 题`;
+    html += `<div class="ds-chap-box${isOpen ? ' open' : ''}">
+      <button class="ds-chap-head" onclick="toggleDsChapter('${escapeXml(ch.id)}')">
+        <span>${isOpen ? '▾' : '▸'} ${escapeXml(ch.title)}</span>
+        <span style="font-size:10px;font-weight:500;color:${isOpen ? 'var(--blue)' : 'var(--text-muted)'};flex-shrink:0;">${metaText}</span>
+      </button>`;
+    if (isOpen) {
+      html += `<div class="ds-les-list">`;
+      (ch.lessons || []).forEach(l => {
+        const isActive = dsActiveLesson && dsActiveLesson.id === l.id;
+        let badge = '';
+        if (l.mastered) badge = `<span class="ds-pill green">✓ 已掌握</span>`;
+        else if (l.exercise_total > 0) badge = `<span class="ds-pill ${l.exercise_done >= l.exercise_total ? 'green' : (isActive ? 'blue' : 'amber')}">${l.exercise_done}/${l.exercise_total} 题</span>`;
+        html += `<button class="ds-les-btn${isActive ? ' active' : ''}" onclick="selectDsLesson('${escapeXml(l.id)}')">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeXml(l.title)}</span>
+          ${badge}
+        </button>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  box.innerHTML = html;
+}
+
+async function selectDsLesson(lessonId) {
+  const res = await api('/api/ds/lesson?id=' + encodeURIComponent(lessonId));
+  if (!res.ok || !res.lesson) {
+    showToast('加载教程失败');
+    return;
+  }
+  dsActiveLesson = res.lesson;
+  dsOpenChapters[res.lesson.chapter_id] = true;
+  renderDsCatalogTree();
+
+  document.getElementById('ds-les-title').textContent = res.lesson.title;
+  document.getElementById('ds-les-time').textContent = '时间 ' + (res.lesson.time_comp || '—');
+  document.getElementById('ds-les-space').textContent = '空间 ' + (res.lesson.space_comp || '—');
+  document.getElementById('ds-les-src').textContent = res.lesson.source_ref || '课程库';
+  document.getElementById('ds-les-src').title = res.lesson.source_ref || '';
+  document.getElementById('ds-tutorial-html').innerHTML = res.lesson.tutorial_html || '';
+  document.getElementById('ds-code-template').innerHTML = formatCppCodeHtml(res.lesson.code_template || '');
+  document.getElementById('ds-lesson-note-input').value = res.lesson.note || '';
+
+  updateDsMasteredButton();
+
+  const exs = res.lesson.exercises || [];
+  dsActiveExId = exs.length > 0 ? exs[0].id : 'free';
+  renderDsExerciseTabs();
+  loadCurrentDsExerciseIntoIde();
+
+  dsVizStep = 0;
+  stopDsVizPlay();
+  renderDsViz();
+}
+
+function updateDsMasteredButton() {
+  const btn = document.getElementById('ds-mastered-btn');
+  if (!btn || !dsActiveLesson) return;
+  if (dsActiveLesson.mastered) {
+    btn.textContent = '✓ 已掌握';
+    btn.style.background = 'var(--emerald-soft)';
+    btn.style.color = 'var(--emerald)';
+    btn.style.borderColor = 'var(--emerald)';
+  } else {
+    btn.textContent = '○ 标为已掌握';
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+  }
+}
+
+async function toggleDsMastered() {
+  if (!dsActiveLesson) return;
+  dsActiveLesson.mastered = !dsActiveLesson.mastered;
+  updateDsMasteredButton();
+  await api('/api/ds/save-progress', {
+    method: 'POST',
+    body: JSON.stringify({
+      lesson_id: dsActiveLesson.id,
+      mastered: dsActiveLesson.mastered,
+      note: document.getElementById('ds-lesson-note-input')?.value || ''
+    })
+  });
+  await loadDsCatalog(false);
+  showToast(dsActiveLesson.mastered ? '已标记本节为「已掌握」✓' : '已取消掌握标记');
+}
+
+function toggleDsNoteDrawer() {
+  document.getElementById('ds-note-drawer')?.classList.toggle('hidden');
+}
+
+async function saveDsLessonNote() {
+  if (!dsActiveLesson) return;
+  const note = document.getElementById('ds-lesson-note-input')?.value || '';
+  dsActiveLesson.note = note;
+  const res = await api('/api/ds/save-progress', {
+    method: 'POST',
+    body: JSON.stringify({ lesson_id: dsActiveLesson.id, mastered: !!dsActiveLesson.mastered, note })
+  });
+  if (res.ok) showToast('已保存本节笔记到课程数据库');
+}
+
+async function saveDsNoteToVault() {
+  if (!dsActiveLesson) return;
+  if (!appState.vault_path || (appState.tree && appState.tree.root_exists === false)) {
+    showToast('请先在左侧「知识」板块绑定一个本地文件夹后再导入');
+    return;
+  }
+  const safeName = dsActiveLesson.id.replace(/[^\w.-]+/g, '_') + '_' +
+    dsActiveLesson.title.replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 28);
+  const relPath = `数据结构笔记/${safeName}.md`;
+  const tmpDiv = document.createElement('div');
+  tmpDiv.innerHTML = dsActiveLesson.tutorial_html || '';
+  const plain = (tmpDiv.innerText || '').trim();
+  const md = `# ${dsActiveLesson.title}\n\n` +
+    `> 来源：${dsActiveLesson.source_ref} | 时间：${dsActiveLesson.time_comp} | 空间：${dsActiveLesson.space_comp}\n\n` +
+    `## 核心知识点总结\n\n${plain}\n\n` +
+    `## 核心 C++17 模板\n\n\`\`\`cpp\n${dsActiveLesson.code_template || ''}\n\`\`\`\n` +
+    (dsActiveLesson.note ? `\n## 个人反思批注\n\n${dsActiveLesson.note}\n` : '');
+  const res = await api('/api/vault/create', {
+    method: 'POST',
+    body: JSON.stringify({ kind: 'note', path: relPath, markdown: md })
+  });
+  if (res.ok) {
+    appState.tree = res.tree;
+    recordVaultTreeSnapshot(res.tree);
+    showToast('✎ 已存入知识库：' + relPath);
+  } else {
+    const w = await api('/api/vault/file', {
+      method: 'POST',
+      body: JSON.stringify({ path: relPath, markdown: md })
+    });
+    if (w.ok) showToast('✎ 已更新知识库笔记：' + relPath);
+    else showToast(res.error || '存入知识库失败');
+  }
+}
+
+function getActiveDsExercise() {
+  if (!dsActiveLesson || dsActiveExId === 'free') return null;
+  return (dsActiveLesson.exercises || []).find(ex => ex.id === dsActiveExId) || null;
+}
+
+function renderDsExerciseTabs() {
+  const row = document.getElementById('ds-ex-tab-row');
+  if (!row || !dsActiveLesson) return;
+  const exs = dsActiveLesson.exercises || [];
+  let html = '';
+  exs.forEach(ex => {
+    const isAct = (ex.id === dsActiveExId);
+    const doneMark = ex.completed ? ' <span style="color:var(--emerald);">✓</span>' : '';
+    html += `<button class="ds-ex-tab${isAct ? ' active' : ''}" onclick="selectDsExercise('${escapeXml(ex.id)}')">📝 ${escapeXml(ex.title)}${doneMark}</button>`;
+  });
+  html += `<button class="ds-ex-tab${dsActiveExId === 'free' ? ' active' : ''}" onclick="selectDsExercise('free')">⚡ 自由演练</button>`;
+  row.innerHTML = html;
+}
+
+function selectDsExercise(exId) {
+  saveDraftInMemory();
+  dsActiveExId = exId;
+  renderDsExerciseTabs();
+  loadCurrentDsExerciseIntoIde();
+}
+
+function saveDraftInMemory() {
+  const ed = document.getElementById('ds-ide-editor');
+  if (!ed) return;
+  if (dsActiveExId === 'free') {
+    dsFreeCode = ed.value;
+  } else {
+    const ex = getActiveDsExercise();
+    if (ex) ex.user_code = ed.value;
+  }
+}
+
+function loadCurrentDsExerciseIntoIde() {
+  const ed = document.getElementById('ds-ide-editor');
+  const promptEl = document.getElementById('ds-ex-prompt-text');
+  const sampleEl = document.getElementById('ds-ex-sample-badge');
+  const modePill = document.getElementById('ds-ex-mode-pill');
+  const statusPill = document.getElementById('ds-ex-status-pill');
+  const stdinInp = document.getElementById('ds-custom-stdin');
+  const submitBtn = document.getElementById('ds-submit-tests-btn');
+  const consoleEl = document.getElementById('ds-ex-console');
+
+  if (dsActiveExId === 'free') {
+    if (ed) ed.value = dsFreeCode;
+    if (promptEl) promptEl.innerHTML = '<strong>自由演练模式：</strong>可编写任意完整 C++17 程序或改造右侧教程模板，配合自定义 stdin 测试运行。';
+    if (sampleEl) sampleEl.textContent = 'C++17 自由沙盒';
+    if (modePill) modePill.textContent = '模式：自由编程';
+    if (statusPill) { statusPill.className = 'ds-pill purple'; statusPill.textContent = '自由模式'; }
+    if (submitBtn) submitBtn.classList.add('hidden');
+  } else {
+    const ex = getActiveDsExercise();
+    if (!ex) return;
+    if (ed) ed.value = ex.user_code || ex.starter_code || '';
+    if (promptEl) promptEl.innerHTML = `<strong>题目要求：</strong>${escapeXml(ex.prompt || '')}`;
+    const smpIn = (ex.sample_input || '').replace(/\n/g, ' ');
+    const smpOut = (ex.expected_output || '').replace(/\n/g, ' ');
+    if (sampleEl) sampleEl.textContent = `样例: ${shortLabel(smpIn, 20)} → ${shortLabel(smpOut, 22)}`;
+    if (modePill) modePill.textContent = ex.mode === 'completion' ? '模式：核心填空补全' : '模式：独立实现';
+    if (statusPill) {
+      if (ex.completed || ex.last_status === 'PASS') {
+        statusPill.className = 'ds-pill green'; statusPill.textContent = '已自测通过 ✓';
+      } else if (ex.last_status === 'WA' || ex.last_status === 'CE') {
+        statusPill.className = 'ds-pill amber'; statusPill.textContent = ex.last_status === 'CE' ? '存在编译错误' : '部分未通过';
+      } else {
+        statusPill.className = 'ds-pill amber'; statusPill.textContent = '待提交评测';
+      }
+    }
+    if (stdinInp && !stdinInp.value) stdinInp.value = smpIn;
+    if (submitBtn) submitBtn.classList.remove('hidden');
+  }
+  updateDsIdeGutter();
+  if (consoleEl) {
+    consoleEl.innerHTML = '<div style="color:var(--text-muted);">点击「✓ 提交自测用例」或按 Ctrl+Enter 编译运行并查看结果。</div>';
+  }
+}
+
+function updateDsIdeGutter() {
+  const ed = document.getElementById('ds-ide-editor');
+  const gut = document.getElementById('ds-ide-gutter');
+  if (!ed || !gut) return;
+  const n = Math.max(1, ed.value.split('\n').length);
+  let lines = '';
+  for (let i = 1; i <= n; ++i) lines += i + '\n';
+  gut.textContent = lines;
+}
+
+function onDsEditorInput() {
+  updateDsIdeGutter();
+  saveDraftInMemory();
+}
+
+function handleDsEditorKeyDown(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const el = e.target;
+    const s = el.selectionStart, end = el.selectionEnd;
+    el.value = el.value.slice(0, s) + '    ' + el.value.slice(end);
+    el.selectionStart = el.selectionEnd = s + 4;
+    onDsEditorInput();
+    return;
+  }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    runDsExercise(dsActiveExId !== 'free');
+  }
+}
+
+function formatCppCodeHtml(code) {
+  const kws = new Set(['if','else','for','while','do','switch','case','default','break','continue','return','struct','class','using','namespace','const','static','explicit','sizeof','typedef','new','delete','true','false','nullptr','NULL','auto','public','private']);
+  const tys = new Set(['int','long','double','float','char','bool','void','string','vector','queue','stack','deque','priority_queue','set','map','unordered_map','pair','Node','ListNode','Edge','bign','Fraction','BIT','DSU','SegTree','ull']);
+  const fns = new Set(['main','scanf','printf','gets','puts','getchar','putchar','cin','cout','getline','sort','lower_bound','upper_bound','reverse','swap','min','max','memset','strlen','strcmp','strcpy','sscanf','sprintf','push_back','pop_back','push','pop','top','front','back','empty','size','begin','end','find','insert','erase','iota']);
+  const lines = String(code || '').replace(/\r/g, '').split('\n');
+  const highlightLine = (line) => {
+    const trimmed = line.trimStart();
+    if (trimmed.startsWith('#')) return `<span class="tok-pp">${escapeXml(line)}</span>`;
+    let out = '', i = 0, n = line.length;
+    while (i < n) {
+      if (line[i] === '/' && line[i + 1] === '/') {
+        out += `<span class="tok-cm">${escapeXml(line.slice(i))}</span>`;
+        break;
+      }
+      if (line[i] === '"' || line[i] === "'") {
+        const q = line[i]; let j = i + 1;
+        while (j < n && (line[j] !== q || line[j - 1] === '\\')) ++j;
+        if (j < n) ++j;
+        out += `<span class="tok-st">${escapeXml(line.slice(i, j))}</span>`;
+        i = j; continue;
+      }
+      if (/[0-9]/.test(line[i]) && (i === 0 || !/[A-Za-z_]/.test(line[i - 1]))) {
+        let j = i;
+        while (j < n && /[0-9xXa-fA-FlLuU.]/.test(line[j])) ++j;
+        out += `<span class="tok-nm">${escapeXml(line.slice(i, j))}</span>`;
+        i = j; continue;
+      }
+      if (/[A-Za-z_]/.test(line[i])) {
+        let j = i;
+        while (j < n && /[A-Za-z0-9_]/.test(line[j])) ++j;
+        const w = line.slice(i, j);
+        if (kws.has(w)) out += `<span class="tok-kw">${escapeXml(w)}</span>`;
+        else if (tys.has(w)) out += `<span class="tok-ty">${escapeXml(w)}</span>`;
+        else if (fns.has(w)) out += `<span class="tok-fn">${escapeXml(w)}</span>`;
+        else out += escapeXml(w);
+        i = j; continue;
+      }
+      out += escapeXml(line[i]);
+      ++i;
+    }
+    return out || ' ';
+  };
+  return lines.map((ln, idx) =>
+    `<div class="ds-code-line"><span class="ds-code-ln">${idx + 1}</span><span class="ds-code-src">${highlightLine(ln)}</span></div>`
+  ).join('');
+}
+
+function copyDsTemplate() {
+  const txt = (dsActiveLesson && dsActiveLesson.code_template) || '';
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).catch(() => {});
+  showToast('已复制核心源码模板');
+}
+
+function loadDsTemplateToPractice() {
+  const txt = (dsActiveLesson && dsActiveLesson.code_template) || '';
+  if (!txt) return;
+  dsFreeCode = txt;
+  dsActiveExId = 'free';
+  renderDsExerciseTabs();
+  loadCurrentDsExerciseIntoIde();
+  showToast('已将模板载入到「⚡ 自由演练」练习框');
+}
+
+function revealDsSolution() {
+  const ex = getActiveDsExercise();
+  if (!ex || !ex.solution_code) {
+    showToast('当前处于自由演练模式，无固定标准解答');
+    return;
+  }
+  ex.user_code = ex.solution_code;
+  document.getElementById('ds-ide-editor').value = ex.solution_code;
+  updateDsIdeGutter();
+  showToast('已填入课程库标准参考解答，可直接点击提交自测验证');
+}
+
+function resetDsStarter() {
+  if (dsActiveExId === 'free') {
+    dsFreeCode = `#include <iostream>\nusing namespace std;\n\nint main() {\n    return 0;\n}\n`;
+    document.getElementById('ds-ide-editor').value = dsFreeCode;
+  } else {
+    const ex = getActiveDsExercise();
+    if (!ex) return;
+    ex.user_code = ex.starter_code || '';
+    document.getElementById('ds-ide-editor').value = ex.user_code;
+  }
+  updateDsIdeGutter();
+  showToast('已重置为初始填空代码');
+}
+
+async function runDsExercise(runTests) {
+  saveDraftInMemory();
+  const consoleEl = document.getElementById('ds-ex-console');
+  const ed = document.getElementById('ds-ide-editor');
+  if (!ed || !consoleEl) return;
+
+  const isFree = (dsActiveExId === 'free');
+  const doTests = runTests && !isFree;
+  const customInput = document.getElementById('ds-custom-stdin')?.value || '';
+  consoleEl.innerHTML = '<div style="color:var(--blue);font-weight:600;">⏳ 正在调用本地 g++ -std=c++17 编译并执行...</div>';
+
+  const res = await api('/api/ds/run', {
+    method: 'POST',
+    body: JSON.stringify({
+      exercise_id: isFree ? '' : dsActiveExId,
+      user_code: ed.value,
+      custom_input: customInput.replace(/\\n/g, '\n'),
+      run_tests: doTests
+    })
+  });
+
+  if (!res.ok) {
+    consoleEl.innerHTML = `<div style="color:#DC2626;white-space:pre-wrap;">${escapeXml(res.stderr || res.error || '运行请求失败')}</div>`;
+    return;
+  }
+
+  if (!res.compiled) {
+    consoleEl.innerHTML =
+      `<div style="color:#DC2626;font-weight:700;">✕ 编译失败 (Compile Error · ${(res.compile_ms || 0).toFixed(0)}ms)</div>` +
+      `<pre style="margin:2px 0 0 0;color:#DC2626;white-space:pre-wrap;font-size:10.5px;">${escapeXml(res.stderr || '')}</pre>`;
+    const ex = getActiveDsExercise();
+    if (ex) { ex.last_status = 'CE'; loadDsExerciseBadgeOnly(ex); }
+    return;
+  }
+
+  if (doTests && Array.isArray(res.case_results) && res.case_results.length > 0) {
+    let html = `<div style="display:flex;justify-content:space-between;font-weight:700;color:${res.all_passed ? 'var(--emerald)' : '#D97706'};">` +
+      `<span>${res.all_passed ? '✓ 自测全部通过' : '⚠ 部分用例未通过'} (${res.passed_count} / ${res.total_count}) · g++ 编译 ${(res.compile_ms || 0).toFixed(0)}ms</span>` +
+      `</div>`;
+    res.case_results.forEach(tc => {
+      const cls = tc.passed ? 'pass' : 'fail';
+      const detail = tc.passed
+        ? `输出: ${shortLabel(tc.actual || '', 36)} (${(tc.time_ms || 0).toFixed(1)}ms)`
+        : `期望: ${shortLabel(tc.expected || '', 24)} | 实际: ${shortLabel(tc.actual || '', 24)}`;
+      html += `<div class="ds-tc-row ${cls}"><span>[${tc.passed ? 'PASS' : 'FAIL'}] ${escapeXml(tc.label)}</span><span>${escapeXml(detail)}</span></div>`;
+    });
+    consoleEl.innerHTML = html;
+
+    const ex = getActiveDsExercise();
+    if (ex) {
+      ex.completed = ex.completed || res.all_passed;
+      ex.last_status = res.all_passed ? 'PASS' : 'WA';
+      renderDsExerciseTabs();
+      loadDsExerciseBadgeOnly(ex);
+    }
+    if (res.all_passed) {
+      showToast('🎉 自测用例全部通过！进度已自动存入数据库');
+      await loadDsCatalog(false);
+    }
+  } else {
+    const outStr = res.stdout || '(程序正常退出，无标准输出)';
+    consoleEl.innerHTML =
+      `<div style="font-weight:700;color:var(--emerald);">▶ 编译运行成功 (编译 ${(res.compile_ms || 0).toFixed(0)}ms)</div>` +
+      `<pre style="margin:2px 0 0 0;white-space:pre-wrap;color:var(--text-primary);font-size:11px;">${escapeXml(outStr)}</pre>` +
+      (res.stderr ? `<pre style="margin:2px 0 0 0;color:#DC2626;white-space:pre-wrap;">${escapeXml(res.stderr)}</pre>` : '');
+  }
+}
+
+function loadDsExerciseBadgeOnly(ex) {
+  const statusPill = document.getElementById('ds-ex-status-pill');
+  if (!statusPill || !ex) return;
+  if (ex.completed || ex.last_status === 'PASS') {
+    statusPill.className = 'ds-pill green'; statusPill.textContent = '已自测通过 ✓';
+  } else if (ex.last_status === 'CE') {
+    statusPill.className = 'ds-pill amber'; statusPill.textContent = '存在编译错误';
+  } else if (ex.last_status === 'WA') {
+    statusPill.className = 'ds-pill amber'; statusPill.textContent = '部分未通过';
+  }
+}
+
+function stepDsViz(delta) {
+  dsVizStep = (dsVizStep + delta + 4) % 4;
+  renderDsViz();
+}
+
+function stopDsVizPlay() {
+  if (dsVizTimer) { clearInterval(dsVizTimer); dsVizTimer = null; }
+  const btn = document.getElementById('ds-viz-play-btn');
+  if (btn) btn.textContent = '⏯ 自动演示';
+}
+
+function toggleDsVizPlay() {
+  const btn = document.getElementById('ds-viz-play-btn');
+  if (dsVizTimer) {
+    stopDsVizPlay();
+  } else {
+    if (btn) btn.textContent = '⏸ 暂停';
+    dsVizTimer = setInterval(() => {
+      dsVizStep = (dsVizStep + 1) % 4;
+      renderDsViz();
+    }, 1250);
+  }
+}
+
+function renderDsViz() {
+  const svg = document.getElementById('ds-viz-svg');
+  const titleEl = document.getElementById('ds-viz-title');
+  const pillEl = document.getElementById('ds-viz-step-pill');
+  const capEl = document.getElementById('ds-viz-caption');
+  if (!svg) return;
+  const lid = (dsActiveLesson && dsActiveLesson.id) || '';
+  const vt = (dsActiveLesson && dsActiveLesson.viz_type) || 'linked_list';
+  const vlabel = (dsActiveLesson && dsActiveLesson.viz_label) || '数据结构动画演练';
+  if (titleEl) titleEl.textContent = '🎯 ' + vlabel;
+  if (pillEl) pillEl.textContent = `Step ${dsVizStep + 1} / 4`;
+
+  const defs = `<defs>
+    <marker id="dsv-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#2563EB"/></marker>
+    <marker id="dsv-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#059669"/></marker>
+    <marker id="dsv-m" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#64748B"/></marker>
+    <marker id="dsv-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 1 L9 5 L0 9 Z" fill="#D97706"/></marker>
+  </defs>`;
+
+  let body = '';
+  let caption = '';
+
+  if (lid === '5.6') {
+    // 《算法笔记》5.6 bign 高精度大整数低位在前竖式进位动画
+    const aD = [8, 6, 5, 0], bD = [7, 8, 4, 0], carries = [0, 1, 1, 1], sums = [5, 5, 0, 1];
+    const xs = [130, 200, 270, 340];
+    body += `<text x="36" y="42" font-size="11" font-weight="700" fill="#475569" font-family="Consolas">a.d[i]</text>`;
+    body += `<text x="36" y="72" font-size="11" font-weight="700" fill="#475569" font-family="Consolas">b.d[i]</text>`;
+    body += `<text x="36" y="108" font-size="11" font-weight="700" fill="#059669" font-family="Consolas">c.d[i]</text>`;
+    for (let i = 0; i < 4; ++i) {
+      const done = i <= dsVizStep;
+      const cur = i === dsVizStep;
+      const bg = cur ? '#EFF6FF' : (done ? '#ECFDF5' : '#FFFFFF');
+      const st = cur ? '#2563EB' : (done ? '#059669' : '#CBD5E1');
+      body += `<rect x="${xs[i]}" y="22" width="44" height="24" rx="5" fill="#F8FAFC" stroke="#CBD5E1"/>`;
+      body += `<text x="${xs[i] + 22}" y="39" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">${i < 3 ? aD[i] : '-'}</text>`;
+      body += `<rect x="${xs[i]}" y="52" width="44" height="24" rx="5" fill="#F8FAFC" stroke="#CBD5E1"/>`;
+      body += `<text x="${xs[i] + 22}" y="69" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">${i < 3 ? bD[i] : '-'}</text>`;
+      body += `<rect x="${xs[i]}" y="90" width="44" height="26" rx="6" fill="${bg}" stroke="${st}" stroke-width="${cur ? 2.2 : 1.4}"/>`;
+      body += `<text x="${xs[i] + 22}" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="${done ? '#111827' : '#94A3B8'}">${done ? sums[i] : '?'}</text>`;
+      body += `<text x="${xs[i] + 22}" y="130" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">d[${i}]</text>`;
+    }
+    body += `<text x="415" y="42" font-size="10.5" fill="#64748B">(低位 d[0]=个位)</text>`;
+    body += `<text x="415" y="72" font-size="10.5" font-weight="700" fill="#D97706">carry = ${carries[dsVizStep]}</text>`;
+    body += `<text x="415" y="108" font-size="10.5" font-weight="700" fill="#059669">逆序输出: 1055</text>`;
+    caption = `568 + 487 竖式第 ${dsVizStep} 位: ${aD[dsVizStep]} + ${bD[dsVizStep]} + 进位${carries[dsVizStep]} -> 写入 c.d[${dsVizStep}] = ${sums[dsVizStep]}`;
+  } else if (lid === '2.7' || lid === '2.8') {
+    const val = [10, 10, 25, 25][dsVizStep];
+    const ptrLinked = dsVizStep >= 1;
+    body += `<rect x="48" y="34" width="150" height="68" rx="10" fill="${dsVizStep >= 2 ? '#ECFDF5' : '#EFF6FF'}" stroke="#2563EB" stroke-width="2"/>`;
+    body += `<text x="123" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563EB" font-family="Consolas">${lid === '2.8' ? 'Stu s' : 'int a'} (地址 0x7ff0)</text>`;
+    body += `<text x="123" y="82" text-anchor="middle" font-size="18" font-weight="700" fill="#111827">${lid === '2.8' ? `score=${val}` : `a = ${val}`}</text>`;
+    body += `<rect x="295" y="34" width="165" height="68" rx="10" fill="#FFFFFF" stroke="${ptrLinked ? '#059669' : '#94A3B8'}" stroke-width="2"/>`;
+    body += `<text x="377" y="54" text-anchor="middle" font-size="10.5" font-weight="700" fill="#059669" font-family="Consolas">${lid === '2.8' ? 'Stu* p = &s' : 'int* p = &a'}</text>`;
+    body += `<text x="377" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#111827" font-family="Consolas">${ptrLinked ? '0x7ff0' : 'nullptr'}</text>`;
+    if (ptrLinked) {
+      body += `<path d="M 295 68 L 204 68" stroke="#059669" stroke-width="2.2" marker-end="url(#dsv-g)"/>`;
+      body += `<text x="250" y="58" text-anchor="middle" font-size="10" font-weight="700" fill="#059669" font-family="Consolas">${lid === '2.8' ? 'p->score' : '*p'}</text>`;
+    }
+    caption = dsVizStep === 0 ? '定义变量或结构体，分配栈内存' : (dsVizStep === 1 ? '指针 p 保存目标内存地址 &a' : '通过解引用 *p / p->score 直接修改原内存值！');
+  } else if (lid === '2.5B' || lid === '3.6' || lid === '6.3') {
+    const chars = ['P', 'A', 'T', 'I', 'T', 'A', 'P', '\\0'];
+    const iPtr = Math.min(3, dsVizStep), jPtr = 6 - iPtr;
+    chars.forEach((ch, idx) => {
+      const x = 35 + idx * 56;
+      const isNull = (ch === '\\0');
+      const hit = (idx === iPtr || idx === jPtr);
+      body += `<rect x="${x}" y="44" width="48" height="44" rx="7" fill="${isNull ? '#FEF2F2' : (hit ? '#EFF6FF' : '#FFFFFF')}" stroke="${isNull ? '#DC2626' : (hit ? '#2563EB' : '#94A3B8')}" stroke-width="${hit || isNull ? 2 : 1.4}"/>`;
+      body += `<text x="${x + 24}" y="71" text-anchor="middle" font-size="13" font-weight="700" fill="${isNull ? '#DC2626' : '#111827'}" font-family="Consolas">${ch}</text>`;
+      body += `<text x="${x + 24}" y="106" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">[${idx}]</text>`;
+      if (idx === iPtr) body += `<text x="${x + 24}" y="28" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563EB" font-family="Consolas">L=${iPtr}</text>`;
+      if (idx === jPtr && jPtr !== iPtr) body += `<text x="${x + 24}" y="28" text-anchor="middle" font-size="10.5" font-weight="700" fill="#059669" font-family="Consolas">R=${jPtr}</text>`;
+    });
+    caption = `C 字符串末尾必含 '\\0' (ASCII 0) 结束符 · 当前首尾比对 s[${iPtr}]=='${chars[iPtr]}' vs s[${jPtr}]=='${chars[jPtr]}'`;
+  } else if (lid === '2.5A' || lid === '4.1' || lid === '4.6') {
+    const frames = [[5, 1, 4, 2, 8], [1, 4, 2, 5, 8], [1, 2, 4, 5, 8], [1, 2, 4, 5, 8]];
+    const arr = frames[dsVizStep];
+    const sortedStart = 5 - dsVizStep - (dsVizStep === 3 ? 2 : 0);
+    arr.forEach((v, idx) => {
+      const x = 68 + idx * 78;
+      const h = v * 9 + 14;
+      const isDone = idx >= Math.max(0, 4 - dsVizStep);
+      body += `<rect x="${x}" y="${108 - h}" width="52" height="${h}" rx="6" fill="${isDone ? '#ECFDF5' : '#EFF6FF'}" stroke="${isDone ? '#059669' : '#2563EB'}" stroke-width="1.8"/>`;
+      body += `<text x="${x + 26}" y="${102 - h}" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">${v}</text>`;
+      body += `<text x="${x + 26}" y="124" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">a[${idx}]</text>`;
+    });
+    caption = `第 ${dsVizStep + 1} 轮排序推进：当前序列 [${arr.join(', ')}]（绿色区域已就位）`;
+  } else if (lid === '5.4') {
+    const nums = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    nums.forEach((v, idx) => {
+      const x = 32 + idx * 50;
+      const crossed2 = dsVizStep >= 1 && v > 2 && v % 2 === 0;
+      const crossed3 = dsVizStep >= 2 && v > 3 && v % 3 === 0;
+      const cross = crossed2 || crossed3;
+      const prime = dsVizStep === 3 && !cross;
+      body += `<rect x="${x}" y="44" width="42" height="42" rx="7" fill="${cross ? '#FEF2F2' : (prime ? '#ECFDF5' : '#EFF6FF')}" stroke="${cross ? '#DC2626' : (prime ? '#059669' : '#2563EB')}" stroke-width="1.7"/>`;
+      body += `<text x="${x + 21}" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="${cross ? '#9CA3AF' : '#111827'}">${v}</text>`;
+      if (cross) body += `<line x1="${x + 6}" y1="80" x2="${x + 36}" y2="50" stroke="#DC2626" stroke-width="2"/>`;
+    });
+    caption = dsVizStep === 0 ? '初始化 2..10 全部待筛' : (dsVizStep === 1 ? '素数 2 筛除所有偶数倍 (4,6,8,10)' : (dsVizStep === 2 ? '素数 3 筛除 9' : '剩余绿色全部为素数 [2, 3, 5, 7]'));
+  } else if (lid === '5.1' || lid === '5.3' || lid === '5.7') {
+    const pairs = [['48, 18', '48%18=12'], ['18, 12', '18%12=6'], ['12, 6', '12%6=0'], ['gcd=6', '终止!']];
+    pairs.forEach((p, idx) => {
+      const x = 22 + idx * 122;
+      const act = idx === dsVizStep;
+      const done = idx < dsVizStep;
+      body += `<rect x="${x}" y="42" width="96" height="48" rx="8" fill="${act ? '#EFF6FF' : (done ? '#ECFDF5' : '#FFFFFF')}" stroke="${act ? '#2563EB' : (done ? '#059669' : '#CBD5E1')}" stroke-width="${act ? 2.2 : 1.5}"/>`;
+      body += `<text x="${x + 48}" y="64" text-anchor="middle" font-size="12" font-weight="700" fill="#111827" font-family="Consolas">${p[0]}</text>`;
+      body += `<text x="${x + 48}" y="81" text-anchor="middle" font-size="9.5" fill="#64748B">${p[1]}</text>`;
+      if (idx > 0) body += `<path d="M ${x - 24} 66 L ${x - 4} 66" stroke="#2563EB" stroke-width="1.8" marker-end="url(#dsv-b)"/>`;
+    });
+    caption = `欧几里得辗转相除 Step ${dsVizStep + 1}: ${pairs[dsVizStep][0]} (${pairs[dsVizStep][1]})`;
+  } else if (lid === '0.3' || lid === '3.3' || lid === '8.2') {
+    const dists = [0, 1, 2, 1, 1, 9, 3, 2, 2, 3, 4, 3];
+    for (let r = 0; r < 3; ++r) {
+      for (let c = 0; c < 4; ++c) {
+        const x = 148 + c * 54, y = 16 + r * 38;
+        const d = dists[r * 4 + c];
+        const isWall = d === 9;
+        const vis = !isWall && d <= dsVizStep;
+        body += `<rect x="${x}" y="${y}" width="48" height="33" rx="6" fill="${isWall ? '#334155' : (vis ? '#EFF6FF' : '#FFFFFF')}" stroke="${vis ? '#2563EB' : '#CBD5E1'}" stroke-width="1.6"/>`;
+        body += `<text x="${x + 24}" y="${y + 21}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${isWall ? '#FFFFFF' : (vis ? '#1D4ED8' : '#94A3B8')}">${isWall ? '#' : (vis ? (lid === '8.2' ? `d=${d}` : '✓') : '.')}</text>`;
+      }
+    }
+    caption = `二维网格逐层扩展 / 模拟扫描（当前扩散到第 ${dsVizStep} 层）`;
+  } else if (lid === '7.3B') {
+    const rows = [
+      { addr: '00001', d: 10, nx: '22222' },
+      { addr: '22222', d: 20, nx: '12345' },
+      { addr: '12345', d: 30, nx: '-1' },
+      { addr: '99999', d: -5, nx: '废点' }
+    ];
+    rows.forEach((r, idx) => {
+      const x = 22 + idx * 120;
+      const valid = idx < 3;
+      const cur = idx === dsVizStep;
+      body += `<rect x="${x}" y="38" width="102" height="62" rx="8" fill="${!valid ? '#FEF2F2' : (cur ? '#EFF6FF' : '#FFFFFF')}" stroke="${!valid ? '#DC2626' : (cur ? '#2563EB' : '#64748B')}" stroke-width="${cur ? 2.2 : 1.5}"/>`;
+      body += `<text x="${x + 51}" y="55" text-anchor="middle" font-size="10" font-weight="700" fill="#2563EB" font-family="Consolas">nodes[${r.addr}]</text>`;
+      body += `<text x="${x + 51}" y="73" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">data=${r.d}</text>`;
+      body += `<text x="${x + 51}" y="90" text-anchor="middle" font-size="10" fill="${valid ? '#059669' : '#DC2626'}" font-family="Consolas">next=${r.nx}</text>`;
+      if (idx < 2) body += `<path d="M ${x + 104} 69 L ${x + 117} 69" stroke="#2563EB" stroke-width="1.8" marker-end="url(#dsv-b)"/>`;
+    });
+    caption = `静态链表数组下标即地址：先沿 head 标出有效节点，剔除废点 [99999] 后再 sort`;
+  } else if (vt === 'linked_list') {
+    const xs = [90, 196, 302, 408];
+    const reversedN = dsVizStep + 1;
+    caption = `已反转 ${reversedN}/4 节点 · curr 指向后继并翻转 next`;
+    body += `<text x="20" y="75" font-size="11" font-weight="700" fill="#6B7280" font-family="Consolas">NULL</text>`;
+    for (let i = 0; i < 4; ++i) {
+      const done = i < dsVizStep;
+      const cur = i === dsVizStep;
+      const st = done ? '#059669' : (cur ? '#2563EB' : '#94A3B8');
+      const bg = done ? '#ECFDF5' : (cur ? '#EFF6FF' : '#FFFFFF');
+      body += `<rect x="${xs[i]}" y="53" width="62" height="32" rx="7" fill="${bg}" stroke="${st}" stroke-width="${cur ? 2.2 : 1.6}"/>`;
+      body += `<line x1="${xs[i] + 40}" y1="53" x2="${xs[i] + 40}" y2="85" stroke="${st}" stroke-width="1"/>`;
+      body += `<text x="${xs[i] + 20}" y="74" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">${i + 1}</text>`;
+      body += `<circle cx="${xs[i] + 51}" cy="69" r="3" fill="${st}"/>`;
+      if (i <= dsVizStep) {
+        if (i === 0) body += `<path d="M ${xs[0]} 69 L 54 69" stroke="#059669" stroke-width="2" marker-end="url(#dsv-g)"/>`;
+        else body += `<path d="M ${xs[i] + 51} 85 C ${xs[i] + 30} 114, ${xs[i - 1] + 55} 114, ${xs[i - 1] + 58} 82" fill="none" stroke="#2563EB" stroke-width="1.8" stroke-dasharray="4 2.5" marker-end="url(#dsv-b)"/>`;
+      } else if (i > 0) {
+        body += `<path d="M ${xs[i - 1] + 54} 69 L ${xs[i] - 4} 69" stroke="#64748B" stroke-width="1.7" marker-end="url(#dsv-m)"/>`;
+      }
+      if (cur) {
+        body += `<text x="${xs[i] + 31}" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#2563EB" font-family="Consolas">curr</text>`;
+        body += `<path d="M ${xs[i] + 31} 28 L ${xs[i] + 31} 49" stroke="#2563EB" stroke-width="1.6" marker-end="url(#dsv-b)"/>`;
+      } else if (i === dsVizStep - 1) {
+        body += `<text x="${xs[i] + 31}" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#059669" font-family="Consolas">prev</text>`;
+        body += `<path d="M ${xs[i] + 31} 28 L ${xs[i] + 31} 49" stroke="#059669" stroke-width="1.6" marker-end="url(#dsv-g)"/>`;
+      }
+    }
+    body += `<text x="488" y="74" font-size="10.5" fill="#6B7280" font-family="Consolas">NULL</text>`;
+  } else if (vt === 'stack' || lid === '3.5') {
+    const stackFrames = lid === '3.5' ? ['余数 3', '余数 0', '余数 1', '余数 1'] : ['frame 1', 'frame 2', 'op(+)', 'val 15'];
+    const curArr = stackFrames.slice(0, dsVizStep + 1);
+    body += `<path d="M 195 16 L 195 122 L 315 122 L 315 16" fill="none" stroke="#64748B" stroke-width="2.5"/>`;
+    curArr.forEach((lbl, idx) => {
+      const y = 94 - idx * 24;
+      const isTop = idx === curArr.length - 1;
+      body += `<rect x="203" y="${y}" width="104" height="20" rx="5" fill="${isTop ? '#EFF6FF' : '#ECFDF5'}" stroke="${isTop ? '#2563EB' : '#059669'}" stroke-width="1.6"/>`;
+      body += `<text x="255" y="${y + 14}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#111827">${lbl}</text>`;
+      if (isTop) {
+        body += `<text x="355" y="${y + 14}" font-size="10.5" font-weight="700" fill="#2563EB" font-family="Consolas">← top (${idx})</text>`;
+      }
+    });
+    caption = lid === '3.5'
+      ? `除基取余低位依次入栈，出栈即得高位到低位正序结果`
+      : `LIFO 后进先出栈：top = ${curArr.length - 1}，当前栈顶 [${curArr[curArr.length - 1]}]`;
+  } else if (vt === 'queue') {
+    if (lid === '9.8') {
+      const steps = [['1', '2', '2', '3', '6'], ['3*', '2', '3', '6'], ['5*', '3', '6'], ['8*', '6']];
+      const arr = steps[dsVizStep];
+      arr.forEach((v, idx) => {
+        const x = 68 + idx * 82;
+        const merge = idx < 2 && dsVizStep < 3;
+        body += `<circle cx="${x + 24}" cy="66" r="21" fill="${merge ? '#EFF6FF' : '#ECFDF5'}" stroke="${merge ? '#2563EB' : '#059669'}" stroke-width="2"/>`;
+        body += `<text x="${x + 24}" y="71" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">${v}</text>`;
+      });
+      caption = `哈夫曼树每次挑最小两堆合并累加进 WPL`;
+    } else {
+      const vals = [1, 3, -1, 5, 3, 6];
+      const startX = 76;
+      vals.forEach((v, i) => {
+        const x = startX + i * 60;
+        const inWin = (i >= dsVizStep && i <= Math.min(5, dsVizStep + 2));
+        const isMax = (i === Math.max(dsVizStep, Math.min(5, dsVizStep + 2) - (dsVizStep === 0 ? 1 : 0)));
+        body += `<rect x="${x}" y="44" width="52" height="42" rx="8" fill="${isMax ? '#EFF6FF' : (inWin ? '#ECFDF5' : '#FFFFFF')}" stroke="${isMax ? '#2563EB' : (inWin ? '#059669' : '#CBD5E1')}" stroke-width="${isMax ? 2.2 : 1.5}"/>`;
+        body += `<text x="${x + 26}" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">${v}</text>`;
+        body += `<text x="${x + 26}" y="102" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">[${i}]</text>`;
+      });
+      caption = `单调队列 / FIFO 窗口 [${dsVizStep} .. ${Math.min(5, dsVizStep + 2)}]`;
+    }
+  } else if (vt === 'bsearch' || lid === '3.2') {
+    const vals = [2, 5, 8, 12, 16, 23, 38];
+    const states = [[0, 3, 6], [4, 5, 6], [5, 5, 5], [5, 5, 5]];
+    const [L, M, R] = states[dsVizStep];
+    vals.forEach((v, i) => {
+      const x = 42 + i * 62;
+      const inRng = (i >= L && i <= R);
+      const isMid = (i === M);
+      body += `<rect x="${x}" y="44" width="54" height="40" rx="7" fill="${isMid ? '#EFF6FF' : (inRng ? '#F8FAFC' : '#F1F5F9')}" stroke="${isMid ? '#2563EB' : (inRng ? '#059669' : '#CBD5E1')}" stroke-width="${isMid ? 2.2 : 1.4}"/>`;
+      body += `<text x="${x + 27}" y="69" text-anchor="middle" font-size="13" font-weight="700" fill="${inRng ? '#111827' : '#94A3B8'}">${v}</text>`;
+      body += `<text x="${x + 27}" y="100" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">[${i}]</text>`;
+      if (i === M) body += `<text x="${x + 27}" y="28" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563EB" font-family="Consolas">mid=${M}</text>`;
+    });
+    caption = `二分查找目标 23: 搜索区间 [L=${L}, R=${R}], mid=${M} (a[mid]=${vals[M]})`;
+  } else if (vt === 'tree' || vt === 'bst') {
+    const nodes = lid === '9.7'
+      ? [{ x: 255, y: 26, v: '90' }, { x: 165, y: 74, v: '70' }, { x: 345, y: 74, v: '80' }, { x: 115, y: 120, v: '30' }, { x: 215, y: 120, v: '40' }, { x: 395, y: 120, v: '50' }]
+      : [
+          { x: 255, y: 26, v: vt === 'bst' ? '70' : 'A' },
+          { x: 165, y: 74, v: vt === 'bst' ? '61' : 'B' },
+          { x: 345, y: 74, v: vt === 'bst' ? '88' : 'C' },
+          { x: 115, y: 120, v: vt === 'bst' ? '12' : 'D' },
+          { x: 215, y: 120, v: vt === 'bst' ? '65' : 'E' },
+          { x: 395, y: 120, v: vt === 'bst' ? '96' : 'F' }
+        ];
+    const edges = [[0,1],[0,2],[1,3],[1,4],[2,5]];
+    const order = [0, 1, 3, 2];
+    const active = order[dsVizStep];
+    edges.forEach(([a, b]) => {
+      body += `<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}" stroke="#CBD5E1" stroke-width="2"/>`;
+    });
+    nodes.forEach((n, i) => {
+      const hit = i === active;
+      body += `<circle cx="${n.x}" cy="${n.y}" r="16" fill="${hit ? '#2563EB' : '#FFFFFF'}" stroke="${hit ? '#1D4ED8' : '#64748B'}" stroke-width="2"/>`;
+      body += `<text x="${n.x}" y="${n.y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="${hit ? '#FFFFFF' : '#111827'}">${n.v}</text>`;
+      if (lid === '9.7') body += `<text x="${n.x + 22}" y="${n.y - 6}" font-size="9" font-weight="700" fill="#059669" font-family="Consolas">[${i + 1}]</text>`;
+    });
+    caption = lid === '9.7'
+      ? `大顶堆数组下标 [i] -> 左子[2i], 右子[2i+1]`
+      : `当前访问节点 ${nodes[active].v} · 树递归 / 平衡调整轨迹`;
+  } else if (vt === 'graph') {
+    const gnodes = [
+      { x: 95, y: 70, id: '1', d: [0,0,0,0] },
+      { x: 225, y: 30, id: '2', d: ['∞',2,2,2] },
+      { x: 225, y: 112, id: '3', d: ['∞',5,3,3] },
+      { x: 390, y: 70, id: '4', d: ['∞','∞',8,5] }
+    ];
+    const gedges = [[0,1,'2'],[0,2,'5'],[1,2,'1'],[1,3,'6'],[2,3,'2']];
+    gedges.forEach(([a, b, w]) => {
+      const na = gnodes[a], nb = gnodes[b];
+      const act = (dsVizStep === 1 && a === 0) || (dsVizStep === 2 && a === 1) || (dsVizStep === 3 && a === 2);
+      body += `<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="${act ? '#2563EB' : '#CBD5E1'}" stroke-width="${act ? 2.4 : 1.6}" marker-end="${act ? 'url(#dsv-b)' : 'url(#dsv-m)'}"/>`;
+      body += `<rect x="${(na.x+nb.x)/2-10}" y="${(na.y+nb.y)/2-9}" width="20" height="16" rx="4" fill="#FFFFFF" stroke="#E2E8F0"/>`;
+      body += `<text x="${(na.x+nb.x)/2}" y="${(na.y+nb.y)/2+3}" text-anchor="middle" font-size="10" font-weight="700" fill="#475569">${w}</text>`;
+    });
+    gnodes.forEach((n, i) => {
+      const done = i <= dsVizStep;
+      body += `<circle cx="${n.x}" cy="${n.y}" r="18" fill="${done ? '#EFF6FF' : '#FFFFFF'}" stroke="${done ? '#2563EB' : '#94A3B8'}" stroke-width="2"/>`;
+      body += `<text x="${n.x}" y="${n.y + 4}" text-anchor="middle" font-size="12" font-weight="700" fill="#111827">${n.id}</text>`;
+      body += `<text x="${n.x}" y="${n.y + 30}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669" font-family="Consolas">d=${n.d[dsVizStep]}</text>`;
+    });
+    caption = `图算法第 ${dsVizStep + 1} 轮松弛/推进：dist = [0, ${gnodes[1].d[dsVizStep]}, ${gnodes[2].d[dsVizStep]}, ${gnodes[3].d[dsVizStep]}]`;
+  } else if (vt === 'dsu') {
+    const sets = dsVizStep < 2
+      ? [[1,2],[3],[4,5]]
+      : (dsVizStep === 2 ? [[1,2,3],[4,5]] : [[1,2,3,4,5]]);
+    let xcur = 50;
+    sets.forEach((grp) => {
+      const gw = Math.max(80, grp.length * 42 + 24);
+      body += `<rect x="${xcur}" y="26" width="${gw}" height="88" rx="12" fill="rgba(37,99,235,0.05)" stroke="#2563EB" stroke-dasharray="4 3"/>`;
+      grp.forEach((v, vi) => {
+        const cx = xcur + 28 + vi * 42;
+        const isRoot = (vi === 0);
+        body += `<circle cx="${cx}" cy="70" r="15" fill="${isRoot ? '#2563EB' : '#FFFFFF'}" stroke="#2563EB" stroke-width="1.8"/>`;
+        body += `<text x="${cx}" y="74" text-anchor="middle" font-size="12" font-weight="700" fill="${isRoot ? '#FFFFFF' : '#111827'}">${v}</text>`;
+      });
+      xcur += gw + 18;
+    });
+    caption = `当前连通块个数 = ${sets.length} · 并查集路径压缩直连根节点`;
+  } else if (vt === 'dp') {
+    const vals = [0, 3, 5, 8, 10, 14];
+    const focus = dsVizStep + 1;
+    vals.forEach((v, i) => {
+      const x = 44 + i * 74;
+      const done = i <= focus;
+      const cur = i === focus;
+      body += `<rect x="${x}" y="48" width="58" height="42" rx="8" fill="${cur ? '#EFF6FF' : (done ? '#ECFDF5' : '#FFFFFF')}" stroke="${cur ? '#2563EB' : (done ? '#059669' : '#CBD5E1')}" stroke-width="${cur ? 2.2 : 1.5}"/>`;
+      body += `<text x="${x + 29}" y="74" text-anchor="middle" font-size="13" font-weight="700" fill="${done ? '#111827' : '#94A3B8'}">${done ? v : '?'}</text>`;
+      body += `<text x="${x + 29}" y="108" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">dp[${i}]</text>`;
+      if (cur && i > 0) {
+        body += `<path d="M ${x - 45} 48 C ${x - 30} 20, ${x + 15} 20, ${x + 29} 44" fill="none" stroke="#2563EB" stroke-width="1.8" marker-end="url(#dsv-b)"/>`;
+      }
+    });
+    caption = `无后效性递推转移：由已有前驱状态推出 dp[${focus}] = ${vals[focus]}`;
+  } else if (vt === 'kmp') {
+    const txt = 'abababa', pat = 'aba';
+    const shift = Math.min(4, dsVizStep * 2);
+    for (let i = 0; i < txt.length; ++i) {
+      const x = 62 + i * 54;
+      body += `<rect x="${x}" y="22" width="44" height="34" rx="6" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5"/>`;
+      body += `<text x="${x + 22}" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#111827" font-family="Consolas">${txt[i]}</text>`;
+    }
+    for (let j = 0; j < pat.length; ++j) {
+      const x = 62 + (shift + j) * 54;
+      if (x + 44 <= 500) {
+        body += `<rect x="${x}" y="76" width="44" height="34" rx="6" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>`;
+        body += `<text x="${x + 22}" y="98" text-anchor="middle" font-size="14" font-weight="700" fill="#1D4ED8" font-family="Consolas">${pat[j]}</text>`;
+      }
+    }
+    caption = `主串指针 i 不回退，模式串滑至偏移 ${shift} 处对齐匹配`;
+  } else if (vt === 'bit') {
+    if (lid === '4.2') {
+      const bkts = [1, 2, 0, 3, 1, 0];
+      bkts.forEach((cnt, i) => {
+        const x = 62 + i * 68;
+        const act = i === (dsVizStep % 5);
+        body += `<rect x="${x}" y="44" width="52" height="42" rx="8" fill="${act ? '#EFF6FF' : '#ECFDF5'}" stroke="${act ? '#2563EB' : '#059669'}" stroke-width="${act ? 2.2 : 1.5}"/>`;
+        body += `<text x="${x + 26}" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">${cnt}</text>`;
+        body += `<text x="${x + 26}" y="102" text-anchor="middle" font-size="9.5" fill="#64748B" font-family="Consolas">h[${i}]</text>`;
+      });
+      caption = `散列表下标即关键码：O(1) 计数统计与直接寻址`;
+    } else {
+      const spans = [1, 2, 1, 4, 1, 2, 1, 8];
+      const highlightIdx = [0, 1, 3, 7][dsVizStep];
+      spans.forEach((len, i) => {
+        const w = len * 48 - 4;
+        const x = 32 + (i + 1 - len) * 56;
+        const act = i === highlightIdx;
+        const y = 104 - Math.log2(len) * 26;
+        body += `<rect x="${x}" y="${y}" width="${Math.min(440, len * 54 - 6)}" height="20" rx="5" fill="${act ? '#EFF6FF' : '#F8FAFC'}" stroke="${act ? '#2563EB' : '#94A3B8'}" stroke-width="${act ? 2.2 : 1.3}"/>`;
+        body += `<text x="${x + Math.min(440, len * 54 - 6)/2}" y="${y + 14}" text-anchor="middle" font-size="10" font-weight="700" fill="${act ? '#1D4ED8' : '#475569'}" font-family="Consolas">c[${i + 1}]</text>`;
+      });
+      caption = `lowbit(x)=x&-x 树状区间覆盖：c[${highlightIdx + 1}] 管辖 ${spans[highlightIdx]} 项`;
+    }
+  } else if (vt === 'two_ptr') {
+    if (lid === '6.1') {
+      const cap = [1, 2, 4, 4][dsVizStep];
+      const len = dsVizStep + 1;
+      for (let i = 0; i < cap; ++i) {
+        const x = 70 + i * 95;
+        const filled = i < len;
+        body += `<rect x="${x}" y="44" width="78" height="44" rx="8" fill="${filled ? '#EFF6FF' : '#F8FAFC'}" stroke="${filled ? '#2563EB' : '#CBD5E1'}" stroke-dasharray="${filled ? '' : '4 3'}" stroke-width="1.8"/>`;
+        body += `<text x="${x + 39}" y="71" text-anchor="middle" font-size="12.5" font-weight="700" fill="${filled ? '#111827' : '#94A3B8'}">${filled ? (i + 1) * 10 : '空闲'}</text>`;
+      }
+      caption = `vector 动态扩容：size=${len}, capacity=${cap}（满则倍增搬迁）`;
+    } else {
+      const vals = [2, 5, 7, 10, 13, 18];
+      const L = dsVizStep < 2 ? dsVizStep : 1;
+      const R = 5 - Math.max(0, dsVizStep - 1);
+      vals.forEach((v, i) => {
+        const x = 58 + i * 66;
+        const isL = i === L, isR = i === R;
+        body += `<rect x="${x}" y="44" width="52" height="42" rx="8" fill="${isL || isR ? '#EFF6FF' : '#FFFFFF'}" stroke="${isL ? '#2563EB' : (isR ? '#059669' : '#CBD5E1')}" stroke-width="${isL || isR ? 2.2 : 1.4}"/>`;
+        body += `<text x="${x + 26}" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#111827">${v}</text>`;
+        if (isL) body += `<text x="${x + 26}" y="28" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2563EB" font-family="Consolas">L</text>`;
+        if (isR) body += `<text x="${x + 26}" y="106" text-anchor="middle" font-size="10.5" font-weight="700" fill="#059669" font-family="Consolas">R</text>`;
+      });
+      caption = `双指针协同推进：L=${L}, R=${R}（有序收拢 / 线性扫描）`;
+    }
+  } else {
+    // 复杂度与通用C程序执行流对比
+    const bars = [
+      { lbl: 'O(1)/O(log n)', w: 70, c: '#059669', maxN: '10^9' },
+      { lbl: 'O(n) 线性', w: 145, c: '#2563EB', maxN: '10^7' },
+      { lbl: 'O(n log n)', w: 225, c: '#7C3AED', maxN: '10^5' },
+      { lbl: 'O(n^2) 双循环', w: 320, c: '#D97706', maxN: '3000' }
+    ];
+    bars.forEach((b, idx) => {
+      const y = 14 + idx * 30;
+      const act = idx === dsVizStep;
+      body += `<text x="16" y="${y + 16}" font-size="10.5" font-weight="700" fill="${act ? b.c : '#475569'}" font-family="Consolas">${b.lbl}</text>`;
+      body += `<rect x="118" y="${y + 3}" width="${b.w}" height="18" rx="5" fill="${b.c}" opacity="${act ? '1' : '0.32'}"/>`;
+      body += `<text x="${126 + b.w}" y="${y + 16}" font-size="10" font-weight="700" fill="#475569">n ≤ ${b.maxN}</text>`;
+    });
+    caption = `复杂度预算规则（1s ≈ 10^8 次运算）· 当前聚焦 ${bars[dsVizStep].lbl}`;
+  }
+
+  svg.innerHTML = defs + body;
+  if (capEl) capEl.textContent = caption;
 }
 
 // ============================================================================
