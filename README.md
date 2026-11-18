@@ -1,11 +1,11 @@
 # OmniWorkbench (全能工作台)
 
-基于 **C++17** 核心引擎开发的本地优先（Local-First）跨平台个人知识编辑、英语词汇与 C/C++ 数据结构学习桌面工作台，现已支持在 **Linux (WSL2)** 与 **Windows 桌面端 (`.exe`)** 运行。
+基于 **C++17** 核心引擎 + **纯原生 Qt 6 (`QWidgets` + `QPainter` + `QSyntaxHighlighter` + `QTextDocument`)** 构建的本地优先（Local-First）无浏览器内核跨平台个人知识编辑、英语词汇与 C/C++ 数据结构学习桌面工作台，现已支持在 **Windows 桌面端** 与 **Linux (WSL2)** 运行。
 
-## 下载与直接运行 (Windows 免安装单文件版)
+## 下载与直接运行 (Windows Qt 6 便携免安装版)
 
-- **Windows 64 位单文件绿色版**：[`releases/OmniWorkbench.exe`](releases/OmniWorkbench.exe)（无需安装任何运行库，下载后直接双击即可使用；若需在「数据结构」页内本地编译运行练习题，电脑需已安装 `g++` 并加入 `PATH`）
-- **Windows 64 位压缩包下载**：[`releases/OmniWorkbench-win64.zip`](releases/OmniWorkbench-win64.zip)（解压即得 `OmniWorkbench.exe`）
+- **完整免安装压缩包下载（推荐）**：[`releases/OmniWorkbench-win64.zip`](releases/OmniWorkbench-win64.zip)（约 `33 MB`，已打包全部 Qt 6 与 SQLite3 运行库及插件；下载解压后直接双击目录内的 **`OmniWorkbench.exe`** 即可启动！若需在「数据结构」页内本地编译运行练习题，电脑需安装 `g++` 并加入 `PATH`）
+- **仅启动器备份**：[`releases/OmniWorkbench.exe`](releases/OmniWorkbench.exe)（依赖同目录或 `%LOCALAPPDATA%\OmniWorkbench\qt_app\` 中的运行库，普通用户请直接下载上方 `.zip` 完整包）
 
 ## 界面预览
 
@@ -37,10 +37,10 @@
 
 ### 3. C/C++ 数据结构与算法工作台 (`SQLite3 课程库 + g++ 实时自测`)
 - **全书结构化入库**：基于《算法笔记》（Ch 1–13）与集训前导课程覆盖 **14 章 · 72 节彩色网页教程 · 76 道随堂练习题**，从纯 C 基础语法/指针/结构体 (`Ch0–5`) 循序渐进到 C++ STL (`Ch6`) 与高阶数据结构/图论/动态规划/树状数组/线段树 (`Ch7–13`)。
-- **交互式动画与在线评测**：内置分主题 SVG 步骤可视化与代码语法高亮，底部独立练习框支持行号对齐编辑、标准输入运行与自动多用例评测 (`Ctrl+Enter`)，做题进度与笔记持久保存至 `omni_ds_course.db`。
+- **交互式原生绘图与在线评测**：内置 `QPainter` 高清交互动画与 `QSyntaxHighlighter` 代码高亮，底部独立练习框支持原生行号同步对齐、标准输入运行与后台线程实时评测 (`Ctrl+Enter`)，做题进度与笔记持久保存至 `omni_ds_course.db`。
 
-### 4. 工具调度中心 (预留简版)
-- 保留精简占位面板，便于后续接入本地 Python / Conda 环境与子进程调度。
+### 4. 工具诊断与文档格式互转中心
+- 实时展示当前 Qt 6 原生界面环境、本地 `g++` 编译器、数据目录与 PDF 引擎状态，并提供离线 `Markdown ↔ Word .docx ↔ A4 PDF` 一键文件转换器。
 
 ---
 
@@ -63,8 +63,8 @@ make windows
 # 产物位置：build/win/OmniWorkbench.exe
 ```
 
-### 可选 Qt 6 CMake 构建
-若系统已安装 Qt 6 (`Qt6::Widgets` + `Qt6::WebEngineWidgets`) 与 CMake：
+### 纯原生 Qt 6 CMake 构建
+若系统已安装 Qt 6 (`Qt6::Widgets`，无需 `WebEngineWidgets`) 与 CMake：
 ```bash
 cmake -B build-qt -DENABLE_QT6=ON
 cmake --build build-qt
