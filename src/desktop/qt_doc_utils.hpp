@@ -5,6 +5,13 @@
 
 #include <QColor>
 #include <QFont>
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPainter>
+#include <QPainterPath>
+#include <QRegularExpression>
+#include <QScrollArea>
 #include <QString>
 #include <QTextBlock>
 #include <QTextCharFormat>
@@ -12,6 +19,7 @@
 #include <QTextFragment>
 #include <QTextList>
 #include <QTextTable>
+#include <QVBoxLayout>
 
 #include <sstream>
 #include <string>
@@ -209,5 +217,245 @@ inline QString render_markdown_for_word_editor(const std::string& md, const std:
     );
     return qss + QStringLiteral("<body>") + QString::fromStdString(innerHtml) + QStringLiteral("</body>");
 }
+
+inline QString style_inline_rich_html(QString html, const ThemePalette& pal) {
+    QString codeStyle = pal.is_dark
+        ? QStringLiteral("<span style=\"background-color:#263042; color:#93C5FD; font-family:Consolas; font-size:11.5px;\">&nbsp;")
+        : QStringLiteral("<span style=\"background-color:#EEF2F7; color:#1E293B; font-family:Consolas; font-size:11.5px;\">&nbsp;");
+    html.replace(QStringLiteral("<code>"), codeStyle);
+    html.replace(QStringLiteral("</code>"), QStringLiteral("&nbsp;</span>"));
+    html.replace(QStringLiteral("<span class=\"ds-tag red\">"),
+                 QStringLiteral("<span style=\"background-color:#FEE2E2; color:#DC2626; font-weight:bold;\">&nbsp;"));
+    html.replace(QStringLiteral("<span class=\"ds-tag amber\">"),
+                 QStringLiteral("<span style=\"background-color:#FEF3C7; color:#D97706; font-weight:bold;\">&nbsp;"));
+    html.replace(QStringLiteral("<span class=\"ds-tag purple\">"),
+                 QStringLiteral("<span style=\"background-color:#EDE9FE; color:#7C3AED; font-weight:bold;\">&nbsp;"));
+    html.replace(QStringLiteral("<span class=\"ds-tag blue\">"),
+                 QStringLiteral("<span style=\"background-color:#DBEAFE; color:#2563EB; font-weight:bold;\">&nbsp;"));
+    html.replace(QStringLiteral("<ul>"), QStringLiteral("<ul style=\"margin-top:3px; margin-bottom:2px; margin-left:16px;\">"));
+    html.replace(QStringLiteral("<li>"), QStringLiteral("<li style=\"margin-bottom:2px;\">"));
+    return html;
+}
+
+class TutorialBlockCard : public QFrame {
+public:
+    TutorialBlockCard(const QColor& bg, const QColor& border, const QColor& accent, QWidget* parent = nullptr)
+        : QFrame(parent), bg_(bg), border_(border), accent_(accent) {
+        setFrameShape(QFrame::NoFrame);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    }
+
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        QRectF r = QRectF(rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+        QPainterPath path;
+        path.addRoundedRect(r, 10, 10);
+        p.fillPath(path, bg_);
+
+        if (accent_.isValid() && accent_.alpha() > 0) {
+            p.save();
+            p.setClipPath(path);
+            p.fillRect(QRectF(r.left(), r.top(), 4.5, r.height()), accent_);
+            p.restore();
+        }
+        p.setPen(QPen(border_, 1.0));
+        p.drawPath(path);
+    }
+
+private:
+    QColor bg_;
+    QColor border_;
+    QColor accent_;
+};
+
+class DsTutorialWidget : public QScrollArea {
+public:
+    explicit DsTutorialWidget(QWidget* parent = nullptr) : QScrollArea(parent) {
+        setWidgetResizable(true);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setFrameShape(QFrame::NoFrame);
+
+        container_ = new QWidget(this);
+        container_->setStyleSheet(QStringLiteral("background: transparent;"));
+        vbox_ = new QVBoxLayout(container_);
+        vbox_->setContentsMargins(2, 2, 6, 4);
+        vbox_->setSpacing(8);
+        setWidget(container_);
+    }
+
+    void setTutorial(const std::string& rawHtml, const ThemePalette& pal) {
+        last_html_ = rawHtml;
+        pal_ = pal;
+        rebuild();
+    }
+
+    void setPaletteTheme(const ThemePalette& pal) {
+        pal_ = pal;
+        if (!last_html_.empty()) rebuild();
+    }
+
+private:
+    void clearLayout() {
+        while (QLayoutItem* it = vbox_->takeAt(0)) {
+            if (QWidget* w = it->widget()) {
+                w->hide();
+                w->setParent(nullptr);
+                w->deleteLater();
+            }
+            delete it;
+        }
+    }
+
+    QLabel* makeRichLabel(const QString& html, const QColor& color, bool bold = false, int px = 12) {
+        auto* lbl = new QLabel();
+        lbl->setTextFormat(Qt::RichText);
+        lbl->setWordWrap(true);
+        lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        lbl->setOpenExternalLinks(false);
+        lbl->setContentsMargins(0, 1, 0, 2);
+        lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+        lbl->setStyleSheet(QString("background: transparent; color: %1; font-size: %2px; font-weight: %3;")
+            .arg(color.name()).arg(px).arg(bold ? 700 : 400));
+        lbl->setText(style_inline_rich_html(html, pal_));
+        return lbl;
+    }
+
+    void addLeadCard(const QString& innerHtml) {
+        QColor bg = pal_.is_dark ? QColor("#18253A") : QColor("#EEF4FF");
+        QColor bd = pal_.is_dark ? QColor("#2D4366") : QColor("#CFE0FC");
+        QColor ac("#2563EB");
+        auto* card = new TutorialBlockCard(bg, bd, ac, container_);
+        auto* l = new QVBoxLayout(card);
+        l->setContentsMargins(14, 10, 12, 10);
+        l->addWidget(makeRichLabel(innerHtml, QColor(pal_.text_primary), false, 12));
+        vbox_->addWidget(card);
+    }
+
+    void addStepCard(const QString& tone, const QString& badge, const QString& titleHtml, const QString& descHtml) {
+        QColor accent("#2563EB");
+        QColor badgeBg("#DBEAFE");
+        if (tone == QLatin1String("green"))       { accent = QColor("#059669"); badgeBg = QColor(pal_.is_dark ? "#064E3B" : "#DCFCE7"); }
+        else if (tone == QLatin1String("purple")) { accent = QColor("#7C3AED"); badgeBg = QColor(pal_.is_dark ? "#3B1E6D" : "#EDE9FE"); }
+        else if (tone == QLatin1String("amber"))  { accent = QColor("#D97706"); badgeBg = QColor(pal_.is_dark ? "#45230A" : "#FEF3C7"); }
+        else if (pal_.is_dark)                    { badgeBg = QColor("#1E3A5F"); }
+
+        QColor bg = pal_.is_dark ? QColor("#1A2230") : QColor("#FAFCFF");
+        QColor bd = QColor(pal_.border_line);
+
+        auto* card = new TutorialBlockCard(bg, bd, accent, container_);
+        auto* l = new QVBoxLayout(card);
+        l->setContentsMargins(14, 8, 12, 9);
+        l->setSpacing(4);
+
+        auto* hRow = new QHBoxLayout();
+        hRow->setSpacing(6);
+        auto* bLbl = new QLabel(badge.trimmed(), card);
+        bLbl->setAlignment(Qt::AlignCenter);
+        bLbl->setFixedSize(20, 20);
+        bLbl->setStyleSheet(QString("background:%1; color:%2; border-radius:10px; font-weight:700; font-size:11px;")
+            .arg(badgeBg.name(), accent.name()));
+        auto* tLbl = makeRichLabel(titleHtml, QColor(pal_.text_primary), true, 12);
+        hRow->addWidget(bLbl);
+        hRow->addWidget(tLbl, 1);
+        l->addLayout(hRow);
+
+        l->addWidget(makeRichLabel(descHtml, QColor(pal_.text_secondary), false, 12));
+        vbox_->addWidget(card);
+    }
+
+    void addTableCard(const QString& tableInnerHtml) {
+        QColor bg = QColor(pal_.bg_card);
+        QColor bd = QColor(pal_.border_line);
+        auto* card = new TutorialBlockCard(bg, bd, QColor("#2563EB"), container_);
+        auto* l = new QVBoxLayout(card);
+        l->setContentsMargins(12, 8, 10, 8);
+        QString styled = QString("<table width=\"100%\" cellspacing=\"0\" cellpadding=\"5\" style=\"border-collapse:collapse;\">%1</table>")
+            .arg(tableInnerHtml);
+        styled.replace(QStringLiteral("<th>"), QString("<th style=\"background-color:%1; border:1px solid %2; text-align:left;\">")
+            .arg(pal_.is_dark ? "#222C3D" : "#F1F5F9", bd.name()));
+        styled.replace(QStringLiteral("<td>"), QString("<td style=\"border:1px solid %1;\">").arg(bd.name()));
+        l->addWidget(makeRichLabel(styled, QColor(pal_.text_primary), false, 11));
+        vbox_->addWidget(card);
+    }
+
+    void addNoteOrPitfallCard(const QString& innerHtml, bool isPitfall) {
+        QColor bg = isPitfall
+            ? (pal_.is_dark ? QColor("#2C2111") : QColor("#FFFBEB"))
+            : (pal_.is_dark ? QColor("#18253A") : QColor("#F0F9FF"));
+        QColor bd = isPitfall
+            ? (pal_.is_dark ? QColor("#92400E") : QColor("#FDE68A"))
+            : (pal_.is_dark ? QColor("#2D4366") : QColor("#BAE6FD"));
+        QColor ac(isPitfall ? "#D97706" : "#0284C7");
+        QColor fg(isPitfall ? (pal_.is_dark ? "#FDE68A" : "#92400E") : pal_.text_secondary);
+
+        auto* card = new TutorialBlockCard(bg, bd, ac, container_);
+        auto* l = new QVBoxLayout(card);
+        l->setContentsMargins(14, 9, 12, 9);
+        l->addWidget(makeRichLabel(innerHtml, fg, false, 12));
+        vbox_->addWidget(card);
+    }
+
+    void rebuild() {
+        clearLayout();
+        const QString src = QString::fromStdString(last_html_);
+        bool addedAny = false;
+
+        // 1. Lead Box
+        QRegularExpression reLead(QStringLiteral("<div class=\"ds-tut-lead\">([\\s\\S]*?)</div>"));
+        QRegularExpressionMatch mLead = reLead.match(src);
+        if (mLead.hasMatch()) {
+            addLeadCard(mLead.captured(1).trimmed());
+            addedAny = true;
+        }
+
+        // 2. Step Cards
+        QRegularExpression reStep(QStringLiteral(
+            "<div class=\"ds-step-card tone-([a-z]+)\">"
+            "<div class=\"ds-step-title\"><span class=\"ds-step-num\">(.*?)</span>([\\s\\S]*?)</div>"
+            "<div class=\"ds-step-desc\">([\\s\\S]*?)</div></div>"));
+        QRegularExpressionMatchIterator itSteps = reStep.globalMatch(src);
+        while (itSteps.hasNext()) {
+            QRegularExpressionMatch m = itSteps.next();
+            addStepCard(m.captured(1), m.captured(2), m.captured(3).trimmed(), m.captured(4).trimmed());
+            addedAny = true;
+        }
+
+        // 3. Optional Note Box
+        QRegularExpression reNote(QStringLiteral("<div class=\"ds-note-box\">([\\s\\S]*?)</div>"));
+        QRegularExpressionMatch mNote = reNote.match(src);
+        if (mNote.hasMatch()) {
+            addNoteOrPitfallCard(mNote.captured(1).trimmed(), false);
+            addedAny = true;
+        }
+
+        // 4. Optional Table
+        QRegularExpression reTable(QStringLiteral("<table[^>]*>([\\s\\S]*?)</table>"));
+        QRegularExpressionMatch mTab = reTable.match(src);
+        if (mTab.hasMatch()) {
+            addTableCard(mTab.captured(1).trimmed());
+            addedAny = true;
+        }
+
+        // 5. Pitfall Box
+        QRegularExpression rePit(QStringLiteral("<div class=\"ds-pitfall-box\">([\\s\\S]*?)</div>"));
+        QRegularExpressionMatch mPit = rePit.match(src);
+        if (mPit.hasMatch()) {
+            addNoteOrPitfallCard(mPit.captured(1).trimmed(), true);
+            addedAny = true;
+        }
+
+        if (!addedAny && !src.trimmed().isEmpty()) {
+            addLeadCard(src);
+        }
+        vbox_->addStretch(1);
+    }
+
+    QWidget* container_ = nullptr;
+    QVBoxLayout* vbox_ = nullptr;
+    std::string last_html_;
+    ThemePalette pal_ = get_theme_palette("white");
+};
 
 } // namespace omni::qt

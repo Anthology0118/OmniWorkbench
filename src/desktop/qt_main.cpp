@@ -150,12 +150,23 @@ public:
                 theme_btns_[i]->setChecked(chk);
             }
         }
+        for (QFrame* c : cards_) apply_card_shadow(c, pal_.is_dark, 20, 3, 16);
+        if (word_paper_frame_) apply_card_shadow(word_paper_frame_, pal_.is_dark, 32, 6, 36);
         if (cube_widget_) cube_widget_->setPaletteTheme(pal_);
         if (vault_arc_) vault_arc_->setPaletteTheme(pal_);
         if (ds_viz_) ds_viz_->setPaletteTheme(pal_);
-        if (!cur_ds_lesson_.id.empty() && ds_tut_browser_) {
-            ds_tut_browser_->setHtml(wrap_ds_tutorial_html(cur_ds_lesson_.tutorial_html, pal_));
+        if (ds_cat_delegate_) {
+            ds_cat_delegate_->setPaletteTheme(pal_);
+            if (ds_tree_) ds_tree_->viewport()->update();
         }
+        if (dict_delegate_) {
+            dict_delegate_->setPaletteTheme(pal_);
+            if (dict_list_) dict_list_->viewport()->update();
+        }
+        if (ds_tut_widget_) {
+            ds_tut_widget_->setPaletteTheme(pal_);
+        }
+        if (!cur_word_entry_.word.empty()) showWordDetail(cur_word_entry_.word);
         updateWordStageBackdrop();
         if (persist) {
             cfg_.mutable_get().theme = norm;
@@ -217,6 +228,7 @@ private:
     QComboBox* dict_tag_combo_ = nullptr;
     QPushButton* dict_marked_btn_ = nullptr;
     QListWidget* dict_list_ = nullptr;
+    DictItemDelegate* dict_delegate_ = nullptr;
     QLabel* dict_count_lbl_ = nullptr;
     QTabWidget* eng_right_tabs_ = nullptr;
     QLabel* word_title_lbl_ = nullptr;
@@ -247,8 +259,8 @@ private:
     QStackedWidget* ed_mode_stack_ = nullptr;
     QScrollArea* word_scroll_ = nullptr;
     QWidget* word_scroll_content_ = nullptr;
-    QFrame* word_paper_frame_ = nullptr;
-    QLabel* word_ruler_lbl_ = nullptr;
+    A4PaperWidget* word_paper_frame_ = nullptr;
+    A4RulerWidget* word_ruler_widget_ = nullptr;
     QTextEdit* word_editor_ = nullptr;
     QLabel* word_footer_lbl_ = nullptr;
     QPlainTextEdit* md_editor_ = nullptr;
@@ -283,7 +295,9 @@ private:
     std::vector<QPushButton*> ds_cat_btns_;
     std::string ds_cat_filter_;
     QTreeWidget* ds_tree_ = nullptr;
+    DsCatalogDelegate* ds_cat_delegate_ = nullptr;
     DsVisualizerWidget* ds_viz_ = nullptr;
+    QLabel* ds_viz_title_lbl_ = nullptr;
     QLabel* ds_viz_cap_ = nullptr;
     QLabel* ds_viz_step_lbl_ = nullptr;
     QPushButton* ds_viz_play_btn_ = nullptr;
@@ -295,7 +309,7 @@ private:
     QPushButton* ds_mastered_btn_ = nullptr;
     QFrame* ds_note_drawer_ = nullptr;
     QLineEdit* ds_note_inp_ = nullptr;
-    QTextBrowser* ds_tut_browser_ = nullptr;
+    DsTutorialWidget* ds_tut_widget_ = nullptr;
     CodeEditor* ds_tmpl_editor_ = nullptr;
     QHBoxLayout* ds_ex_tabs_layout_ = nullptr;
     QLabel* ds_ex_mode_pill_ = nullptr;
@@ -315,6 +329,7 @@ private:
     QLineEdit* tool_in_path_ = nullptr;
     QComboBox* tool_fmt_combo_ = nullptr;
     QLabel* tool_diag_lbl_ = nullptr;
+    std::vector<QFrame*> cards_;
 
     void showToast(const QString& msg) {
         if (!status_toast_) return;
@@ -349,6 +364,8 @@ private:
     QFrame* makeCard(QWidget* parent = nullptr) {
         auto* f = new QFrame(parent);
         f->setProperty("card", true);
+        apply_card_shadow(f, pal_.is_dark, 20, 3, 16);
+        cards_.push_back(f);
         return f;
     }
 
@@ -545,6 +562,9 @@ private:
         dictL->addLayout(filterRow);
 
         dict_list_ = new QListWidget(dictCard);
+        dict_list_->setMouseTracking(true);
+        dict_delegate_ = new DictItemDelegate(dict_list_);
+        dict_list_->setItemDelegate(dict_delegate_);
         dictL->addWidget(dict_list_, 1);
 
         auto* pagerRow = new QHBoxLayout();
@@ -733,10 +753,12 @@ private:
         if (!dict_list_) return;
         dict_list_->clear();
         for (const auto& e : res) {
-            QString row = QString::fromStdString(e.word);
-            if (!e.ipa.empty()) row += QString("  [%1]").arg(QString::fromStdString(e.ipa));
-            if (!e.tags.empty()) row += QString("  (%1)").arg(QString::fromStdString(e.tags));
-            dict_list_->addItem(row);
+            auto* item = new QListWidgetItem(QString::fromStdString(e.word));
+            item->setData(Qt::UserRole, QString::fromStdString(e.ipa));
+            item->setData(Qt::UserRole + 1, QString::fromStdString(e.tags));
+            item->setData(Qt::UserRole + 2, QString::fromStdString(e.pos));
+            item->setData(Qt::UserRole + 3, e.marked);
+            dict_list_->addItem(item);
         }
         if (!res.empty()) {
             dict_list_->setCurrentRow(0);
@@ -754,24 +776,42 @@ private:
         word_fav_btn_->setText(e.favorite ? QStringLiteral("♥ 已收藏") : QStringLiteral("♡ 收藏"));
         word_note_edit_->setPlainText(QString::fromStdString(e.note));
 
-        QString html = "<style>body{font-family:'Microsoft YaHei UI';font-size:13px;line-height:1.6;} .sec{margin:8px 0;padding:8px 10px;border-radius:6px;background:rgba(37,99,235,0.06);} b{color:#2563EB;}</style>";
-        if (!e.pos.empty()) html += QString("<div class='sec'><b>词性与核心释义：</b><br>%1</div>").arg(QString::fromStdString(e.pos).toHtmlEscaped());
+        QString cardBg = pal_.is_dark ? QStringLiteral("#182232") : QStringLiteral("#F8FAFC");
+        QString cardBd = pal_.is_dark ? QStringLiteral("#2B3648") : QStringLiteral("#E2E8F0");
+        QString leadBg = pal_.is_dark ? QStringLiteral("#1B2840") : QStringLiteral("#EFF6FF");
+        QString leadBd = pal_.is_dark ? QStringLiteral("#2D4A76") : QStringLiteral("#BFDBFE");
+
+        auto wrapCard = [&](const QString& inner, bool isLead = false) {
+            return QString("<table width=\"100%\" cellspacing=\"0\" cellpadding=\"10\" "
+                           "style=\"background-color:%1; border:1px solid %2; margin-bottom:8px;\"><tr><td>%3</td></tr></table>")
+                .arg(isLead ? leadBg : cardBg, isLead ? leadBd : cardBd, inner);
+        };
+
+        QString html = QString("<style>body{font-family:'Microsoft YaHei UI';font-size:13px;line-height:1.65;color:%1;} "
+                               "b{color:%2;} ul{margin:4px 0 0 18px;}</style>")
+                           .arg(pal_.text_primary, pal_.blue);
+        if (!e.pos.empty()) {
+            html += wrapCard(QString("<b>词性与核心释义</b><br>%1").arg(QString::fromStdString(e.pos).toHtmlEscaped().replace("\n", "<br>")), true);
+        }
         if (!e.phrases.empty()) {
-            html += "<div class='sec'><b>高频搭配：</b><ul>";
+            QString inner = QStringLiteral("<b>高频搭配与短语</b><ul>");
             for (const auto& p : e.phrases) {
-                html += QString("<li><code>%1</code> — %2</li>").arg(QString::fromStdString(p.phrase).toHtmlEscaped(), QString::fromStdString(p.translation).toHtmlEscaped());
+                inner += QString("<li><span style='font-family:Consolas;font-weight:bold;color:%1;'>%2</span> — %3</li>")
+                             .arg(pal_.blue, QString::fromStdString(p.phrase).toHtmlEscaped(), QString::fromStdString(p.translation).toHtmlEscaped());
             }
-            html += "</ul></div>";
+            inner += QStringLiteral("</ul>");
+            html += wrapCard(inner);
         }
         if (!e.sentences.empty()) {
-            html += "<div class='sec'><b>双语真题例句：</b>";
+            QString inner = QStringLiteral("<b>双语真题例句</b>");
             for (const auto& s : e.sentences) {
-                html += QString("<p>%1<br><span style='color:#6B7280;'>%2</span></p>").arg(QString::fromStdString(s.en).toHtmlEscaped(), QString::fromStdString(s.zh).toHtmlEscaped());
+                inner += QString("<p style='margin:6px 0 2px 0;'>%1<br><span style='color:%2;'>%3</span></p>")
+                             .arg(QString::fromStdString(s.en).toHtmlEscaped(), pal_.text_secondary, QString::fromStdString(s.zh).toHtmlEscaped());
             }
-            html += "</div>";
+            html += wrapCard(inner);
         }
         if (!e.rem_method.empty()) {
-            html += QString("<div class='sec'><b>助记方法：</b>%1</div>").arg(QString::fromStdString(e.rem_method).toHtmlEscaped());
+            html += wrapCard(QString("<b>词根助记</b><br>%1").arg(QString::fromStdString(e.rem_method).toHtmlEscaped()));
         }
         word_detail_browser_->setHtml(html);
     }
@@ -882,6 +922,7 @@ private:
             mcGrid->addWidget(b, i / 2, i % 2);
         }
         mcL->addLayout(mcGrid);
+        mcL->addStretch(1);
         leftL->addWidget(mdCheatCard, 4);
 
         connect(pickBtn, &QPushButton::clicked, this, [this]() { pickVaultFolderQt(); });
@@ -909,15 +950,15 @@ private:
         rightH->setContentsMargins(0, 0, 0, 0);
         rightH->setSpacing(8);
 
-        // Left Vertical Dock (196px)
+        // Left Vertical Dock (212px)
         auto* dockScroll = new QScrollArea(rightContainer);
-        dockScroll->setFixedWidth(200);
+        dockScroll->setFixedWidth(212);
         dockScroll->setWidgetResizable(true);
         dockScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         auto* dockInner = new QWidget();
         auto* dockL = new QVBoxLayout(dockInner);
-        dockL->setContentsMargins(0, 0, 2, 0);
-        dockL->setSpacing(7);
+        dockL->setContentsMargins(2, 2, 4, 2);
+        dockL->setSpacing(8);
 
         // Dock Card 1: Doc actions & Mode
         auto* dCard1 = makeCard(dockInner);
@@ -940,7 +981,7 @@ private:
         const char* mIds[3] = {"word", "md", "latex"};
         for (int i = 0; i < 3; ++i) {
             auto* mb = new QPushButton(mNames[i], dCard1);
-            mb->setProperty("btn", "pill");
+            mb->setProperty("btn", "seg");
             mb->setCheckable(true);
             connect(mb, &QPushButton::clicked, this, [this, mode = std::string(mIds[i])]() { switchEditorModeQt(mode); });
             ed_mode_btns_[i] = mb;
@@ -1108,19 +1149,20 @@ private:
         word_scroll_->viewport()->installEventFilter(this);
 
         word_scroll_content_ = new QWidget();
+        word_scroll_content_->setStyleSheet(QStringLiteral("background: transparent;"));
         auto* scL = new QVBoxLayout(word_scroll_content_);
-        scL->setContentsMargins(16, 14, 16, 18);
+        scL->setContentsMargins(18, 16, 18, 24);
         scL->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
 
-        word_paper_frame_ = new QFrame(word_scroll_content_);
-        word_paper_frame_->setStyleSheet(QStringLiteral("QFrame { background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 4px; }"));
+        word_paper_frame_ = new A4PaperWidget(word_scroll_content_);
+        word_paper_frame_->setStyleSheet(QStringLiteral("A4PaperWidget { background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 3px; }"));
+        apply_card_shadow(word_paper_frame_, pal_.is_dark, 32, 6, 36);
         auto* pfL = new QVBoxLayout(word_paper_frame_);
         pfL->setContentsMargins(68, 36, 68, 36);
         pfL->setSpacing(6);
 
-        word_ruler_lbl_ = new QLabel(QStringLiteral("|— 0cm      2      4      6      8      10      12      14      15.9cm —|"), word_paper_frame_);
-        word_ruler_lbl_->setStyleSheet(QStringLiteral("color:#94A3B8;font-family:Consolas;font-size:10px;border:none;border-bottom:1px solid #E2E8F0;padding-bottom:4px;"));
-        pfL->addWidget(word_ruler_lbl_);
+        word_ruler_widget_ = new A4RulerWidget(word_paper_frame_);
+        pfL->addWidget(word_ruler_widget_);
 
         word_editor_ = new QTextEdit(word_paper_frame_);
         word_editor_->setFrameStyle(QFrame::NoFrame);
@@ -1246,17 +1288,17 @@ private:
     void updateWordStageBackdrop() {
         if (!word_scroll_) return;
         word_scroll_->setStyleSheet(pal_.is_dark
-            ? QStringLiteral("QScrollArea { background: #141922; border-radius: 10px; border: 1px solid #2B3648; }")
-            : QStringLiteral("QScrollArea { background: #DDE3EC; border-radius: 10px; border: 1px solid #CBD5E1; }"));
+            ? QStringLiteral("QScrollArea { background: #141922; border-radius: 12px; border: 1px solid #2B3648; }")
+            : QStringLiteral("QScrollArea { background: #E4E8F0; border-radius: 12px; border: 1px solid #CBD5E1; }"));
     }
 
     void updateWordPaperScale() {
         if (!word_scroll_ || !word_paper_frame_ || !word_editor_) return;
-        int availW = std::max(380, word_scroll_->viewport()->width() - 42);
-        int availH = std::max(340, word_scroll_->viewport()->height() - 36);
+        int availW = std::max(380, word_scroll_->viewport()->width() - 44);
+        int availH = std::max(340, word_scroll_->viewport()->height() - 38);
         double z = 1.0;
         if (word_fit_mode_ == "width") {
-            z = std::clamp(availW / 794.0, 0.90, 1.45);
+            z = std::clamp(availW / 794.0, 0.95, 1.48);
         } else if (word_fit_mode_ == "page") {
             z = std::clamp(std::min(availW / 794.0, availH / 1123.0), 0.55, 1.25);
         } else {
@@ -1269,6 +1311,7 @@ private:
         int padX = static_cast<int>(std::round(64.0 * z));
         int padY = static_cast<int>(std::round(36.0 * z));
         word_paper_frame_->layout()->setContentsMargins(padX, padY, padX, padY);
+        word_paper_frame_->setMarginsPx(padX, padY);
         word_paper_frame_->setFixedWidth(sheetW);
         word_paper_frame_->setMinimumHeight(minSheetH);
 
@@ -1563,18 +1606,21 @@ private:
         ds_search_inp_->setPlaceholderText(QStringLiteral("🔍 搜索章节、C基础、Dijkstra、KMP、AVL..."));
         ccL->addWidget(ds_search_inp_);
 
-        auto* catGrid = new QGridLayout();
-        catGrid->setSpacing(4);
-        const char* cats[6] = {
+        auto* catRow = new QHBoxLayout();
+        catRow->setSpacing(4);
+        const char* catIds[6] = {
             "全部", "C语言入门(Ch0-3)", "算法与数学(Ch4-5)",
             "C++ STL(Ch6)", "数据结构与搜索(Ch7-9)", "图论/DP/高阶(Ch10-13)"
         };
+        const char* catLabels[6] = {
+            "全部", "C入门", "算法数学", "STL容器", "线性/树", "图论/DP"
+        };
         for (int i = 0; i < 6; ++i) {
-            auto* cb = new QPushButton(QString::fromUtf8(cats[i]), chapCard);
-            cb->setProperty("btn", "pill");
+            auto* cb = new QPushButton(QString::fromUtf8(catLabels[i]), chapCard);
+            cb->setProperty("btn", "seg");
             cb->setCheckable(true);
             cb->setChecked(i == 0);
-            connect(cb, &QPushButton::clicked, this, [this, i, cat = std::string(cats[i])]() {
+            connect(cb, &QPushButton::clicked, this, [this, i, cat = std::string(catIds[i])]() {
                 ds_cat_filter_ = (i == 0 ? "" : cat);
                 for (int k = 0; k < static_cast<int>(ds_cat_btns_.size()); ++k) {
                     ds_cat_btns_[k]->setChecked(k == i);
@@ -1582,12 +1628,18 @@ private:
                 refreshDsCatalog(false);
             });
             ds_cat_btns_.push_back(cb);
-            catGrid->addWidget(cb, i / 3, i % 3);
+            catRow->addWidget(cb);
         }
-        ccL->addLayout(catGrid);
+        ccL->addLayout(catRow);
 
         ds_tree_ = new QTreeWidget(chapCard);
         ds_tree_->setHeaderHidden(true);
+        ds_tree_->setIndentation(0);
+        ds_tree_->setRootIsDecorated(false);
+        ds_tree_->setAnimated(false);
+        ds_tree_->setMouseTracking(true);
+        ds_cat_delegate_ = new DsCatalogDelegate(ds_tree_);
+        ds_tree_->setItemDelegate(ds_cat_delegate_);
         ccL->addWidget(ds_tree_, 1);
         leftL->addWidget(chapCard, 6);
 
@@ -1602,15 +1654,14 @@ private:
         // Visualizer Card
         auto* vizCard = makeCard(leftW);
         auto* vcL = new QVBoxLayout(vizCard);
-        vcL->setContentsMargins(8, 8, 8, 8);
-        vcL->setSpacing(5);
+        vcL->setContentsMargins(10, 9, 10, 9);
+        vcL->setSpacing(6);
         auto* vHead = new QHBoxLayout();
-        auto* vtLbl = new QLabel(QStringLiteral("🎯 算法结构动态演练"), vizCard);
-        vtLbl->setStyleSheet(QStringLiteral("font-weight:700;font-size:12px;"));
+        ds_viz_title_lbl_ = new QLabel(QStringLiteral("🎯 算法结构动态演练"), vizCard);
+        ds_viz_title_lbl_->setStyleSheet(QStringLiteral("font-weight:700;font-size:12.5px;"));
         ds_viz_step_lbl_ = new QLabel(QStringLiteral("Step 1 / 4"), vizCard);
         ds_viz_step_lbl_->setProperty("pill", "blue");
-        vHead->addWidget(vtLbl);
-        vHead->addStretch();
+        vHead->addWidget(ds_viz_title_lbl_, 1);
         vHead->addWidget(ds_viz_step_lbl_);
         vcL->addLayout(vHead);
 
@@ -1643,6 +1694,7 @@ private:
 
         // Right Column: Vertical Splitter (Top Tutorial+Template, Bottom Practice IDE)
         auto* rightSp = new QSplitter(Qt::Vertical);
+        rightSp->setChildrenCollapsible(false);
 
         // Top Tutorial Card
         auto* tutCard = makeCard();
@@ -1713,20 +1765,22 @@ private:
         });
 
         auto* tutSp = new QSplitter(Qt::Horizontal, tutCard);
-        ds_tut_browser_ = new QTextBrowser(tutSp);
-        ds_tut_browser_->setOpenExternalLinks(false);
+        tutSp->setChildrenCollapsible(false);
+        ds_tut_widget_ = new DsTutorialWidget(tutSp);
+        ds_tut_widget_->setMinimumWidth(280);
 
         auto* tmplBox = new QFrame(tutSp);
-        tmplBox->setStyleSheet(QStringLiteral("QFrame { background: #14171C; border: 1px solid #262B35; border-radius: 9px; }"));
+        tmplBox->setMinimumWidth(260);
+        tmplBox->setStyleSheet(QStringLiteral("QFrame { background: #14171C; border: 1px solid #262B35; border-radius: 10px; }"));
         auto* tbL = new QVBoxLayout(tmplBox);
         tbL->setContentsMargins(0, 0, 0, 0);
         tbL->setSpacing(0);
         auto* tbHead = new QWidget(tmplBox);
-        tbHead->setStyleSheet(QStringLiteral("background:#101216;border-bottom:1px solid #262B35;border-top-left-radius:8px;border-top-right-radius:8px;"));
+        tbHead->setStyleSheet(QStringLiteral("background:#101216;border-bottom:1px solid #262B35;border-top-left-radius:9px;border-top-right-radius:9px;"));
         auto* tbhL = new QHBoxLayout(tbHead);
-        tbhL->setContentsMargins(8, 5, 8, 5);
+        tbhL->setContentsMargins(10, 6, 8, 6);
         auto* tmplTitle = new QLabel(QStringLiteral("核心源码模板 (C / C++17)"), tbHead);
-        tmplTitle->setStyleSheet(QStringLiteral("color:#9CA3AF;font-family:Consolas;font-size:11px;"));
+        tmplTitle->setStyleSheet(QStringLiteral("color:#E5E7EB;font-family:Consolas;font-size:11.5px;font-weight:600;"));
         auto* copyBtn = new QPushButton(QStringLiteral("📋 复制"), tbHead); copyBtn->setProperty("btn", "pill");
         auto* loadFreeBtn = new QPushButton(QStringLiteral("⬇ 载入到练习框"), tbHead); loadFreeBtn->setProperty("btn", "blue");
         tbhL->addWidget(tmplTitle); tbhL->addStretch(); tbhL->addWidget(copyBtn); tbhL->addWidget(loadFreeBtn);
@@ -1744,28 +1798,31 @@ private:
             selectDsExercise("free");
         });
 
-        tutSp->addWidget(ds_tut_browser_);
+        tutSp->addWidget(ds_tut_widget_);
         tutSp->addWidget(tmplBox);
         tutSp->setStretchFactor(0, 52);
         tutSp->setStretchFactor(1, 48);
+        tutSp->setSizes({460, 420});
         tcL->addWidget(tutSp, 1);
         rightSp->addWidget(tutCard);
 
         // Bottom Practice IDE Card
         auto* pracCard = makeCard();
-        pracCard->setStyleSheet(pracCard->styleSheet() + " QFrame[card=\"true\"] { border: 1.5px solid rgba(37,99,235,0.45); }");
+        pracCard->setObjectName(QStringLiteral("DsPracticeCard"));
         auto* pcL = new QVBoxLayout(pracCard);
-        pcL->setContentsMargins(10, 8, 10, 8);
+        pcL->setContentsMargins(10, 9, 10, 9);
         pcL->setSpacing(6);
 
         auto* exHeaderRow = new QHBoxLayout();
-        ds_ex_tabs_layout_ = new QHBoxLayout();
+        auto* exTabsHost = new QWidget(pracCard);
+        ds_ex_tabs_layout_ = new QHBoxLayout(exTabsHost);
+        ds_ex_tabs_layout_->setContentsMargins(0, 0, 0, 0);
         ds_ex_tabs_layout_->setSpacing(4);
         ds_ex_mode_pill_ = new QLabel(QStringLiteral("模式：核心填空补全"), pracCard);
         ds_ex_mode_pill_->setProperty("pill", "blue");
         ds_ex_status_pill_ = new QLabel(QStringLiteral("待提交评测"), pracCard);
         ds_ex_status_pill_->setProperty("pill", "amber");
-        exHeaderRow->addLayout(ds_ex_tabs_layout_);
+        exHeaderRow->addWidget(exTabsHost);
         exHeaderRow->addStretch();
         exHeaderRow->addWidget(ds_ex_mode_pill_);
         exHeaderRow->addWidget(ds_ex_status_pill_);
@@ -1796,7 +1853,7 @@ private:
         cbL->setSpacing(4);
 
         auto* actStrip = new QHBoxLayout();
-        ds_run_btn_ = new QPushButton(QStringLiteral("▶ 编译运行"), conBox); ds_run_btn_->setProperty("btn", "blue");
+        ds_run_btn_ = new QPushButton(QStringLiteral("▶ 编译运行 (自定义输入)"), conBox); ds_run_btn_->setProperty("btn", "blue");
         ds_submit_btn_ = new QPushButton(QStringLiteral("✓ 提交自测用例"), conBox); ds_submit_btn_->setProperty("btn", "green");
         auto* solBtn = new QPushButton(QStringLiteral("💡 填入标准解答"), conBox); solBtn->setProperty("btn", "pill");
         auto* rstBtn = new QPushButton(QStringLiteral("↺ 重置代码"), conBox); rstBtn->setProperty("btn", "pill");
@@ -1862,10 +1919,12 @@ private:
         rightSp->setStretchFactor(0, 46);
         rightSp->setStretchFactor(1, 54);
 
+        sp->setChildrenCollapsible(false);
         sp->addWidget(leftW);
         sp->addWidget(rightSp);
         sp->setStretchFactor(0, 38);
         sp->setStretchFactor(1, 62);
+        sp->setSizes({520, 880});
         return page;
     }
 
@@ -1886,30 +1945,37 @@ private:
         int tot = static_cast<int>(cat.get("total_exercises").num_val);
         if (ds_prog_pill_) ds_prog_pill_->setText(QString("已练 %1 / %2 题").arg(done).arg(tot));
 
+        int savedScroll = ds_tree_->verticalScrollBar() ? ds_tree_->verticalScrollBar()->value() : 0;
         ds_tree_->clear();
         QString firstId;
         QTreeWidgetItem* preferredItem = nullptr;
         const auto& chaps = cat.get("chapters").arr_val;
         for (const auto& ch : chaps) {
             std::string cid = ch.get("id").str_val;
-            QString chTitle = QString("%1  (%2/%3题)").arg(
-                QString::fromStdString(ch.get("title").str_val),
-                QString::number(static_cast<int>(ch.get("exercise_done").num_val)),
-                QString::number(static_cast<int>(ch.get("exercise_total").num_val)));
+            const auto& lesArr = ch.get("lessons").arr_val;
+            QString chTitle = QString::fromStdString(ch.get("title").str_val);
+            QString chBadge = QString("%1 节 · %2/%3 题")
+                .arg(static_cast<int>(lesArr.size()))
+                .arg(static_cast<int>(ch.get("exercise_done").num_val))
+                .arg(static_cast<int>(ch.get("exercise_total").num_val));
             auto* chItem = new QTreeWidgetItem(ds_tree_, QStringList(chTitle));
-            QFont bf = chItem->font(0); bf.setBold(true); chItem->setFont(0, bf);
+            chItem->setData(0, Qt::UserRole + 1, chBadge);
 
             bool expandChap = !q.empty() || cid == "ch0" || cid == "ch2" || cid == "ch7" ||
                               (!cur_ds_lesson_.chapter_id.empty() && cur_ds_lesson_.chapter_id == cid);
-            for (const auto& l : ch.get("lessons").arr_val) {
+            for (const auto& l : lesArr) {
                 QString lid = QString::fromStdString(l.get("id").str_val);
                 if (firstId.isEmpty()) firstId = lid;
                 bool mast = l.get("mastered").bool_val;
                 int edone = static_cast<int>(l.get("exercise_done").num_val);
                 int etot = static_cast<int>(l.get("exercise_total").num_val);
-                QString badge = mast ? QStringLiteral(" ✓") : (etot > 0 ? QString(" [%1/%2]").arg(edone).arg(etot) : "");
-                auto* li = new QTreeWidgetItem(chItem, QStringList(QString::fromStdString(l.get("title").str_val) + badge));
+                QString badge = mast ? QStringLiteral("✓ 已掌握")
+                                     : (etot > 0 ? QString("%1/%2 题").arg(edone).arg(etot) : QString());
+                bool isDone = mast || (etot > 0 && edone >= etot);
+                auto* li = new QTreeWidgetItem(chItem, QStringList(QString::fromStdString(l.get("title").str_val)));
                 li->setData(0, Qt::UserRole, lid);
+                li->setData(0, Qt::UserRole + 1, badge);
+                li->setData(0, Qt::UserRole + 2, isDone);
                 if (lid == QStringLiteral("2.1")) preferredItem = li;
                 if (cur_ds_lesson_.id == lid.toStdString()) {
                     ds_tree_->setCurrentItem(li);
@@ -1917,6 +1983,10 @@ private:
                 }
             }
             chItem->setExpanded(expandChap);
+        }
+        if (ds_tree_->verticalScrollBar()) ds_tree_->verticalScrollBar()->setValue(savedScroll);
+        if (!autoSelectFirst && ds_tree_->currentItem()) {
+            ds_tree_->scrollToItem(ds_tree_->currentItem(), QAbstractItemView::EnsureVisible);
         }
         if (autoSelectFirst && cur_ds_lesson_.id.empty()) {
             QString target = preferredItem ? QStringLiteral("2.1") : firstId;
@@ -1927,6 +1997,25 @@ private:
     void updateDsMasteredBtn() {
         if (!ds_mastered_btn_) return;
         ds_mastered_btn_->setText(cur_ds_lesson_.mastered ? QStringLiteral("✓ 已掌握") : QStringLiteral("○ 标为已掌握"));
+    }
+
+public:
+    void prepareSampleDocForScreenshot() {
+        if (!word_editor_ || !active_doc_path_.empty()) return;
+        std::string sampleMd =
+            "# C++ 数据结构与算法学习笔记\n\n"
+            "在此开始编写 Markdown、表格与 $$LaTeX$$ 公式。\n\n"
+            "## 1. 复杂度分析口诀\n\n"
+            "- 单次提交 **1 秒** 约执行 `10^8` 次基本操作。\n"
+            "- 逆序高精度加法遵循 `t = a[i] + b[i] + carry`。\n\n"
+            "| 算法 | 时间复杂度 | 适用数据规模 |\n"
+            "| --- | --- | --- |\n"
+            "| 二分查找 | O(log n) | n <= 10^9 |\n"
+            "| 快速排序 / 归并排序 | O(n log n) | n <= 10^6 |\n";
+        doc_updating_ = true;
+        word_editor_->setHtml(render_markdown_for_word_editor(sampleMd, ""));
+        updateWordPaperScale();
+        doc_updating_ = false;
     }
 
     void selectDsLesson(const std::string& lessonId) {
@@ -1943,9 +2032,13 @@ private:
         ds_note_inp_->setText(QString::fromStdString(les.note));
         updateDsMasteredBtn();
 
-        ds_tut_browser_->setHtml(wrap_ds_tutorial_html(les.tutorial_html, pal_));
+        if (ds_tut_widget_) ds_tut_widget_->setTutorial(les.tutorial_html, pal_);
         ds_tmpl_editor_->setCodeSafely(QString::fromStdString(les.code_template));
 
+        if (ds_viz_title_lbl_) {
+            ds_viz_title_lbl_->setText(QString("🎯 %1").arg(
+                QString::fromStdString(les.viz_label.empty() ? les.title : les.viz_label)));
+        }
         ds_viz_->setLesson(QString::fromStdString(les.id), QString::fromStdString(les.viz_type));
         if (ds_viz_timer_->isActive()) { ds_viz_timer_->stop(); ds_viz_play_btn_->setText(QStringLiteral("⏯ 自动演示")); }
         syncDsVizLabels();
@@ -1953,25 +2046,33 @@ private:
         cur_ex_id_ = les.exercises.empty() ? "free" : les.exercises[0].id;
         rebuildExTabs();
         loadCurrentDsExercise();
+        refreshDsCatalog(false);
     }
+
+private:
 
     void rebuildExTabs() {
         if (!ds_ex_tabs_layout_) return;
+        QWidget* host = ds_ex_tabs_layout_->parentWidget();
         while (QLayoutItem* it = ds_ex_tabs_layout_->takeAt(0)) {
-            if (it->widget()) it->widget()->deleteLater();
+            if (QWidget* w = it->widget()) {
+                w->hide();
+                w->setParent(nullptr);
+                w->deleteLater();
+            }
             delete it;
         }
         for (const auto& ex : cur_ds_lesson_.exercises) {
             QString txt = QString("📝 %1%2").arg(QString::fromStdString(ex.title), ex.completed ? QStringLiteral(" ✓") : "");
-            auto* b = new QPushButton(txt);
-            b->setProperty("btn", "pill");
+            auto* b = new QPushButton(txt, host);
+            b->setProperty("btn", "seg");
             b->setCheckable(true);
             b->setChecked(ex.id == cur_ex_id_);
             connect(b, &QPushButton::clicked, this, [this, eid = ex.id]() { selectDsExercise(eid); });
             ds_ex_tabs_layout_->addWidget(b);
         }
-        auto* fb = new QPushButton(QStringLiteral("⚡ 自由演练"));
-        fb->setProperty("btn", "pill");
+        auto* fb = new QPushButton(QStringLiteral("⚡ 自由演练"), host);
+        fb->setProperty("btn", "seg");
         fb->setCheckable(true);
         fb->setChecked(cur_ex_id_ == "free");
         connect(fb, &QPushButton::clicked, this, [this]() { selectDsExercise("free"); });
@@ -2153,10 +2254,11 @@ private:
 
 int main(int argc, char** argv) {
     bool selfTest = false;
-    std::string convIn, convTo, convOut;
+    std::string convIn, convTo, convOut, dumpDir;
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
         if (a == "--self-test") selfTest = true;
+        else if (a == "--dump-screenshots" && i + 1 < argc) dumpDir = argv[++i];
         else if (a == "--convert" && i + 1 < argc) convIn = argv[++i];
         else if (a == "--to" && i + 1 < argc) convTo = argv[++i];
         else if ((a == "-o" || a == "--out") && i + 1 < argc) convOut = argv[++i];
@@ -2184,6 +2286,35 @@ int main(int argc, char** argv) {
         win.applyTheme("white", false);
         std::cout << "[PASS] Qt6 native UI self-test (" << win.dsTotalLessons() << " lessons, "
                   << win.dsTotalExercises() << " exercises, " << win.dictTotalCount() << " words)\n";
+        return 0;
+    }
+
+    if (!dumpDir.empty()) {
+        QDir().mkpath(QString::fromStdString(dumpDir));
+        win.resize(1560, 940);
+        win.applyTheme("white", false);
+        win.show();
+
+        auto settleAndSave = [&](const QString& fname) {
+            for (int k = 0; k < 4; ++k) app.processEvents();
+            QString out = QString::fromStdString(dumpDir) + "/" + fname;
+            win.grab().save(out);
+            std::cout << "[SHOT] " << out.toStdString() << "\n";
+        };
+
+        win.switchTab(2, false);
+        win.selectDsLesson("5.6");
+        settleAndSave(QStringLiteral("tab2_ds_5_6.png"));
+
+        win.selectDsLesson("0.1");
+        settleAndSave(QStringLiteral("tab2_ds_0_1.png"));
+
+        win.switchTab(1, false);
+        win.prepareSampleDocForScreenshot();
+        settleAndSave(QStringLiteral("tab1_word.png"));
+
+        win.switchTab(0, false);
+        settleAndSave(QStringLiteral("tab0_english.png"));
         return 0;
     }
 

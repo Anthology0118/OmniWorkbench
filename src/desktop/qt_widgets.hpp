@@ -5,6 +5,8 @@
 
 #include <QAbstractScrollArea>
 #include <QFont>
+#include <QFontMetrics>
+#include <QFrame>
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QPainter>
@@ -14,6 +16,8 @@
 #include <QRectF>
 #include <QRegularExpression>
 #include <QResizeEvent>
+#include <QStyleOptionViewItem>
+#include <QStyledItemDelegate>
 #include <QSyntaxHighlighter>
 #include <QTextBlock>
 #include <QTextFormat>
@@ -630,21 +634,35 @@ protected:
                 if (item.is_dir) {
                     p.setBrush(QColor(isAct ? pal_.blue_soft : pal_.amber_soft));
                     p.setPen(QPen(QColor(isAct ? pal_.blue : pal_.amber), isAct || isHov ? 2.2 : 1.5));
-                    p.drawEllipse(QPointF(nx, ny), 8.5, 8.5);
+                    p.drawEllipse(QPointF(nx, ny), 9.0, 9.0);
+                    // Miniature folder glyph inside node
+                    p.setBrush(QColor(isAct ? pal_.blue : pal_.amber));
+                    p.setPen(Qt::NoPen);
+                    p.drawRoundedRect(QRectF(nx - 4.0, ny - 2.5, 8.0, 5.5), 1.2, 1.2);
+                    p.drawRect(QRectF(nx - 4.0, ny - 4.0, 4.0, 2.0));
                 } else {
                     p.setBrush(QColor(isAct ? pal_.blue : pal_.bg_card));
                     p.setPen(QPen(QColor(isAct ? pal_.blue : pal_.text_muted), isAct || isHov ? 2.2 : 1.5));
-                    p.drawEllipse(QPointF(nx, ny), 7.0, 7.0);
+                    p.drawEllipse(QPointF(nx, ny), 7.5, 7.5);
+                    p.setBrush(QColor(isAct ? "#FFFFFF" : pal_.text_muted));
+                    p.setPen(Qt::NoPen);
+                    p.drawEllipse(QPointF(nx, ny), 2.3, 2.3);
                 }
 
                 QString nm = QString::fromStdString(item.name);
                 if (nm.endsWith(".md")) nm.chop(3);
                 if (nm.size() > 11) nm = nm.left(10) + "…";
-                p.setPen(QColor(isAct ? pal_.blue : pal_.text_primary));
                 QFont lf = font(); lf.setPointSize(8); lf.setBold(isAct); p.setFont(lf);
-                p.drawText(QRectF(nx + 11, ny - 10, 96, 20), Qt::AlignLeft | Qt::AlignVCenter, nm);
+                QFontMetrics fm(lf);
+                int tw = std::min(96, fm.horizontalAdvance(nm) + 12);
+                QRectF capRect(nx + 11, ny - 10, tw, 20);
+                p.setBrush(QColor(isAct ? pal_.blue_soft : (isHov ? pal_.bg_subtle : pal_.bg_card)));
+                p.setPen(QPen(QColor(isAct ? pal_.blue : pal_.border_line), isAct || isHov ? 1.2 : 0.9));
+                p.drawRoundedRect(capRect, 6, 6);
+                p.setPen(QColor(isAct ? pal_.blue : pal_.text_primary));
+                p.drawText(capRect.adjusted(6, 0, -4, 0), Qt::AlignLeft | Qt::AlignVCenter, nm);
 
-                hits_.push_back({QRectF(nx - 12, ny - 12, 110, 24), item.rel_path, item.is_dir, k + 1});
+                hits_.push_back({QRectF(nx - 12, ny - 12, tw + 26, 24), item.rel_path, item.is_dir, k + 1});
             }
         }
     }
@@ -734,12 +752,17 @@ public:
         lesson_id_ = id;
         viz_type_ = vizType;
         step_ = 0;
+        caption_ = computeCaption();
         update();
     }
-    void setStep(int s) { step_ = ((s % 4) + 4) % 4; update(); }
+    void setStep(int s) {
+        step_ = ((s % 4) + 4) % 4;
+        caption_ = computeCaption();
+        update();
+    }
     int step() const { return step_; }
 
-    QString captionText() const { return caption_; }
+    QString captionText() const { return caption_.isEmpty() ? computeCaption() : caption_; }
 
 protected:
     void paintEvent(QPaintEvent*) override {
@@ -748,13 +771,30 @@ protected:
 
         QRectF r = rect().adjusted(1, 1, -1, -1);
         QPainterPath bg;
-        bg.addRoundedRect(r, 10, 10);
-        p.fillPath(bg, QColor(pal_.bg_app));
+        bg.addRoundedRect(r, 11, 11);
+        p.fillPath(bg, QColor(pal_.is_dark ? "#131924" : "#FAFBFD"));
         p.setPen(QPen(QColor(pal_.border_line), 1));
         p.drawPath(bg);
 
+        // Subtle engineering dot grid background
+        p.setPen(Qt::NoPen);
+        p.setBrush(QColor(pal_.is_dark ? "#222C3D" : "#E2E8F0"));
+        for (int gx = 16; gx < width() - 10; gx += 20) {
+            for (int gy = 14; gy < height() - 10; gy += 20) {
+                p.drawEllipse(QPointF(gx, gy), 1.0, 1.0);
+            }
+        }
+
+        // Uniform aspect-preserving scaling centered inside the canvas
+        const double sceneW = 510.0, sceneH = 148.0;
+        double s = std::min((width() - 12.0) / sceneW, (height() - 12.0) / sceneH);
+        s = std::max(0.45, s);
+        double ox = (width() - sceneW * s) * 0.5;
+        double oy = (height() - sceneH * s) * 0.5;
+
         p.save();
-        p.scale(width() / 510.0, height() / 142.0);
+        p.translate(ox, oy);
+        p.scale(s, s);
         paintScene(p);
         p.restore();
     }
@@ -991,11 +1031,358 @@ private:
         }
     }
 
+    QString computeCaption() const {
+        if (lesson_id_ == "5.6") return QString("568 + 487 竖式第 %1 位相加").arg(step_);
+        if (lesson_id_ == "2.7" || lesson_id_ == "2.8") {
+            return step_ == 0 ? QStringLiteral("栈上分配变量内存")
+                 : (step_ == 1 ? QStringLiteral("指针 p 记录目标内存地址")
+                               : QStringLiteral("通过 *p / p->score 修改原数据"));
+        }
+        if (lesson_id_ == "2.5B" || lesson_id_ == "3.6" || lesson_id_ == "6.3") {
+            int iPtr = std::min(3, step_), jPtr = 6 - iPtr;
+            return QString("C 串以 '\\0' 结尾 · 指针 L=%1, R=%2").arg(iPtr).arg(jPtr);
+        }
+        if (lesson_id_ == "2.5A" || lesson_id_ == "4.1" || lesson_id_ == "4.6") {
+            return QString("第 %1 轮排序有序区扩大").arg(step_ + 1);
+        }
+        if (lesson_id_ == "5.4") {
+            return step_ == 0 ? QStringLiteral("初始化待筛区间 2..10")
+                 : (step_ == 1 ? QStringLiteral("2 筛掉偶数")
+                 : (step_ == 2 ? QStringLiteral("3 筛掉 9")
+                               : QStringLiteral("留下绿色素数 2,3,5,7")));
+        }
+        if (lesson_id_ == "5.1" || lesson_id_ == "5.3" || lesson_id_ == "5.7") {
+            return QString("欧几里得 gcd(a, b) = gcd(b, a %% b) · Step %1").arg(step_ + 1);
+        }
+        if (lesson_id_ == "0.3" || lesson_id_ == "3.3" || lesson_id_ == "8.2") {
+            return QString("网格 BFS / 模拟扫描当前层级 d = %1").arg(step_);
+        }
+        if (viz_type_ == "linked_list") {
+            return lesson_id_ == "7.3B" ? QStringLiteral("静态链表 Node[addr] 数组排序重组")
+                                        : QString("三指针原地反转进度 %1/4").arg(step_ + 1);
+        }
+        if (viz_type_ == "tree" || viz_type_ == "bst") {
+            const char* lbls[4] = {"70", "61", "12", "88"};
+            return QString("二叉树 / BST / 堆遍历节点 %1").arg(lbls[step_]);
+        }
+        if (viz_type_ == "graph") return QString("图算法松弛第 %1 轮").arg(step_ + 1);
+        if (viz_type_ == "dsu") {
+            int comps = step_ < 2 ? 3 : (step_ == 2 ? 2 : 1);
+            return QString("并查集合并连通块：当前 comps = %1").arg(comps);
+        }
+        if (viz_type_ == "dp" || viz_type_ == "kmp" || viz_type_ == "bit" ||
+            viz_type_ == "bsearch" || viz_type_ == "two_ptr" ||
+            viz_type_ == "queue" || viz_type_ == "stack") {
+            return viz_type_ == "dp" ? QString("状态递推更新 dp[%1]").arg(step_ + 1)
+                 : (viz_type_ == "kmp" ? QStringLiteral("KMP 前缀数组 pi[] 失配回退")
+                 : (viz_type_ == "bit" ? QStringLiteral("树状数组 lowbit(x) / 散列映射")
+                 : (viz_type_ == "stack" ? QString("LIFO 栈指针 top = %1").arg(step_)
+                                         : QString("活跃指针聚焦位置 [%1]").arg(step_ + 1))));
+        }
+        return QStringLiteral("时间复杂度对比 · 1s ≈ 10^8 次运算");
+    }
+
     ThemePalette pal_ = get_theme_palette("white");
     QString lesson_id_ = "2.1";
     QString viz_type_ = "complexity";
     QString caption_;
     int step_ = 0;
+};
+
+// ============================================================================
+// 6. Custom-Painted Chapter/Lesson Catalog Delegate (Rounded Cards + Pills)
+// ============================================================================
+class DsCatalogDelegate : public QStyledItemDelegate {
+public:
+    explicit DsCatalogDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void setPaletteTheme(const ThemePalette& pal) { pal_ = pal; }
+
+    QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex& index) const override {
+        bool isLesson = index.parent().isValid();
+        return QSize(0, isLesson ? 34 : 40);
+    }
+
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+
+        const bool isLesson = index.parent().isValid();
+        const bool selected = (option.state & QStyle::State_Selected);
+        const bool hovered  = (option.state & QStyle::State_MouseOver);
+        const bool expanded = (option.state & QStyle::State_Open);
+
+        const QString title = index.data(Qt::DisplayRole).toString();
+        const QString badge = index.data(Qt::UserRole + 1).toString();
+        const bool done     = index.data(Qt::UserRole + 2).toBool();
+
+        if (!isLesson) {
+            QRectF r = QRectF(option.rect).adjusted(2, 3, -2, -3);
+            QColor bg = expanded
+                ? (pal_.is_dark ? QColor("#1D2A3F") : QColor("#EFF6FF"))
+                : (hovered ? QColor(pal_.bg_subtle) : QColor(pal_.bg_panel));
+            QColor bd = expanded
+                ? (pal_.is_dark ? QColor("#3B82F6") : QColor("#BFDBFE"))
+                : QColor(pal_.border_line);
+
+            painter->setBrush(bg);
+            painter->setPen(QPen(bd, 1.0));
+            painter->drawRoundedRect(r, 9, 9);
+
+            // Expand indicator triangle/chevron
+            QFont f = option.font;
+            f.setBold(true);
+            f.setPointSizeF(9.5);
+            painter->setFont(f);
+            painter->setPen(QColor(expanded ? pal_.blue : pal_.text_muted));
+            painter->drawText(QRectF(r.left() + 8, r.top(), 16, r.height()),
+                              Qt::AlignCenter, expanded ? QStringLiteral("▾") : QStringLiteral("▸"));
+
+            // Right pill badge
+            int pillW = 0;
+            if (!badge.isEmpty()) {
+                QFont pf = option.font; pf.setPointSizeF(8.0); pf.setBold(true);
+                QFontMetrics pfm(pf);
+                pillW = pfm.horizontalAdvance(badge) + 16;
+                QRectF pr(r.right() - pillW - 8, r.center().y() - 10, pillW, 20);
+                painter->setBrush(pal_.is_dark ? QColor("#243652") : QColor("#DBEAFE"));
+                painter->setPen(Qt::NoPen);
+                painter->drawRoundedRect(pr, 9, 9);
+                painter->setFont(pf);
+                painter->setPen(QColor(pal_.blue));
+                painter->drawText(pr, Qt::AlignCenter, badge);
+            }
+
+            // Chapter title
+            painter->setFont(f);
+            painter->setPen(QColor(expanded ? pal_.blue : pal_.text_primary));
+            QRectF tr(r.left() + 25, r.top(), std::max(40.0, r.width() - 36 - pillW), r.height());
+            QFontMetrics fm(f);
+            painter->drawText(tr, Qt::AlignLeft | Qt::AlignVCenter,
+                              fm.elidedText(title, Qt::ElideRight, static_cast<int>(tr.width())));
+        } else {
+            QRectF r = QRectF(option.rect).adjusted(10, 2, -2, -2);
+            QColor bg = selected
+                ? (pal_.is_dark ? QColor("#1E3A5F") : QColor("#EFF6FF"))
+                : (hovered ? QColor(pal_.bg_subtle) : Qt::transparent);
+            if (bg.alpha() > 0) {
+                painter->setBrush(bg);
+                painter->setPen(selected ? QPen(QColor(pal_.is_dark ? "#3B82F6" : "#BFDBFE"), 1.0) : Qt::NoPen);
+                painter->drawRoundedRect(r, 8, 8);
+            }
+            if (selected) {
+                QPainterPath clip;
+                clip.addRoundedRect(r, 8, 8);
+                painter->save();
+                painter->setClipPath(clip);
+                painter->fillRect(QRectF(r.left(), r.top(), 4, r.height()), QColor(pal_.blue));
+                painter->restore();
+            }
+
+            int pillW = 0;
+            if (!badge.isEmpty()) {
+                QFont pf = option.font; pf.setPointSizeF(7.8); pf.setBold(true);
+                QFontMetrics pfm(pf);
+                pillW = pfm.horizontalAdvance(badge) + 14;
+                QRectF pr(r.right() - pillW - 7, r.center().y() - 9.5, pillW, 19);
+                QColor pbg = done
+                    ? (pal_.is_dark ? QColor("#064E3B") : QColor("#DCFCE7"))
+                    : (pal_.is_dark ? QColor("#451A03") : QColor("#FEF3C7"));
+                QColor pfg = done ? QColor(pal_.emerald) : QColor(pal_.amber);
+                painter->setBrush(pbg);
+                painter->setPen(Qt::NoPen);
+                painter->drawRoundedRect(pr, 9, 9);
+                painter->setFont(pf);
+                painter->setPen(pfg);
+                painter->drawText(pr, Qt::AlignCenter, badge);
+            }
+
+            QFont lf = option.font;
+            lf.setPointSizeF(9.0);
+            lf.setBold(selected);
+            painter->setFont(lf);
+            painter->setPen(QColor(selected ? (pal_.is_dark ? "#93C5FD" : "#1D4ED8") : pal_.text_secondary));
+            QRectF tr(r.left() + 12, r.top(), std::max(40.0, r.width() - 24 - pillW), r.height());
+            QFontMetrics fm(lf);
+            painter->drawText(tr, Qt::AlignLeft | Qt::AlignVCenter,
+                              fm.elidedText(title, Qt::ElideRight, static_cast<int>(tr.width())));
+        }
+
+        painter->restore();
+    }
+
+private:
+    ThemePalette pal_ = get_theme_palette("white");
+};
+
+// ============================================================================
+// 7. Custom-Painted Dictionary Entry Delegate (Word + IPA + Tags + Meaning)
+// ============================================================================
+class DictItemDelegate : public QStyledItemDelegate {
+public:
+    explicit DictItemDelegate(QObject* parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void setPaletteTheme(const ThemePalette& pal) { pal_ = pal; }
+
+    QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const override {
+        return QSize(0, 44);
+    }
+
+    void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+
+        const bool selected = (option.state & QStyle::State_Selected);
+        const bool hovered  = (option.state & QStyle::State_MouseOver);
+
+        QRectF r = QRectF(option.rect).adjusted(3, 2, -3, -2);
+        QColor bg = selected
+            ? (pal_.is_dark ? QColor("#1E3A5F") : QColor("#EFF6FF"))
+            : (hovered ? QColor(pal_.bg_subtle) : QColor(pal_.bg_card));
+        QColor bd = selected ? QColor(pal_.blue) : QColor(pal_.border_line);
+        painter->setBrush(bg);
+        painter->setPen(QPen(bd, selected ? 1.3 : 0.8));
+        painter->drawRoundedRect(r, 8, 8);
+
+        const QString word = index.data(Qt::DisplayRole).toString();
+        const QString ipa  = index.data(Qt::UserRole).toString();
+        const QString tags = index.data(Qt::UserRole + 1).toString();
+        const QString pos  = index.data(Qt::UserRole + 2).toString();
+        const bool marked  = index.data(Qt::UserRole + 3).toBool();
+
+        int tagW = 0;
+        if (!tags.isEmpty()) {
+            QString shortTag = tags.section(' ', 0, 0);
+            QFont tf = option.font; tf.setPointSizeF(7.5); tf.setBold(true);
+            QFontMetrics tfm(tf);
+            tagW = tfm.horizontalAdvance(shortTag) + 12;
+            QRectF tr(r.right() - tagW - 8, r.top() + 7, tagW, 17);
+            painter->setBrush(pal_.is_dark ? QColor("#2D2250") : QColor("#F3E8FF"));
+            painter->setPen(Qt::NoPen);
+            painter->drawRoundedRect(tr, 7, 7);
+            painter->setFont(tf);
+            painter->setPen(QColor(pal_.purple));
+            painter->drawText(tr, Qt::AlignCenter, shortTag);
+        }
+
+        QFont wf = option.font; wf.setBold(true); wf.setPointSizeF(9.5);
+        painter->setFont(wf);
+        painter->setPen(QColor(selected ? pal_.blue : pal_.text_primary));
+        QString head = marked ? (QStringLiteral("★ ") + word) : word;
+        QFontMetrics wfm(wf);
+        int hw = wfm.horizontalAdvance(head);
+        painter->drawText(QRectF(r.left() + 10, r.top() + 4, std::max(40.0, r.width() - 22 - tagW), 19),
+                          Qt::AlignLeft | Qt::AlignVCenter, head);
+
+        if (!ipa.isEmpty()) {
+            QFont ipf = option.font; ipf.setPointSizeF(8.2);
+            painter->setFont(ipf);
+            painter->setPen(QColor(pal_.text_muted));
+            double ix = r.left() + 14 + hw;
+            double iw = r.right() - tagW - 14 - ix;
+            if (iw > 28) {
+                painter->drawText(QRectF(ix, r.top() + 4, iw, 19), Qt::AlignLeft | Qt::AlignVCenter,
+                                  QString("[%1]").arg(ipa));
+            }
+        }
+
+        if (!pos.isEmpty()) {
+            QFont pf = option.font; pf.setPointSizeF(8.0);
+            QFontMetrics pfm(pf);
+            painter->setFont(pf);
+            painter->setPen(QColor(pal_.text_secondary));
+            QString flat = pos; flat.replace('\n', ' ');
+            QRectF pr(r.left() + 10, r.top() + 23, r.width() - 20, 16);
+            painter->drawText(pr, Qt::AlignLeft | Qt::AlignVCenter,
+                              pfm.elidedText(flat, Qt::ElideRight, static_cast<int>(pr.width())));
+        }
+
+        painter->restore();
+    }
+
+private:
+    ThemePalette pal_ = get_theme_palette("white");
+};
+
+// ============================================================================
+// 8. A4 Document Ruler & Print-Crop-Mark Paper Sheet Widgets
+// ============================================================================
+class A4RulerWidget : public QWidget {
+public:
+    explicit A4RulerWidget(QWidget* parent = nullptr) : QWidget(parent) {
+        setFixedHeight(22);
+    }
+
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing, true);
+
+        const double w = width();
+        p.setPen(QPen(QColor("#CBD5E1"), 1));
+        p.drawLine(0, height() - 1, width(), height() - 1);
+
+        QFont f(QStringLiteral("Consolas"));
+        f.setPointSizeF(7.5);
+        p.setFont(f);
+
+        // Map 0..16 cm across ruler width
+        for (int mm = 0; mm <= 160; mm += 2) {
+            double x = 4.0 + (w - 8.0) * (mm / 160.0);
+            bool major = (mm % 20 == 0);
+            bool mid = (mm % 10 == 0);
+            int tickH = major ? 7 : (mid ? 5 : 3);
+            p.setPen(QPen(QColor(major ? "#64748B" : "#CBD5E1"), 1));
+            p.drawLine(QPointF(x, height() - 1 - tickH), QPointF(x, height() - 1));
+            if (major && mm <= 140) {
+                p.setPen(QColor("#64748B"));
+                p.drawText(QRectF(x - 10, 1, 24, 12), Qt::AlignCenter, QString::number(mm / 10));
+            }
+        }
+        p.setPen(QColor("#94A3B8"));
+        p.drawText(QRectF(w - 52, 0, 44, 12), Qt::AlignRight | Qt::AlignVCenter, QStringLiteral("15.9cm"));
+
+        // Small blue indent markers at left/right bottom edge
+        p.setBrush(QColor("#2563EB"));
+        p.setPen(Qt::NoPen);
+        QPolygonF leftM;
+        leftM << QPointF(1, height() - 7) << QPointF(7, height() - 7) << QPointF(4, height() - 2);
+        p.drawPolygon(leftM);
+        QPolygonF rightM;
+        rightM << QPointF(w - 7, height() - 7) << QPointF(w - 1, height() - 7) << QPointF(w - 4, height() - 2);
+        p.drawPolygon(rightM);
+    }
+};
+
+class A4PaperWidget : public QFrame {
+public:
+    explicit A4PaperWidget(QWidget* parent = nullptr) : QFrame(parent) {}
+
+    void setMarginsPx(int mx, int my) {
+        mx_ = mx;
+        my_ = my;
+        update();
+    }
+
+protected:
+    void paintEvent(QPaintEvent* e) override {
+        QFrame::paintEvent(e);
+        QPainter p(this);
+        p.setPen(QPen(QColor("#CBD5E1"), 1.1));
+        const int x0 = std::max(16, mx_ - 12);
+        const int x1 = std::min(width() - 16, width() - mx_ + 12);
+        const int y0 = std::max(14, my_ - 8);
+        const int y1 = std::min(height() - 14, height() - my_ + 8);
+        const int arm = 12;
+        // 4 L-shaped Word crop marks
+        p.drawLine(x0, y0, x0 - arm, y0); p.drawLine(x0, y0, x0, y0 - arm);
+        p.drawLine(x1, y0, x1 + arm, y0); p.drawLine(x1, y0, x1, y0 - arm);
+        p.drawLine(x0, y1, x0 - arm, y1); p.drawLine(x0, y1, x0, y1 + arm);
+        p.drawLine(x1, y1, x1 + arm, y1); p.drawLine(x1, y1, x1, y1 + arm);
+    }
+
+private:
+    int mx_ = 64, my_ = 36;
 };
 
 } // namespace omni::qt
