@@ -10,16 +10,16 @@
 ## 界面预览
 
 ### 1. 3D 魔方英语词库与双语例句工作台
-![3D 魔方英语词库工作台](images/english_cube.jpg)
+![3D 魔方英语词库工作台](images/english_cube.png)
 
 ### 2. 长文应用与真题阅读在线练习
-![长文应用与真题阅读练习](images/english_reading.jpg)
+![长文应用与真题阅读练习](images/english_reading.png)
 
 ### 3. 横向 Wi-Fi 知识库与侧栏 Word A4 互通编辑器
 ![本地知识库与侧栏 Word A4 编辑器](images/knowledge_vault.png)
 
 ### 4. C/C++ 数据结构与算法工作台（Ch0–13 全课程 + 彩色语法高亮练习框）
-![C++ 数据结构与算法工作台](images/cpp_ds_workspace.jpg)
+![C++ 数据结构与算法工作台](images/cpp_ds_workspace.png)
 
 ## 核心模块
 
