@@ -9,14 +9,17 @@
 
 ## 界面预览
 
-### 1. 3D 魔方英语词库与长文真题工作台
-![3D 魔方英语工作台](images/english_cube.jpg)
+### 1. 3D 魔方英语词库与双语例句工作台
+![3D 魔方英语词库工作台](images/english_cube.jpg)
 
-### 2. 横向 Wi-Fi 知识库与 WPS 排版互通编辑器
-![本地知识库与 WPS 排版编辑器](images/knowledge_vault.jpg)
+### 2. 长文应用与真题阅读在线练习
+![长文应用与真题阅读练习](images/english_reading.jpg)
 
-### 3. C++ 数据结构与算法工作台（《算法笔记》Ch0–13 全课程 + 在线编译评测）
-![C++ 数据结构与算法工作台](images/cpp_ds_workspace.png)
+### 3. 横向 Wi-Fi 知识库与侧栏 Word A4 互通编辑器
+![本地知识库与侧栏 Word A4 编辑器](images/knowledge_vault.png)
+
+### 4. C/C++ 数据结构与算法工作台（Ch0–13 全课程 + 彩色语法高亮练习框）
+![C++ 数据结构与算法工作台](images/cpp_ds_workspace.jpg)
 
 ## 核心模块
 
@@ -69,3 +72,10 @@ make windows
 cmake -B build-qt -DENABLE_QT6=ON
 cmake --build build-qt
 ```
+
+---
+
+## 安全协议与开源许可
+
+- **安全与合规使用协议**：详见 [`SECURITY.md`](SECURITY.md)。本项目默认仅绑定 `127.0.0.1` 本地使用，**严禁暴露到公网、严禁二次打包植入恶意代码或用于任何非法用途**；如发现安全漏洞请通过 GitHub Security Advisory 私密反馈，勿在公开 Issue 披露利用方式。
+- **开源许可证**：本项目基于 [`LICENSE`](LICENSE)（MIT License）开源，按“现状（AS-IS）”提供，再分发与二次开发须保留原始版权及许可声明。
